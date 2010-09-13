@@ -80,10 +80,10 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 import gov.nasa.jpf.symbc.numeric.MinMax;
-import gov.nasa.jpf.symbc.numeric.solver.ProblemCVC3;
-import gov.nasa.jpf.symbc.numeric.solver.ProblemCVC3BitVector;
-import gov.nasa.jpf.symbc.numeric.solver.ProblemChoco;
-import gov.nasa.jpf.symbc.numeric.solver.ProblemIAsolver;
+import gov.nasa.jpf.symbc.numeric.solvers.ProblemCVC3;
+import gov.nasa.jpf.symbc.numeric.solvers.ProblemCVC3BitVector;
+import gov.nasa.jpf.symbc.numeric.solvers.ProblemChoco;
+import gov.nasa.jpf.symbc.numeric.solvers.ProblemIAsolver;
 
 public class SymbolicListener extends PropertyListenerAdapter implements PublisherExtension {
 
@@ -102,39 +102,39 @@ public class SymbolicListener extends PropertyListenerAdapter implements Publish
 	}
 
 	//Writes the method summaries to a file for use in another application
-	private void writeTable(){
-	  try {
-	        BufferedWriter out = new BufferedWriter(new FileWriter("outFile.txt"));
-		    Iterator it = allSummaries.entrySet().iterator();
-		    String line = "";
-		    while (it.hasNext()){
-		    	Map.Entry me = (Map.Entry)it.next();
-		    	String methodName = (String)me.getKey();
-		    	MethodSummary ms = (MethodSummary)me.getValue();
-		    	line = "METHOD: " + methodName + "," +
-		    		ms.getMethodName() + "(" + ms.getArgValues() + ")," +
-		    		ms.getMethodName() + "(" + ms.getSymValues() + ")";
-		    	out.write(line);
-		    	out.newLine();
-		    	Vector<Pair> pathConditions = ms.getPathConditions();
-				  if (pathConditions.size() > 0){
-					  Iterator it2 = pathConditions.iterator();
-					  while(it2.hasNext()){
-						  Pair pcPair = (Pair)it2.next();
-						  String pc = (String)pcPair.a;
-						  String errorMessage = (String)pcPair.b;
-						  line = pc;
-						  if (!errorMessage.equalsIgnoreCase(""))
-							  line = line + "$" + errorMessage;
-						  out.write(line);
-						  out.newLine();
-					  }
-				  }
-		    }
-	        out.close();
-	    } catch (Exception e) {
-	    }
-	}
+//	private void writeTable(){
+//	  try {
+//	        BufferedWriter out = new BufferedWriter(new FileWriter("outFile.txt"));
+//		    Iterator it = allSummaries.entrySet().iterator();
+//		    String line = "";
+//		    while (it.hasNext()){
+//		    	Map.Entry me = (Map.Entry)it.next();
+//		    	String methodName = (String)me.getKey();
+//		    	MethodSummary ms = (MethodSummary)me.getValue();
+//		    	line = "METHOD: " + methodName + "," +
+//		    		ms.getMethodName() + "(" + ms.getArgValues() + ")," +
+//		    		ms.getMethodName() + "(" + ms.getSymValues() + ")";
+//		    	out.write(line);
+//		    	out.newLine();
+//		    	Vector<Pair> pathConditions = ms.getPathConditions();
+//				  if (pathConditions.size() > 0){
+//					  Iterator it2 = pathConditions.iterator();
+//					  while(it2.hasNext()){
+//						  Pair pcPair = (Pair)it2.next();
+//						  String pc = (String)pcPair.a;
+//						  String errorMessage = (String)pcPair.b;
+//						  line = pc;
+//						  if (!errorMessage.equalsIgnoreCase(""))
+//							  line = line + "$" + errorMessage;
+//						  out.write(line);
+//						  out.newLine();
+//					  }
+//				  }
+//		    }
+//	        out.close();
+//	    } catch (Exception e) {
+//	    }
+//	}
 
 	//not yet tested
 	public void propertyViolated (Search search){
@@ -420,7 +420,7 @@ public class SymbolicListener extends PropertyListenerAdapter implements Publish
 	   * Save the method summaries to a file for use by others
 	   */
 	  public void searchFinished(Search search) {
-		  writeTable();
+		  //writeTable();
 	  }
 
 	  /*
@@ -430,11 +430,7 @@ public class SymbolicListener extends PropertyListenerAdapter implements Publish
 
 	  //TODO:  needs to be changed not to use String representations
 	  private void printMethodSummary(PrintWriter pw, MethodSummary methodSummary){
-		  System.out.println("###################################");
-		  System.out.println("# PCs " +MinMax.Debug_no_path_constraints);
-		  System.out.println("# PCs sat " +MinMax.Debug_no_path_constraints_sat);
-		  System.out.println("# PCs unsat " +MinMax.Debug_no_path_constraints_unsat);
-		  System.out.println("###################################");
+
 
 		  System.out.println("Symbolic values: " +methodSummary.getSymValues());
 		  Vector<Pair> pathConditions = methodSummary.getPathConditions();

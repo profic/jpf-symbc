@@ -20,22 +20,26 @@
 package gov.nasa.jpf.symbc.numeric;
 
 import gov.nasa.jpf.symbc.SymbolicInstructionFactory;
-import gov.nasa.jpf.symbc.numeric.solver.DebugSolvers;
-import gov.nasa.jpf.symbc.numeric.solver.ProblemCVC3;
-import gov.nasa.jpf.symbc.numeric.solver.ProblemCVC3BitVector;
-import gov.nasa.jpf.symbc.numeric.solver.ProblemChoco;
-import gov.nasa.jpf.symbc.numeric.solver.ProblemChoco2;
-import gov.nasa.jpf.symbc.numeric.solver.ProblemCoral;
-import gov.nasa.jpf.symbc.numeric.solver.ProblemGeneral;
-import gov.nasa.jpf.symbc.numeric.solver.ProblemIAsolver;
-import gov.nasa.jpf.symbc.numeric.solver.ProblemYices;
+import gov.nasa.jpf.symbc.numeric.solvers.DebugSolvers;
+import gov.nasa.jpf.symbc.numeric.solvers.ProblemCVC3;
+import gov.nasa.jpf.symbc.numeric.solvers.ProblemCVC3BitVector;
+import gov.nasa.jpf.symbc.numeric.solvers.ProblemChoco;
+import gov.nasa.jpf.symbc.numeric.solvers.ProblemChoco2;
+import gov.nasa.jpf.symbc.numeric.solvers.ProblemCoral;
+import gov.nasa.jpf.symbc.numeric.solvers.ProblemGeneral;
+import gov.nasa.jpf.symbc.numeric.solvers.ProblemIAsolver;
+import gov.nasa.jpf.symbc.numeric.solvers.ProblemYices;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+
+import choco.integer.IntExp;
 
 // generalized to use different constraint solvers/decision procedures
 // Warning: should never use / modify the types from pb:
@@ -47,6 +51,7 @@ public class SymbolicConstraintsGeneral {
 	  Map<SymbolicInteger,Object>	symIntegerVar; // a map between symbolic variables and DP variables
 	  Boolean result; // tells whether result is satisfiable or not
 	  boolean bitVec = false; //tells whether we are running in the bit vector mode
+	  private static int tempVars = 0; //Used for choco to construct "or" clauses
 
 
 	  //	 Converts IntegerExpression's into DP's IntExp's
@@ -425,6 +430,222 @@ public class SymbolicConstraintsGeneral {
 		return true;
 	}
 
+	//Added by Gideon, to handle CNF style constraints
+	boolean createDPLinearOrIntegerConstraint (LinearOrIntegerConstraints c) {
+		List<Object> orList = new ArrayList<Object>();
+		ProblemChoco pc_pb = (ProblemChoco) pb;
+
+		for (LinearIntegerConstraint cRef: c.getList()) {
+			Comparator c_compRef = cRef.getComparator();
+			IntegerExpression c_leftRef = (IntegerExpression)cRef.getLeft();
+			IntegerExpression c_rightRef = (IntegerExpression)cRef.getRight();
+			//Removed all return false
+			switch(c_compRef){
+			case EQ:
+				if (c_leftRef instanceof IntegerConstant && c_rightRef instanceof IntegerConstant) {
+					if (!(((IntegerConstant) c_leftRef).value == ((IntegerConstant) c_rightRef).value)) {
+						//return false;
+					}
+					else
+						return true;
+				}
+				else if (c_leftRef instanceof IntegerConstant) {
+					IntExp part1 = (IntExp) getExpression(c_rightRef);
+					Object tempVar = pb.makeIntVar("mytemp" + tempVars, MinMax.MININT, MinMax.MAXINT); tempVars++;
+					pb.post(pb.eq(tempVar, part1));
+					choco.Constraint cc = (choco.Constraint) pb.eq(((IntegerConstant)c_leftRef).value, tempVar);
+					orList.add(cc);
+				}
+				else if (c_rightRef instanceof IntegerConstant) {
+					IntExp part1 = (IntExp) getExpression(c_leftRef);
+					Object tempVar = pb.makeIntVar("mytemp" + tempVars, MinMax.MININT, MinMax.MAXINT);
+					pb.post(pb.eq(tempVar, part1)); tempVars++;
+					orList.add(pb.eq(tempVar,((IntegerConstant)c_rightRef).value));
+				}
+				else {
+					IntExp part1 = (IntExp) getExpression(c_leftRef);
+					IntExp part2 = (IntExp) getExpression(c_rightRef);
+					Object tempVar1 = pb.makeIntVar("mytemp" + tempVars, MinMax.MININT, MinMax.MAXINT); tempVars++;
+					Object tempVar2 = pb.makeIntVar("mytemp" + tempVars, MinMax.MININT, MinMax.MAXINT); tempVars++;
+					pb.post(pb.eq(tempVar1, part1));
+					pb.post(pb.eq(tempVar2, part2));
+					orList.add(pb.eq(tempVar1,tempVar2));
+				}
+				break;
+			case NE:
+				if (c_leftRef instanceof IntegerConstant && c_rightRef instanceof IntegerConstant) {
+					if (!(((IntegerConstant) c_leftRef).value != ((IntegerConstant) c_rightRef).value)) {
+						//return false;
+					}
+					else
+						return true;
+				}
+				else if (c_leftRef instanceof IntegerConstant) {
+					IntExp part1 = (IntExp) getExpression(c_rightRef);
+					Object tempVar = pb.makeIntVar("mytemp" + tempVars, MinMax.MININT, MinMax.MAXINT); tempVars++;
+					pb.post(pb.eq(tempVar, part1));
+					choco.Constraint cc = (choco.Constraint) pb.neq(((IntegerConstant)c_leftRef).value, tempVar);
+					orList.add(cc);
+				}
+				else if (c_rightRef instanceof IntegerConstant) {
+					IntExp part1 = (IntExp) getExpression(c_leftRef);
+					Object tempVar = pb.makeIntVar("mytemp" + tempVars, MinMax.MININT, MinMax.MAXINT);
+					pb.post(pb.eq(tempVar, part1)); tempVars++;
+					orList.add(pb.neq(tempVar,((IntegerConstant)c_rightRef).value));
+				}
+				else {
+					IntExp part1 = (IntExp) getExpression(c_leftRef);
+					IntExp part2 = (IntExp) getExpression(c_rightRef);
+					Object tempVar1 = pb.makeIntVar("mytemp" + tempVars, MinMax.MININT, MinMax.MAXINT); tempVars++;
+					Object tempVar2 = pb.makeIntVar("mytemp" + tempVars, MinMax.MININT, MinMax.MAXINT); tempVars++;
+					pb.post(pb.eq(tempVar1, part1));
+					pb.post(pb.eq(tempVar2, part2));
+					orList.add(pb.neq(tempVar1,tempVar2));
+				}
+				break;
+			case LT:
+				if (c_leftRef instanceof IntegerConstant && c_rightRef instanceof IntegerConstant) {
+					if (!(((IntegerConstant) c_leftRef).value < ((IntegerConstant) c_rightRef).value)) {
+						//return false;
+					}
+					else
+						return true;
+				}
+				else if (c_leftRef instanceof IntegerConstant) {
+					IntExp part1 = (IntExp) getExpression(c_rightRef);
+					Object tempVar = pb.makeIntVar("mytemp" + tempVars, MinMax.MININT, MinMax.MAXINT); tempVars++;
+					pb.post(pb.eq(tempVar, part1));
+					choco.Constraint cc = (choco.Constraint) pb.lt(((IntegerConstant)c_leftRef).value, tempVar);
+					orList.add(cc);
+				}
+				else if (c_rightRef instanceof IntegerConstant) {
+					IntExp part1 = (IntExp) getExpression(c_leftRef);
+					Object tempVar = pb.makeIntVar("mytemp" + tempVars, MinMax.MININT, MinMax.MAXINT);
+					pb.post(pb.eq(tempVar, part1)); tempVars++;
+					orList.add(pb.lt(tempVar,((IntegerConstant)c_rightRef).value));
+				}
+				else {
+					IntExp part1 = (IntExp) getExpression(c_leftRef);
+					IntExp part2 = (IntExp) getExpression(c_rightRef);
+					Object tempVar1 = pb.makeIntVar("mytemp" + tempVars, MinMax.MININT, MinMax.MAXINT); tempVars++;
+					Object tempVar2 = pb.makeIntVar("mytemp" + tempVars, MinMax.MININT, MinMax.MAXINT); tempVars++;
+					pb.post(pb.eq(tempVar1, part1));
+					pb.post(pb.eq(tempVar2, part2));
+					orList.add(pb.lt(tempVar1,tempVar2));
+				}
+				break;
+			case GE:
+				if (c_leftRef instanceof IntegerConstant && c_rightRef instanceof IntegerConstant) {
+					if (!(((IntegerConstant) c_leftRef).value >= ((IntegerConstant) c_rightRef).value)) {
+						//return false;
+					}
+					else
+						return true;
+				}
+				else if (c_leftRef instanceof IntegerConstant) {
+					IntExp part1 = (IntExp) getExpression(c_rightRef);
+					Object tempVar = pb.makeIntVar("mytemp" + tempVars, MinMax.MININT, MinMax.MAXINT); tempVars++;
+					pb.post(pb.eq(tempVar, part1));
+					choco.Constraint cc = (choco.Constraint) pb.geq(((IntegerConstant)c_leftRef).value, tempVar);
+					orList.add(cc);
+				}
+				else if (c_rightRef instanceof IntegerConstant) {
+					IntExp part1 = (IntExp) getExpression(c_leftRef);
+					Object tempVar = pb.makeIntVar("mytemp" + tempVars, MinMax.MININT, MinMax.MAXINT);
+					pb.post(pb.eq(tempVar, part1)); tempVars++;
+					orList.add(pb.geq(tempVar,((IntegerConstant)c_rightRef).value));
+				}
+				else {
+					IntExp part1 = (IntExp) getExpression(c_leftRef);
+					IntExp part2 = (IntExp) getExpression(c_rightRef);
+					Object tempVar1 = pb.makeIntVar("mytemp" + tempVars, MinMax.MININT, MinMax.MAXINT); tempVars++;
+					Object tempVar2 = pb.makeIntVar("mytemp" + tempVars, MinMax.MININT, MinMax.MAXINT); tempVars++;
+					pb.post(pb.eq(tempVar1, part1));
+					pb.post(pb.eq(tempVar2, part2));
+					orList.add(pb.geq(tempVar1,tempVar2));
+				}
+				break;
+			case LE:
+				if (c_leftRef instanceof IntegerConstant && c_rightRef instanceof IntegerConstant) {
+					if (!(((IntegerConstant) c_leftRef).value <= ((IntegerConstant) c_rightRef).value)) {
+						//return false;
+					}
+					else
+						return true;
+				}
+				else if (c_leftRef instanceof IntegerConstant) {
+					IntExp part1 = (IntExp) getExpression(c_rightRef);
+					Object tempVar = pb.makeIntVar("mytemp" + tempVars, MinMax.MININT, MinMax.MAXINT); tempVars++;
+					pb.post(pb.eq(tempVar, part1));
+					choco.Constraint cc = (choco.Constraint) pb.leq(((IntegerConstant)c_leftRef).value, tempVar);
+					orList.add(cc);
+				}
+				else if (c_rightRef instanceof IntegerConstant) {
+					IntExp part1 = (IntExp) getExpression(c_leftRef);
+					Object tempVar = pb.makeIntVar("mytemp" + tempVars, MinMax.MININT, MinMax.MAXINT);
+					pb.post(pb.eq(tempVar, part1)); tempVars++;
+					orList.add(pb.leq(tempVar,((IntegerConstant)c_rightRef).value));
+				}
+				else {
+					IntExp part1 = (IntExp) getExpression(c_leftRef);
+					IntExp part2 = (IntExp) getExpression(c_rightRef);
+					Object tempVar1 = pb.makeIntVar("mytemp" + tempVars, MinMax.MININT, MinMax.MAXINT); tempVars++;
+					Object tempVar2 = pb.makeIntVar("mytemp" + tempVars, MinMax.MININT, MinMax.MAXINT); tempVars++;
+					pb.post(pb.eq(tempVar1, part1));
+					pb.post(pb.eq(tempVar2, part2));
+					orList.add(pb.leq(tempVar1,tempVar2));
+				}
+				break;
+			case GT:
+				if (c_leftRef instanceof IntegerConstant && c_rightRef instanceof IntegerConstant) {
+					if (!(((IntegerConstant) c_leftRef).value > ((IntegerConstant) c_rightRef).value)) {
+						//return false;
+					}
+					else
+						return true;
+				}
+				else if (c_leftRef instanceof IntegerConstant) {
+					IntExp part1 = (IntExp) getExpression(c_rightRef);
+					Object tempVar = pb.makeIntVar("mytemp" + tempVars, MinMax.MININT, MinMax.MAXINT); tempVars++;
+					pb.post(pb.eq(tempVar, part1));
+					choco.Constraint cc = (choco.Constraint) pb.gt(((IntegerConstant)c_leftRef).value, tempVar);
+					orList.add(cc);
+				}
+				else if (c_rightRef instanceof IntegerConstant) {
+					IntExp part1 = (IntExp) getExpression(c_leftRef);
+					Object tempVar = pb.makeIntVar("mytemp" + tempVars, MinMax.MININT, MinMax.MAXINT);
+					pb.post(pb.eq(tempVar, part1)); tempVars++;
+					orList.add(pb.gt(tempVar,((IntegerConstant)c_rightRef).value));
+				}
+				else {
+					IntExp part1 = (IntExp) getExpression(c_leftRef);
+					IntExp part2 = (IntExp) getExpression(c_rightRef);
+					Object tempVar1 = pb.makeIntVar("mytemp" + tempVars, MinMax.MININT, MinMax.MAXINT); tempVars++;
+					Object tempVar2 = pb.makeIntVar("mytemp" + tempVars, MinMax.MININT, MinMax.MAXINT); tempVars++;
+					pb.post(pb.eq(tempVar1, part1));
+					pb.post(pb.eq(tempVar2, part2));
+					orList.add(pb.gt(tempVar1,tempVar2));
+				}
+				break;
+			}
+		}
+		//System.out.println("[SymbolicConstraintsGeneral] orList: " + orList.toString());
+		if (orList.size() == 0) return true;
+		choco.Constraint array[] = new choco.Constraint[orList.size()];
+		orList.toArray(array);
+		Object orCon = pc_pb.logicOr(array);
+		choco.Constraint temp = (choco.Constraint) orCon;
+		//System.out.println("[SymbolicConstraintsGeneral] orCon: " + temp);
+		pc_pb.post(orCon);
+		/*Boolean result = pc_pb.solve();
+		if (result != null) {
+			boolean resultboo = (boolean) result;
+			System.out.println("[SymbolicConstraintsGeneral] pc_pb = " + resultboo);
+		}*/
+		return true;
+
+	}
+
 	boolean createDPLinearIntegerConstraint(LinearIntegerConstraint cRef) {
 
 		Comparator c_compRef = cRef.getComparator();
@@ -534,9 +755,13 @@ public class SymbolicConstraintsGeneral {
 	}
 
 	public boolean isSatisfiable(PathCondition pc) {
+		if (pc == null || pc.count == 0) {
+			System.out.println("## Warning: empty path condition");
+			return true;
+		}
 
-		if (SymbolicInstructionFactory.debugMode)
-			System.out.println("isSatisfiable: PC "+pc);
+//		if (SymbolicInstructionFactory.debugMode)
+//			System.out.println("checking: PC "+pc);
 
 		String[] dp = SymbolicInstructionFactory.dp;
 		if(dp == null) { // default: use choco
@@ -576,10 +801,7 @@ public class SymbolicConstraintsGeneral {
 		symIntegerVar = new HashMap<SymbolicInteger,Object>();
 		//result = null;
 
-		if (pc == null) {
-			System.out.println("## Warning: empty path condition");
-			return true;
-		}
+
 
 		Constraint cRef = pc.header;
 
@@ -593,6 +815,14 @@ public class SymbolicConstraintsGeneral {
 			else if (cRef instanceof MixedConstraint)
 				// System.out.println("Mixed Constraint");
 				constraintResult= createDPMixedConstraint((MixedConstraint)cRef);
+			else if (cRef instanceof LinearOrIntegerConstraints) {
+				if (!(pb instanceof ProblemChoco)) {
+					throw new RuntimeException ("String solving only works with Choco for now");
+				}
+				//System.out.println("[SymbolicConstraintsGeneral] reached");
+				constraintResult= createDPLinearOrIntegerConstraint((LinearOrIntegerConstraints)cRef);
+
+			}
 			else
 				throw new RuntimeException("## Error: Non Linear Integer Constraint not handled " + cRef);
 
@@ -622,11 +852,19 @@ public class SymbolicConstraintsGeneral {
 	}
 
 
-
+   public void cleanup () {
+	   if(pb instanceof ProblemCVC3) {
+		   ((ProblemCVC3) pb).cleanup();
+	   }
+   }
 
 
 	public void solve(PathCondition pc) {
-		if (pc == null || pc.header == null) return;
+		if (SymbolicInstructionFactory.debugMode)
+			System.out.println("solving: PC " + pc);
+
+		if (pc == null || pc.count == 0) return;
+
 		String[] dp = SymbolicInstructionFactory.dp;
 		if (dp[0].equalsIgnoreCase("no_solver"))
 			return;
@@ -718,6 +956,7 @@ public class SymbolicConstraintsGeneral {
 					System.err.println("# Warning: PC "+pc.stringPC()+" is solvable but could not find the solution!");
 			} // end catch
 */
+			cleanup();
 		}
 
 		}
