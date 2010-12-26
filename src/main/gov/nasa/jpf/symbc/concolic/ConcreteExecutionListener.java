@@ -1,0 +1,173 @@
+package gov.nasa.jpf.symbc.concolic;
+
+
+import gov.nasa.jpf.Config;
+import gov.nasa.jpf.JPF;
+import gov.nasa.jpf.PropertyListenerAdapter;
+import gov.nasa.jpf.jvm.AnnotationInfo;
+import gov.nasa.jpf.jvm.JVM;
+import gov.nasa.jpf.jvm.MethodInfo;
+import gov.nasa.jpf.jvm.StackFrame;
+import gov.nasa.jpf.jvm.ThreadInfo;
+import gov.nasa.jpf.jvm.bytecode.Instruction;
+import gov.nasa.jpf.jvm.bytecode.InvokeInstruction;
+import gov.nasa.jpf.report.ConsolePublisher;
+import gov.nasa.jpf.symbc.numeric.Expression;
+import gov.nasa.jpf.symbc.numeric.IntegerConstant;
+import gov.nasa.jpf.symbc.numeric.RealConstant;
+
+public class ConcreteExecutionListener extends PropertyListenerAdapter {
+
+	Config config;
+	public static boolean debug = false;
+	long ret;
+	Object resultAttr; 
+	
+	public enum type {
+		INT, DOUBLE, FLOAT, BYTE, 
+		SHORT, LONG, BOOLEAN, CHAR
+	}
+	
+	public ConcreteExecutionListener(Config conf, JPF jpf) {
+		jpf.addPublisherExtension(ConsolePublisher.class, this);
+		this.config = conf;
+	}
+	
+	public void instructionExecuted(JVM vm) {
+		Instruction lastInsn =  vm.getLastInstruction();
+		MethodInfo mi = vm.getCurrentThread().getMethod();
+		if(lastInsn != null && lastInsn instanceof InvokeInstruction) {
+			boolean foundAnote = checkConcreteAnnotation(mi);
+			if(foundAnote) {
+				
+				//System.out.println(lastInsn.getSourceLine() + "srcLine");
+				ThreadInfo ti = vm.getCurrentThread();
+				//ti.setReturnValue(0);
+				
+				StackFrame sf = ti.popFrame();
+				generateFunctionExpression(mi, (InvokeInstruction) lastInsn, ti);
+				
+				
+				Instruction nextIns = sf.getPC().getNext();
+				//System.out.println(nextIns.getSourceLine());
+				
+			    vm.getCurrentThread().skipInstruction();
+			    vm.getCurrentThread().setNextPC(nextIns);
+			
+				
+			}
+		}
+	}
+
+	private boolean checkConcreteAnnotation(MethodInfo mi) {
+		AnnotationInfo[] ai = mi.getAnnotations();
+		if(ai == null || ai.length == 0)  return false;
+		for(int aIndex = 0; aIndex < ai.length; aIndex++) {
+			AnnotationInfo annotation = ai[aIndex];
+			if(annotation.getName().equals
+							("gov.nasa.jpf.symbc.Concrete")) {
+				if(annotation.valueAsString().
+									equalsIgnoreCase("true"))
+					return true;
+				else 
+					return false;
+			}
+		}
+		return false;
+	}
+	
+	private void generateFunctionExpression(MethodInfo mi, InvokeInstruction ivk,
+			ThreadInfo ti){
+		
+		Object [] attrs = ivk.getArgumentAttrs(ti);
+		Object [] values = ivk.getArgumentValues(ti);
+		String [] types = mi.getArgumentTypeNames();
+		
+		assert (attrs != null);
+		
+		assert (attrs.length == values.length && 
+						values.length == types.length);
+		int size = attrs.length;
+		
+		Class<?>[] args_type = new Class<?> [size];
+		Expression[] sym_args = new Expression[size];
+		
+		for(int argIndex = 0; argIndex < size; argIndex++) {
+			Object attribute = attrs[argIndex];
+			if(attribute == null) {
+				sym_args[argIndex] = this.generateConstant(
+								types[argIndex], 
+								values[argIndex]);
+			} else {
+				sym_args[argIndex] = (Expression) attribute;
+			}
+			args_type[argIndex] = checkArgumentTypes(types[argIndex]);
+		}
+		//System.out.println("In the generate function expression" + mi.getClassName());
+		
+		FunctionExpression result = new FunctionExpression(
+				  mi.getClassName(),
+				  mi.getName(), args_type, sym_args);
+		//System.out.println("result is :" + result.toString());
+		checkReturnType(ti, mi, result);
+	}
+	
+	
+	private void checkReturnType(ThreadInfo ti, MethodInfo mi, Object resultAttr) {
+		String retTypeName = mi.getReturnTypeName();
+		ti.removeArguments(mi);
+		if(retTypeName.equals("double") || retTypeName.equals("long")) {
+			ti.longPush(0);
+			ti.setLongOperandAttr(resultAttr);
+		} else {
+			ti.push(0);
+			ti.setOperandAttr(resultAttr);
+		}
+	}
+	
+	private Class<?> checkArgumentTypes(String typeVal) {
+		if(typeVal.equals("int")) {
+			return Integer.TYPE; 
+		} else if (typeVal.equals("double")) {
+			return Double.TYPE;
+		} else if (typeVal.equals("float")) {
+			return Float.TYPE;
+		} else if (typeVal.equals("long")) {
+			return Long.TYPE;
+		} else if (typeVal.equals("short")) {
+			return Short.TYPE;
+		}  else if (typeVal.equals("boolean")) {
+			return Boolean.TYPE;
+		} else {
+			throw new RuntimeException("the type not handled :" + typeVal);
+		}
+	}
+	
+	private Expression generateConstant(String typeVal, Object value) {
+		if(typeVal.equals("int")) {
+			return new IntegerConstant(Integer.parseInt
+					(value.toString()));
+		} else if (typeVal.equals("double")) {
+			return new RealConstant(Double.parseDouble
+					(value.toString()));
+		} else if (typeVal.equals("float")) {
+			return new RealConstant(Float.parseFloat
+					(value.toString()));
+		} else if (typeVal.equals("long")) {
+			return new IntegerConstant((int) Long.parseLong
+					(value.toString()));
+		} else if (typeVal.equals("short")) {
+			return new IntegerConstant((int) Short.parseShort
+					(value.toString()));
+		} else if (typeVal.equals("boolean")) {
+			if(value.toString().equals("true")) {
+				return new IntegerConstant(1);
+			} else {
+				return new IntegerConstant(0);
+			}
+		} else {
+			throw new RuntimeException("the type not handled :" + typeVal);
+		}
+	}
+	
+}
