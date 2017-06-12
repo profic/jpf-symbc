@@ -41,7 +41,7 @@ public class TestBitwiseAND1 {
 	
 	public void test(int x, int y) {
 		int z = x & y;
-		if(z >= 1) {
+		if (z >= 1) {
 			System.out.println("z is greater than equal to one");
 		} else {
 			System.out.println("z is less than one");
@@ -53,7 +53,5 @@ public class TestBitwiseAND1 {
 		int y = 1;
 		TestBitwiseAND1 testAND1 = new TestBitwiseAND1();
 		testAND1.test(x,y);
-		
 	}
-
 }

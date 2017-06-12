@@ -83,9 +83,4 @@ public class sequences_StackTest extends TestJPF {
 		sequences_stack.pop(-2147483606);
 		//should lead to ##EXCEPTION## "java.lang.RuntimeException: empty stack..."
 	}
-
-	@Test
-	public void test9() {
-		sequences_stack.pop(-2147483606);
-	}
 }

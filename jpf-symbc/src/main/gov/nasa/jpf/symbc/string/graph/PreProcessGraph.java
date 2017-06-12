@@ -60,7 +60,7 @@ public class PreProcessGraph {
 		
 		scg = new SymbolicConstraintsGeneral();
 		
-		if(!scg.isSatisfiable(pathCondition)) {logger.info("unsat here");};
+		if (!scg.isSatisfiable(pathCondition)) {logger.info("unsat here");};
 		
 		if (!handleEquality(stringGraph, pathCondition)) {
 			//println ("handleEquality returned false");

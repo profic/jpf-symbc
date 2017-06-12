@@ -41,7 +41,7 @@ public class TestBitwiseLOR {
 	
 	public void test(long x, long y) {
 		long z = x | y;
-		if(z == 0) {
+		if (z == 0) {
 			System.out.println("Branch one");
 		} else {
 			System.out.println("Branch two");

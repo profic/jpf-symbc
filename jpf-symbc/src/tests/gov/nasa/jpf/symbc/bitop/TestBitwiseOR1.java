@@ -41,7 +41,7 @@ public class TestBitwiseOR1 {
 	
 	public void test(int x, int y) {
 		int z = x | y;
-		if(z == 1) {
+		if (z == 1) {
 			System.out.println("z is equal to one");
 		} else {
 			System.out.println("z is not equal one");

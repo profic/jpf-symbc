@@ -42,8 +42,7 @@ import gov.nasa.jpf.symbc.SymbolicInstructionFactory;
 import java.util.Map;
 import java.util.Random;
 
-public class SymbolicInteger extends LinearIntegerExpression
-{
+public class SymbolicInteger extends LinearIntegerExpression {
 	public static long UNDEFINED = 0;
 	public long _min = 0;
 	public long _max = 0;

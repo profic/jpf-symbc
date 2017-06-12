@@ -21,7 +21,7 @@ package gov.nasa.jpf.symbc.string;
 import gov.nasa.jpf.symbc.numeric.IntegerExpression;
 import gov.nasa.jpf.symbc.numeric.SymbolicInteger;
 
-public class SymbolicIndexOf2Integer extends SymbolicInteger{
+public class SymbolicIndexOf2Integer extends SymbolicInteger {
 	StringExpression source, expression;
 	IntegerExpression minIndex;
 	

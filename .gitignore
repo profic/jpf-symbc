@@ -1,5 +1,5 @@
-.DS_Store
+*.DS_Store
 *.jar
 jpf-symbc/build
 jpf-core/build
-
+jpf-core/eclipse

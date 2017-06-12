@@ -41,7 +41,7 @@ public class TestBitwiseXOR {
 	
 	public void test(int x, int y) {
 		int z = x ^ y;
-		if(z < 1) {
+		if (z < 1) {
 			System.out.println("z is less than 1");
 		} else {
 			System.out.println("z is greater than equal to one");
@@ -53,6 +53,5 @@ public class TestBitwiseXOR {
 		int y = 1;
 		TestBitwiseXOR testXOR = new TestBitwiseXOR();
 		testXOR.test(x, y);
-		
 	}
 }

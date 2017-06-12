@@ -121,7 +121,8 @@ public abstract class StringExpression extends Expression {
 	    }
 	    Set<SymbolicIndexOf2Integer> sioiSet = indexOf2.get(exp);
 	    //-1 Should make our lifes much easier
-	    SymbolicIndexOf2Integer sioi = new SymbolicIndexOf2Integer("IndexOf2_" + lengthcount + "_", -1, PreProcessGraph.MAXIMUM_LENGTH, this, exp, ie);
+	    SymbolicIndexOf2Integer sioi = new SymbolicIndexOf2Integer(
+	    		"IndexOf2_" + lengthcount + "_", -1, PreProcessGraph.MAXIMUM_LENGTH, this, exp, ie);
 	    if (sioiSet == null) {
 	    	sioiSet = new HashSet<SymbolicIndexOf2Integer>();
 	    	sioiSet.add(sioi);

@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class EdgeIndexOf2 implements Edge{
+public class EdgeIndexOf2 implements Edge {
 	Vertex source, dest;
 	SymbolicIndexOf2Integer sioi;
 	String name;

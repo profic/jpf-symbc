@@ -41,7 +41,7 @@ public class TestBitwiseLAND {
 	
 	public void test(long x, long y) {
 		long z = x & y;
-		if(z == 0) {
+		if (z == 0) {
 			System.out.println("Branch one");
 		} else {
 			System.out.println("Branch two");
@@ -52,8 +52,7 @@ public class TestBitwiseLAND {
 		long x = 0;
 		long y = 1;
 		TestBitwiseLAND testLAND = new TestBitwiseLAND();
-		testLAND.test(x, y);
 		
+		testLAND.test(x, y);	
 	}
-
 }

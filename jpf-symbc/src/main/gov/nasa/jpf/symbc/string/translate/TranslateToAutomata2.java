@@ -542,7 +542,8 @@ public class TranslateToAutomata2 {
 	
 	private static boolean handleEdgeIndexOf (EdgeIndexOf e) {
 		LogicalORLinearIntegerConstraints loic = excludeVertecis(e);
-		loic.addToList(new LinearIntegerConstraint(e.getIndex(), Comparator.NE, new IntegerConstant(e.getIndex().solution())));
+		loic.addToList(new LinearIntegerConstraint(
+				e.getIndex(), Comparator.NE, new IntegerConstant(e.getIndex().solution())));
 		unsatStack1.add(loic);
 		
 		Automaton origSource = mapAutomaton.get(e.getSource());
@@ -620,8 +621,10 @@ public class TranslateToAutomata2 {
 
 	private static boolean handleEdgeIndexOf2 (EdgeIndexOf2 e) {
 		LogicalORLinearIntegerConstraints loic = excludeVertecis(e);
-		loic.addToList(new LinearIntegerConstraint(e.getIndex(), Comparator.NE, new IntegerConstant(e.getIndex().solution())));
-		loic.addToList(new LinearIntegerConstraint(e.getIndex().getMinIndex(), Comparator.NE, new IntegerConstant(e.getIndex().getMinIndex().solution())));
+		loic.addToList(new LinearIntegerConstraint(
+				e.getIndex(), Comparator.NE,new IntegerConstant(e.getIndex().solution())));
+		loic.addToList(new LinearIntegerConstraint(
+				e.getIndex().getMinIndex(), Comparator.NE, new IntegerConstant(e.getIndex().getMinIndex().solution())));
 		unsatStack1.add(loic);
 		
 		//println ("[handleEdgeIndexOf2] entered: " + e.getName());
