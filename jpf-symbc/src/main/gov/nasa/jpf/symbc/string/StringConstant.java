@@ -55,69 +55,73 @@ import gov.nasa.jpf.symbc.numeric.ConstraintExpressionVisitor;
 import java.util.Map;
 
 public class StringConstant extends StringExpression {
-	  public String value;
-	  public boolean reg = false; //Added flag to determine if the constant is used in a regular expression
+	private String value;
+	private boolean reg = false; // Added flag to determine if the constant is
+									// used in a regular expression
 
-	  public StringConstant(String s) {
-	    value = s;
-	  }
+	public StringConstant(String str) {
+		this.value = str;
+	}
 
-	  public StringConstant(String s, boolean reg) {
- 		  value = s;
- 		  this.reg = reg;
- 	  }
+	public StringConstant(String str, boolean reg) {
+		this.value = str;
+		this.reg = reg;
+	}
 
-	   public StringConstant clone() {
-		  String newVal = new String(this.value);
-		  return new StringConstant(newVal, this.reg);
-	  }
+	public String getValue() {
+		return this.value;
+	}
 
-	  public StringExpression _concat(String s) {
-	    return new StringConstant(value.concat(s));
-	  }
+	public StringConstant clone() {
+		String newVal = new String(this.value);
+		return new StringConstant(newVal, this.reg);
+	}
 
-	  public StringExpression _concat(StringExpression e) {
-	    if (e instanceof StringConstant) {
-	      return new StringConstant(value.concat(((StringConstant) e).value));
-	    } else {
-	      return super._concat(e);
-	    }
-	  }
+	public StringExpression _concat(String s) {
+		return new StringConstant(value.concat(s));
+	}
 
-	  public boolean equals(Object o) {
-	    if (!(o instanceof StringConstant)) {
-	      return false;
-	    }
-	    return value.equals(((StringConstant) o).value);
-	  }
+	public StringExpression _concat(StringExpression e) {
+		if (e instanceof StringConstant) {
+			return new StringConstant(value.concat(((StringConstant) e).value));
+		} else {
+			return super._concat(e);
+		}
+	}
 
-	  public String toString() {
-	    return "CONST_" + value ;
-	  }
+	public boolean equals(Object o) {
+		if (!(o instanceof StringConstant)) {
+			return false;
+		}
+		return value.equals(((StringConstant) o).value);
+	}
 
-	  public String stringPC() {
-	    return "CONST_" + value;
-	  }
+	public String toString() {
+		return "CONST_" + value;
+	}
 
-    public String getName() {
-      return "STRING_" + toString();
-    }
+	public String getStringPathCondition() {
+		return "CONST_" + value;
+	}
 
-	  public String value() {
-	    return value;
-	  }
+	public String getName() {
+		return "STRING_" + toString();
+	}
 
-	  public String solution() {
-	    return value;
-	  }
+	public String value() {
+		return value;
+	}
 
-	  public void getVarsVals(Map<String, Object> varsVals) {
-	  }
+	public String solution() {
+		return value;
+	}
+
+	public void getVarsVals(Map<String, Object> varsVals) {
+	}
 
 	@Override
 	public void accept(ConstraintExpressionVisitor visitor) {
 		visitor.preVisit(this);
 		visitor.postVisit(this);
 	}
-
 }

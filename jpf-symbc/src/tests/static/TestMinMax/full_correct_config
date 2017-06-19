@@ -1,0 +1,17 @@
+symbolic.min_byte = -128
+symbolic.max_byte = 127
+
+symbolic.min_short = -1
+symbolic.max_short = 234
+
+symbolic.min_int = -100
+symbolic.max_int = 100000
+
+symbolic.min_long = -30
+symbolic.max_long = 500
+
+symbolic.min_char = 0
+symbolic.max_char = 222
+
+symbolic.min_double = -200.0
+symbolic.max_double = 350.0

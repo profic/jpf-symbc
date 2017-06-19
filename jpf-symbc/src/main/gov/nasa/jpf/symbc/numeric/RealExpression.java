@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-
 //Copyright (C) 2005 United States Government as represented by the
 //Administrator of the National Aeronautics and Space Administration
 //(NASA).  All Rights Reserved.
@@ -37,73 +36,60 @@
 //implements real expressions
 package gov.nasa.jpf.symbc.numeric;
 
-//import java.util.*;
 import static gov.nasa.jpf.symbc.numeric.Operator.*;
 
 public abstract class RealExpression extends Expression {
 
-	public RealExpression _minus_reverse (double i) 
-	{
+	public RealExpression _minus_reverse(double i) {
 		return new BinaryRealExpression(new RealConstant(i), MINUS, this);
 	}
-	
-	public RealExpression _minus (double i) 
-	{
+
+	public RealExpression _minus(double i) {
 		return new BinaryRealExpression(this, MINUS, new RealConstant(i));
 	}
 
-	public RealExpression _minus (RealExpression e) 
-	{
+	public RealExpression _minus(RealExpression e) {
 		return new BinaryRealExpression(this, MINUS, e);
 	}
 
-	public RealExpression _mul (double i) 
-	{
+	public RealExpression _mul(double i) {
 		return new BinaryRealExpression(this, MUL, new RealConstant(i));
 	}
 
-	public RealExpression _mul (RealExpression e) 
-	{
+	public RealExpression _mul(RealExpression e) {
 		return new BinaryRealExpression(this, MUL, e);
 	}
 
-	public RealExpression _plus (double i) 
-	{
+	public RealExpression _plus(double i) {
 		return new BinaryRealExpression(this, PLUS, new RealConstant(i));
 	}
 
-	public RealExpression _plus (RealExpression e) 
-	{
+	public RealExpression _plus(RealExpression e) {
 		return new BinaryRealExpression(this, PLUS, e);
 	}
-	
-	public RealExpression _div_reverse(double i) 
-	{
-		//assert (i!=0);
-		return new BinaryRealExpression(new RealConstant(i), DIV, this );
+
+	public RealExpression _div_reverse(double i) {
+		// assert (i!=0);
+		return new BinaryRealExpression(new RealConstant(i), DIV, this);
 	}
 
-	public RealExpression _div (double i) 
-	{
-		assert (i!=0);
+	public RealExpression _div(double i) {
+		assert (i != 0);
 		return new BinaryRealExpression(this, DIV, new RealConstant(i));
 	}
-	
-	public RealExpression _div (RealExpression e) 
-	{
+
+	public RealExpression _div(RealExpression e) {
 		return new BinaryRealExpression(this, DIV, e);
 	}
-	
-	public RealExpression _neg () 
-	{
+
+	public RealExpression _neg() {
 		return new BinaryRealExpression(new RealConstant(0), MINUS, this);
 	}
-	
 
-	//TODO test this
+	// TODO test this
 	public double solution() {
-		throw new RuntimeException( "## Error: Expression Solution request Error: " + this);
-		//System.out.println("Expression Solution request Error: " + this);
-		//return -666;
+		throw new RuntimeException("## Error: Expression Solution request Error: " + this);
+		// System.out.println("Expression Solution request Error: " + this);
+		// return -666;
 	}
 }

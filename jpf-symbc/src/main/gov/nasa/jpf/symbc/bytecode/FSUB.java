@@ -23,42 +23,42 @@ import gov.nasa.jpf.vm.StackFrame;
 import gov.nasa.jpf.vm.ThreadInfo;
 import gov.nasa.jpf.vm.Types;
 
-
 /**
- * Subtract float
- * ..., value1, value2 => ..., result
+ * Subtract float ..., value1, value2 => ..., result
  */
 public class FSUB extends gov.nasa.jpf.jvm.bytecode.FSUB {
 
-  @Override
-  public Instruction execute (ThreadInfo th) {
-	  
-	StackFrame sf = th.getModifiableTopFrame();
-	
-	RealExpression sym_v1 = (RealExpression) sf.getOperandAttr(); 
-    float v1 = Types.intToFloat(sf.pop());
-    RealExpression sym_v2 = (RealExpression) sf.getOperandAttr();
-    float v2 = Types.intToFloat(sf.pop());
-    
-    float r = v2 - v1;
-    if(sym_v1==null && sym_v2==null)
-    	sf.push(Types.floatToInt(r), false); 
-    else
-    	sf.push(0, false); 
+	@Override
+	public Instruction execute(ThreadInfo th) {
 
-    RealExpression result = null;
-	if(sym_v2!=null) {
-		if (sym_v1!=null)
-			result = sym_v2._minus(sym_v1);
-		else // v1 is concrete
-			result = sym_v2._minus(v1);
-	}else if (sym_v1!=null)
-		result = sym_v1._minus_reverse(v2);
-	
-	sf.setOperandAttr(result);
+		StackFrame sf = th.getModifiableTopFrame();
 
+		RealExpression sym_v1 = (RealExpression) sf.getOperandAttr();
+		float v1 = Types.intToFloat(sf.pop());
+		RealExpression sym_v2 = (RealExpression) sf.getOperandAttr();
+		float v2 = Types.intToFloat(sf.pop());
 
-    return getNext(th);
-  }
+		float r = v2 - v1;
+		if (sym_v1 == null && sym_v2 == null)
+			sf.push(Types.floatToInt(r), false);
+		else
+			sf.push(0, false);
 
+		RealExpression result = null;
+		if (sym_v2 != null) {
+			if (sym_v1 != null) {
+				result = sym_v2._minus(sym_v1);
+			}
+			else {
+				// v1 is concrete
+				result = sym_v2._minus(v1);
+			}
+		} else if (sym_v1 != null) {
+			result = sym_v1._minus_reverse(v2);
+		}
+
+		sf.setOperandAttr(result);
+
+		return getNext(th);
+	}
 }

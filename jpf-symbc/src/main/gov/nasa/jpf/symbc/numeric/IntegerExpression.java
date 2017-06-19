@@ -78,7 +78,7 @@ public abstract class IntegerExpression extends Expression {
 		//simplify
 		if (e instanceof IntegerConstant) {
 			IntegerConstant ic = (IntegerConstant)e;
-			if (ic.value == 0)
+			if (ic.getValue() == 0)
 				return this;
 		}
 		if (e == this)
@@ -103,9 +103,9 @@ public abstract class IntegerExpression extends Expression {
 		//simplify
 		if (e instanceof IntegerConstant) {
 			IntegerConstant ic = (IntegerConstant)e;
-			if (ic.value == 1)
+			if (ic.getValue() == 1)
 				return this;
-			if (ic.value == 0)
+			if (ic.getValue() == 0)
 				return new IntegerConstant(0);
 		}
 
@@ -125,7 +125,7 @@ public abstract class IntegerExpression extends Expression {
 		//simplify
 		if (e instanceof IntegerConstant) {
 			IntegerConstant ic = (IntegerConstant)e;
-			if (ic.value == 0)
+			if (ic.getValue() == 0)
 				return this;
 		}
 
@@ -136,7 +136,7 @@ public abstract class IntegerExpression extends Expression {
 		//simplify
 		if (i instanceof IntegerConstant) {
 			IntegerConstant ic = (IntegerConstant)i;
-			if (ic.value == 0)
+			if (ic.getValue() == 0)
 				return this;
 		}
 
@@ -146,7 +146,7 @@ public abstract class IntegerExpression extends Expression {
 	public IntegerExpression _shiftL(IntegerExpression i) {
 		if (i instanceof IntegerConstant) {
 			IntegerConstant ic = (IntegerConstant)i;
-			if (ic.value == 0)
+			if (ic.getValue() == 0)
 				return this;
 		}
 
@@ -156,7 +156,7 @@ public abstract class IntegerExpression extends Expression {
 	public IntegerExpression _shiftUR(IntegerExpression i) {
 		if (i instanceof IntegerConstant) {
 			IntegerConstant ic = (IntegerConstant)i;
-			if (ic.value == 0)
+			if (ic.getValue() == 0)
 				return this;
 		}
 
@@ -168,7 +168,7 @@ public abstract class IntegerExpression extends Expression {
 		//simplify
 		if (e instanceof IntegerConstant) {
 			IntegerConstant ic = (IntegerConstant)e;
-			if (ic.value == 0)
+			if (ic.getValue() == 0)
 				return new IntegerConstant(0);
 		}
 
@@ -178,7 +178,7 @@ public abstract class IntegerExpression extends Expression {
 	public IntegerExpression _or(IntegerExpression e) {
 		if(e instanceof IntegerConstant) {
 			IntegerConstant ic = (IntegerConstant) e;
-			if(ic.value == 0) {
+			if(ic.getValue() == 0) {
 				return this;
 			}
 		}
@@ -266,8 +266,8 @@ public abstract class IntegerExpression extends Expression {
 		//simplify
 		if (e instanceof IntegerConstant) {
 			IntegerConstant ic = (IntegerConstant)e;
-			assert (ic.value != 0);
-			if (ic.value == 1)
+			assert (ic.getValue() != 0);
+			if (ic.getValue() == 1)
 				return this;
 		}
 		if (e == this)

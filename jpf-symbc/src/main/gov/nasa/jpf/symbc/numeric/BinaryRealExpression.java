@@ -39,54 +39,19 @@ package gov.nasa.jpf.symbc.numeric;
 
 import java.util.Map;
 
-public class BinaryRealExpression extends RealExpression 
-{
-	RealExpression left;
-	Operator   op;
-	RealExpression right;
+public class BinaryRealExpression extends RealExpression {
+	private RealExpression left;
+	private Operator operator;
+	private RealExpression right;
 
-	public BinaryRealExpression (RealExpression l, Operator o, RealExpression r) 
-	{
-		left = l;
-		op = o;
-		right = r;
-	}
-
-	public double solution() 
-	{
-		double l = left.solution();
-		double r = right.solution();
-		switch(op){
-		   case PLUS:  return l + r;
-		   case MINUS: return l - r;
-		   case MUL:   return l * r;
-		   case DIV:   assert(r!=0);
-			           return l/r;
-           default:    throw new RuntimeException("## Error: BinaryRealSolution solution: l " + l + " op " + op + " r " + r);
-		}
-	}
-
-    public void getVarsVals(Map<String,Object> varsVals) {
-    	left.getVarsVals(varsVals);
-    	right.getVarsVals(varsVals);
-    }
-	
-	public String stringPC() {
-		return "(" + left.stringPC() + op.toString() + right.stringPC() + ")";
-	}
-
-	public String toString () 
-	{
-		return "(" + left.toString() + op.toString() + right.toString() + ")";
-	}
-
-	public String prefix_notation ()
-	{
-		return "(" + op.prefix_notation() + " "+left.prefix_notation()+" "  + right.prefix_notation() + ")";
+	public BinaryRealExpression(RealExpression left, Operator operator, RealExpression right) {
+		this.left = left;
+		this.operator = operator;
+		this.right = right;
 	}
 	
-	public Operator getOp() {
-		return op;
+	public Operator getOperator() {
+		return operator;
 	}
 
 	public RealExpression getLeft() {
@@ -95,6 +60,43 @@ public class BinaryRealExpression extends RealExpression
 
 	public RealExpression getRight() {
 		return right;
+	}
+
+	public double solution() {
+		double l = left.solution();
+		double r = right.solution();
+
+		switch (operator) {
+		case PLUS:
+			return l + r;
+		case MINUS:
+			return l - r;
+		case MUL:
+			return l * r;
+		case DIV:
+			assert (r != 0);
+			return l / r;
+		default:
+			throw new RuntimeException(
+					"## Error: BinaryRealSolution solution: l " + l + " op " + operator + " r " + r);
+		}
+	}
+
+	public void getVarsVals(Map<String, Object> varsVals) {
+		left.getVarsVals(varsVals);
+		right.getVarsVals(varsVals);
+	}
+
+	public String getStringPathCondition() {
+		return "(" + left.getStringPathCondition() + operator.toString() + right.getStringPathCondition() + ")";
+	}
+
+	public String toString() {
+		return "(" + left.toString() + operator.toString() + right.toString() + ")";
+	}
+
+	public String prefix_notation() {
+		return "(" + operator.prefix_notation() + " " + left.prefix_notation() + " " + right.prefix_notation() + ")";
 	}
 
 	// JacoGeldenhuys
@@ -110,7 +112,7 @@ public class BinaryRealExpression extends RealExpression
 	public int compareTo(Expression expr) {
 		if (expr instanceof BinaryRealExpression) {
 			BinaryRealExpression e = (BinaryRealExpression) expr;
-			int r = getOp().compareTo(e.getOp());
+			int r = getOperator().compareTo(e.getOperator());
 			if (r == 0) {
 				r = getLeft().compareTo(e.getLeft());
 			}

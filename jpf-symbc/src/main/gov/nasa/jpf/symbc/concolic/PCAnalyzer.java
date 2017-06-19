@@ -356,7 +356,7 @@ public class PCAnalyzer {
 		}
 
 		if(eRef instanceof BinaryRealExpression) {
-			final Operator    opRef = ((BinaryRealExpression)eRef).getOp();
+			final Operator    opRef = ((BinaryRealExpression)eRef).getOperator();
 			final RealExpression	e_leftRef = ((BinaryRealExpression)eRef).getLeft();
 			final RealExpression	e_rightRef = ((BinaryRealExpression)eRef).getRight();
 

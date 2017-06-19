@@ -102,11 +102,11 @@ public abstract class ConstraintExpressionVisitor {
 
 	public void postVisit(RealConstraint constraint) {
 	}
-	
-	public void preVisit(StringConstraint stringConstraint) {		
+
+	public void preVisit(StringConstraint stringConstraint) {
 	}
-	
-	public void postVisit(StringConstraint stringConstraint) {		
+
+	public void postVisit(StringConstraint stringConstraint) {
 	}
 
 	/*--- EXPRESSION VISITOR ROUTINES ---*/
@@ -236,7 +236,4 @@ public abstract class ConstraintExpressionVisitor {
 
 	public void postVisit(SymbolicStringBuilder expr) {
 	}
-
-
-
 }

@@ -39,14 +39,12 @@ package gov.nasa.jpf.symbc.numeric;
 
 import java.util.Map;
 
-public class BinaryLinearIntegerExpression extends LinearIntegerExpression
-{
+public class BinaryLinearIntegerExpression extends LinearIntegerExpression {
 	IntegerExpression left;
-	Operator   op;
+	Operator op;
 	IntegerExpression right;
 
-	public BinaryLinearIntegerExpression (IntegerExpression l, Operator o, IntegerExpression r)
-	{
+	public BinaryLinearIntegerExpression(IntegerExpression l, Operator o, IntegerExpression r) {
 		left = l;
 		op = o;
 		right = r;
@@ -77,71 +75,78 @@ public class BinaryLinearIntegerExpression extends LinearIntegerExpression
 		}
 	}
 
-	public long solution()
-	{
+	public long solution() {
 		long l = left.solution();
 		long r = right.solution();
-		switch(op){
- 		  case PLUS:       return l + r;
-		  case MINUS:      return l - r;
-		  case MUL: return l * r;
-		  case DIV: return l / r;
-		  case AND: return l & r;
-		  case OR: return l | r;
-		  case XOR: return l ^ r;
-		  case SHIFTL: return l << r;
-		  case SHIFTR: return l >> r;
-		  case SHIFTUR: return l >>> r;
-		  default: throw new RuntimeException("## Error: BinaryLinearSolution solution: l " + l + " op " + op + " r " + r);
+		switch (op) {
+		case PLUS:
+			return l + r;
+		case MINUS:
+			return l - r;
+		case MUL:
+			return l * r;
+		case DIV:
+			return l / r;
+		case AND:
+			return l & r;
+		case OR:
+			return l | r;
+		case XOR:
+			return l ^ r;
+		case SHIFTL:
+			return l << r;
+		case SHIFTR:
+			return l >> r;
+		case SHIFTUR:
+			return l >>> r;
+		default:
+			throw new RuntimeException("## Error: BinaryLinearSolution solution: l " + l + " op " + op + " r " + r);
 		}
 	}
 
-    public void getVarsVals(Map<String,Object> varsVals) {
-    	left.getVarsVals(varsVals);
-    	right.getVarsVals(varsVals);
-    }
+	public void getVarsVals(Map<String, Object> varsVals) {
+		left.getVarsVals(varsVals);
+		right.getVarsVals(varsVals);
+	}
 
 	@Override
 	public int hashCode() {
 		return 23232 ^ (left.hashCode() << 2) ^ (op.hashCode() << 4) ^ (right.hashCode() << 7);
 	}
-	
-	public String toString ()
-	{
+
+	public String toString() {
 		return "(" + left.toString() + op.toString() + right.toString() + ")";
 	}
 
-	public String prefix_notation ()
-	{
-		return "(" + op.prefix_notation() + " "+left.prefix_notation()  + " "+right.prefix_notation() + ")";
+	public String prefix_notation() {
+		return "(" + op.prefix_notation() + " " + left.prefix_notation() + " " + right.prefix_notation() + ")";
 	}
-	
-	public String stringPC ()
-	{
-		return "(" + left.stringPC() + op.toString() + right.stringPC() + ")";
+
+	public String getStringPathCondition() {
+		return "(" + left.getStringPathCondition() + op.toString() + right.getStringPathCondition() + ")";
 	}
 
 	public IntegerExpression getLeft() {
-	    return left;
+		return left;
 	}
 
 	public IntegerExpression getRight() {
-	    return right;
+		return right;
 	}
 
 	public Operator getOp() {
-	    return op;
+		return op;
 	}
 
 	@Override
 	public boolean equals(Object o) {
-	    return ((o instanceof BinaryLinearIntegerExpression) &&
-	            ((BinaryLinearIntegerExpression) o).left.equals(this.left) &&
-	            ((BinaryLinearIntegerExpression) o).op.equals(this.op) &&
-	            ((BinaryLinearIntegerExpression) o).right.equals(this.right));
+		return ((o instanceof BinaryLinearIntegerExpression)
+				&& ((BinaryLinearIntegerExpression) o).left.equals(this.left)
+				&& ((BinaryLinearIntegerExpression) o).op.equals(this.op)
+				&& ((BinaryLinearIntegerExpression) o).right.equals(this.right));
 	}
 
-	//protected void finalize() throws Throwable {
-    //	System.out.println("Finalized BLIExp -> " + this);
-    //}
+	// protected void finalize() throws Throwable {
+	// System.out.println("Finalized BLIExp -> " + this);
+	// }
 }

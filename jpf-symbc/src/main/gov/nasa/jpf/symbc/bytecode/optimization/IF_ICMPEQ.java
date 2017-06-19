@@ -37,40 +37,37 @@ package gov.nasa.jpf.symbc.bytecode.optimization;
 
 import gov.nasa.jpf.symbc.bytecode.optimization.util.IFInstrSymbHelper;
 import gov.nasa.jpf.symbc.numeric.*;
-import gov.nasa.jpf.vm.ChoiceGenerator;
 import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.StackFrame;
 import gov.nasa.jpf.vm.ThreadInfo;
 
-
 //we should factor out some of the code and put it in a parent class for all "if statements"
 
-public class IF_ICMPEQ extends gov.nasa.jpf.jvm.bytecode.IF_ICMPEQ{
-	public IF_ICMPEQ(int targetPosition){
-	    super(targetPosition);
-	  }
+public class IF_ICMPEQ extends gov.nasa.jpf.jvm.bytecode.IF_ICMPEQ {
+	public IF_ICMPEQ(int targetPosition) {
+		super(targetPosition);
+	}
+
 	@Override
-	public Instruction execute (ThreadInfo ti) {
+	public Instruction execute(ThreadInfo ti) {
 
 		StackFrame sf = ti.getModifiableTopFrame();
 
 		IntegerExpression sym_v1 = (IntegerExpression) sf.getOperandAttr(1);
 		IntegerExpression sym_v2 = (IntegerExpression) sf.getOperandAttr(0);
 
-		if ((sym_v1 == null) && (sym_v2 == null)) { // both conditions are concrete
-			//System.out.println("Execute IF_ICMPEQ: The conditions are concrete");
+		if ((sym_v1 == null) && (sym_v2 == null)) { // both conditions are
+													// concrete
+			// System.out.println("Execute IF_ICMPEQ: The conditions are
+			// concrete");
 			return super.execute(ti);
-		}else{ // at least one condition is symbolic
-			Instruction nxtInstr = IFInstrSymbHelper.getNextInstructionAndSetPCChoice(ti, 
-																					  this, 
-																					  sym_v1,
-																					  sym_v2,
-																					  Comparator.EQ, 
-																					  Comparator.NE);
-			if(nxtInstr==getTarget())
-				conditionValue=true;
-			else 
-				conditionValue=false;
+		} else { // at least one condition is symbolic
+			Instruction nxtInstr = IFInstrSymbHelper.getNextInstructionAndSetPCChoice(ti, this, sym_v1, sym_v2,
+					Comparator.EQ, Comparator.NE);
+			if (nxtInstr == getTarget())
+				conditionValue = true;
+			else
+				conditionValue = false;
 			return nxtInstr;
 		}
 	}

@@ -44,132 +44,113 @@ import java.util.Random;
 
 public class SymbolicInteger extends LinearIntegerExpression {
 	public static long UNDEFINED = 0;
-	public long _min = 0;
-	public long _max = 0;
 	public long solution = UNDEFINED; // C
-	
-	int unique_id;
+
+	private int unique_id;
 
 	public static String SYM_INT_SUFFIX = "_SYMINT";
+
+	private long min = 0;
+	private long max = 0;
 	private String name;
 
-	public SymbolicInteger () {
-		super();
-		unique_id = MinMax.UniqueId++;
-		PathCondition.flagSolved=false;
-		name = "INT_" + hashCode();
-		_min = MinMax.getVarMinInt(name);
-		_max = MinMax.getVarMaxInt(name);
-		if (SymbolicInstructionFactory.debugMode)
-			System.out.println("New sym int " + name + " min=" + _min + ", max=" + _max);
+	public SymbolicInteger() {
+		this(MinMax.getMinInt(), MinMax.getMaxInt());
 	}
 
-	public SymbolicInteger (String s) {
-		super();
-		unique_id = MinMax.UniqueId++;
-		//PathCondition.flagSolved=false;
-		name = s;
-		_min = MinMax.getVarMinInt(name);
-		_max = MinMax.getVarMaxInt(name);
-		//trackedSymVars.add(fixName(name));
-		if (SymbolicInstructionFactory.debugMode)
-			System.out.println("New sym int " + name + " min=" + _min + ", max=" + _max);
+	public SymbolicInteger(String name) {
+		this(MinMax.getMinInt(), MinMax.getMaxInt());
+		this.name = name;
 	}
 
-	public SymbolicInteger (long l, long u) {
-		super();
-		unique_id = MinMax.UniqueId++;
-		_min = l;
-		_max = u;
-		//PathCondition.flagSolved=false;
-		name = "INT_" + hashCode();
-		if (SymbolicInstructionFactory.debugMode)
-			System.out.println("New sym int " + name + " min=" + _min + ", max=" + _max);
+	public SymbolicInteger(long lowerBound, long upperBound) {
+		this(null, lowerBound, upperBound);
 	}
 
-	public SymbolicInteger (String s, long l, long u) {
+	public SymbolicInteger(String name, long lowerBound, long upperBound) {
 		super();
-		unique_id = MinMax.UniqueId++;
-		_min = l;
-		_max = u;
-		name = s;
-		//PathCondition.flagSolved=false;
-		//trackedSymVars.add(fixName(name));
-		if (SymbolicInstructionFactory.debugMode)
-			System.out.println("New sym int " + name + " min=" + _min + ", max=" + _max);
+		this.unique_id = MinMax.UniqueId++;
+		this.min = lowerBound;
+		this.max = upperBound;
+		this.name = (name != null) ? name : "INT_" + hashCode();
+		PathCondition.flagSolved = false;
 	}
-	
+
+	public long getMin() {
+		return min;
+	}
+
+	public long getMax() {
+		return max;
+	}
+
 	public String getName() {
 		return (name != null) ? name : "INT_" + hashCode();
 	}
 
-	public String stringPC () {
+	public String getStringPathCondition() {
 		return (name != null) ? name : "INT_" + hashCode();
 	}
 
-	public String toString () {
+	public String toString() {
 		if (!PathCondition.flagSolved) {
 			return (name != null) ? name : "INT_" + hashCode();
 
 		} else {
-			return (name != null) ? name /* + "[" + solution + "]" */ :
-				"INT_" + hashCode() + "[" + solution + "]";
+			return (name != null) ? name /* + "[" + solution + "]" */ : "INT_" + hashCode() + "[" + solution + "]";
 		}
 	}
-	
-	public String prefix_notation ()
-	{
+
+	public String prefix_notation() {
 		return (name != null) ? name : "INT_" + hashCode();
 	}
 
 	public long solution() {
 		if (PathCondition.flagSolved) {
 			if (solution == UNDEFINED && SymbolicInstructionFactory.concolicMode) {
-				solution = (new Random().nextLong() % (_max-_min)) + _min;
+				solution = (new Random().nextLong() % (max - min)) + min;
 			}
 			return solution;
-		}
-		else
+		} else
 			throw new RuntimeException("## Error: PC not solved!");
 	}
 
-    public void getVarsVals(Map<String,Object> varsVals) {
-    	varsVals.put(fixName(name), solution);
-    }
+	public void getVarsVals(Map<String, Object> varsVals) {
+		varsVals.put(fixName(name), solution);
+	}
 
-    private String fixName(String name) {
-    	if (name.endsWith(SYM_INT_SUFFIX)) {
-    		name = name.substring(0, name.lastIndexOf(SYM_INT_SUFFIX));
-    	}
-    	return name;
-    }
+	private String fixName(String name) {
+		if (name.endsWith(SYM_INT_SUFFIX)) {
+			name = name.substring(0, name.lastIndexOf(SYM_INT_SUFFIX));
+		}
+		return name;
+	}
 
-    public boolean equals (Object o) {
-        return (o instanceof SymbolicInteger) &&
-               (this.equals((SymbolicInteger) o));
-    }
+	public boolean equals(Object o) {
+		return (o instanceof SymbolicInteger) && (this.equals((SymbolicInteger) o));
+	}
 
-    private boolean equals (SymbolicInteger s) {
-//        if (name != null)
-//            return (this.name.equals(s.name)) &&
-//                   (this._max == s._max) &&
-//                   (this._min == s._min);
-//        else
-//            return (this._max == s._max) &&
-//                   (this._min == s._min);
-    	return this.unique_id == s.unique_id;
-    }
+	private boolean equals(SymbolicInteger s) {
+		// if (name != null)
+		// return (this.name.equals(s.name)) &&
+		// (this._max == s._max) &&
+		// (this._min == s._min);
+		// else
+		// return (this._max == s._max) &&
+		// (this._min == s._min);
+		return this.unique_id == s.unique_id;
+	}
 
-    public int hashCode() {
-        //return Integer.toHexString(_min ^ _max).hashCode();
-    	return unique_id;
-    }
+	public int hashCode() {
+		// return Integer.toHexString(_min ^ _max).hashCode();
+		return unique_id;
+	}
 
-    protected void finalize() throws Throwable {
-    	//System.out.println("Finalized " + this);
-    }
-    
-    @Override
+	protected void finalize() throws Throwable {
+		// System.out.println("Finalized " + this);
+	}
+
+	@Override
 	public void accept(ConstraintExpressionVisitor visitor) {
 		visitor.preVisit(this);
 		visitor.postVisit(this);

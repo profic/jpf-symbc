@@ -40,100 +40,106 @@ package gov.nasa.jpf.symbc.numeric;
 import java.util.Map;
 
 public abstract class Constraint implements Comparable<Constraint> {
-  private final Expression left;
+	private final Expression left;
 
-  private Comparator comp;
+	private Comparator comparator;
 
-  private final Expression right;
+	private final Expression right;
 
-  public Constraint and;
+	public Constraint and;
 
-  public Constraint(Expression l, Comparator c, Expression r) {
-    left = l;
-    comp = c;
-    right = r;
-  }
+	public Constraint(Expression left, Comparator comparator, Expression right) {
+		this.left = left;
+		this.comparator = comparator;
+		this.right = right;
+	}
 
-  /** Returns the same constraint head constraint without the and field
-  * Used to append pathconditions without side effects during testcase generation 
-  */ 
-  public abstract Constraint copy(); 
+	/**
+	 * Returns the same constraint head constraint without the and field Used to
+	 * append pathconditions without side effects during testcase generation
+	 */
+	public abstract Constraint copy();
 
-  /** Returns the left expression. Subclasses may override to give tighter type bounds.*/
-  public Expression getLeft() {
-      return left;
-  }
+	/**
+	 * Returns the left expression. Subclasses may override to give tighter type
+	 * bounds.
+	 */
+	public Expression getLeft() {
+		return left;
+	}
 
-  /** Returns the right expression. Subclasses may override to give tighter type bounds.*/
-  public Expression getRight() {
-      return right;
-  }
+	/**
+	 * Returns the right expression. Subclasses may override to give tighter
+	 * type bounds.
+	 */
+	public Expression getRight() {
+		return right;
+	}
 
-  /**
-   * Returns the comparator used in this constraint.
-   */
-  public Comparator getComparator() {
-    return comp;
-  }
+	/**
+	 * Returns the comparator used in this constraint.
+	 */
+	public Comparator getComparator() {
+		return comparator;
+	}
 
-  public void setComparator(Comparator c) {
-	    comp = c;
-	  }
-  /**
-   * Returns the negation of this constraint, but without the tail.
-   */
-  public abstract Constraint not();
+	public void setComparator(Comparator c) {
+		comparator = c;
+	}
 
-  /**
-   * Returns the next conjunct.
-   */
-  public Constraint getTail() {
-    return and;
-  }
+	/**
+	 * Returns the negation of this constraint, but without the tail.
+	 */
+	public abstract Constraint not();
 
-  public String stringPC() {
-    return left.stringPC() + comp.toString() + right.stringPC()
-        + ((and == null) ? "" : " && " + and.stringPC());
-  }
+	/**
+	 * Returns the next conjunct.
+	 */
+	public Constraint getTail() {
+		return and;
+	}
 
-  public void getVarVals(Map<String,Object> varsVals) {
-	  if (left != null) {
-		  left.getVarsVals(varsVals);
-	  }
-	  if (right != null) {
-		  right.getVarsVals(varsVals);
-	  }
-	  if (and != null) {
-		  and.getVarVals(varsVals);
-	  }
-  }
+	public String stringPC() {
+		return left.getStringPathCondition() + comparator.toString() + right.getStringPathCondition() + ((and == null) ? "" : " && " + and.stringPC());
+	}
 
-  public boolean equals(Object o) {
-    if (!(o instanceof Constraint)) {
-      return false;
-    }
+	public void getVarVals(Map<String, Object> varsVals) {
+		if (left != null) {
+			left.getVarsVals(varsVals);
+		}
+		if (right != null) {
+			right.getVarsVals(varsVals);
+		}
+		if (and != null) {
+			and.getVarVals(varsVals);
+		}
+	}
 
-    return left.equals(((Constraint) o).left)
-        && comp.equals(((Constraint) o).comp)
-        && right.equals(((Constraint) o).right);
-  }
+	public boolean equals(Object o) {
+		if (!(o instanceof Constraint)) {
+			return false;
+		}
 
-  public int hashCode() {
-	  int result = Integer.MAX_VALUE;
-	  if (left != null) {
-		  result = result ^ left.hashCode();
-	  }
-	  if (comp != null) {
-		  result = result ^ comp.hashCode();
-	  }
-	  if (right != null) {
-		  result = result ^ right.hashCode();
-	  }
-	  return result;
-	  //return left.hashCode() ^ comp.hashCode() ^ right.hashCode();
-  }
+		return left.equals(((Constraint) o).left) && comparator.equals(((Constraint) o).comparator)
+				&& right.equals(((Constraint) o).right);
+	}
 
-  /**
+	public int hashCode() {
+		int result = Integer.MAX_VALUE;
+		if (left != null) {
+			result = result ^ left.hashCode();
+		}
+		if (comparator != null) {
+			result = result ^ comparator.hashCode();
+		}
+		if (right != null) {
+			result = result ^ right.hashCode();
+		}
+		return result;
+		// return left.hashCode() ^ comp.hashCode() ^ right.hashCode();
+	}
+
+	/**
 	 * Compare two constraints for orderedness. The function views each
 	 * constraint as a triple ({@code left}, {@code comp}, {@code right}). The
 	 * triples are compared lexicographically. Similarly, one element is less
@@ -149,7 +155,7 @@ public abstract class Constraint implements Comparable<Constraint> {
 	 */
 	@Override
 	public final int compareTo(Constraint c) {
-		int r = comp.compareTo(c.getComparator());
+		int r = comparator.compareTo(c.getComparator());
 		if (r == 0) {
 			r = left.compareTo(c.getLeft());
 			if (r == 0) {
@@ -158,22 +164,23 @@ public abstract class Constraint implements Comparable<Constraint> {
 		}
 		return r;
 	}
-  
-  public String toString() {
-    return left.toString() + comp.toString() + right.toString()
-        //+ ((and == null) ? "" : " && " + and.toString()); -- for specialization
-        + ((and == null) ? "" : " &&\n" + and.toString());
-  }
 
-  public Constraint last() {
-      Constraint c= this;
-      while(c.and != null) {
-          c = c.and;
-      }
-      return c;
-  }
-  
-//JacoGeldenhuys
+	public String toString() {
+		return left.toString() + comparator.toString() + right.toString()
+		// + ((and == null) ? "" : " && " + and.toString()); -- for
+		// specialization
+				+ ((and == null) ? "" : " &&\n" + and.toString());
+	}
+
+	public Constraint last() {
+		Constraint c = this;
+		while (c.and != null) {
+			c = c.and;
+		}
+		return c;
+	}
+
+	// JacoGeldenhuys
 	public void accept(ConstraintExpressionVisitor visitor) {
 		visitor.preVisit(this);
 		left.accept(visitor);
@@ -182,21 +189,19 @@ public abstract class Constraint implements Comparable<Constraint> {
 	}
 
 	public String prefix_notation() {
-		//return left.toString() + comp.toString() + right.toString()
-		        //+ ((and == null) ? "" : " && " + and.toString()); -- for specialization
-		  //      + ((and == null) ? "" : " &&\n" + and.toString());
+		// return left.toString() + comp.toString() + right.toString()
+		// + ((and == null) ? "" : " && " + and.toString()); -- for
+		// specialization
+		// + ((and == null) ? "" : " &&\n" + and.toString());
 		// Sang: rewrite NE in z3's notation: (a != b) becomes (not (= a b))
 		String result = null;
-		if (comp == Comparator.NE){
-			result = "(not ( = " + left.prefix_notation() + " " + right.prefix_notation() +"))";
+		if (comparator == Comparator.NE) {
+			result = "(not ( = " + left.prefix_notation() + " " + right.prefix_notation() + "))";
+		} else {
+			result = " (" + comparator.toString() + " " + left.prefix_notation() + " " + right.prefix_notation() + ")";
 		}
-		else{
-			result = " ("+ comp.toString() +" "+ left.prefix_notation() +" " + right.prefix_notation() +")";
-		}
-		if(and!=null) result = "(and "+and.prefix_notation()+" "+result+")";
+		if (and != null)
+			result = "(and " + and.prefix_notation() + " " + result + ")";
 		return result;
 	}
-
-	
-
 }

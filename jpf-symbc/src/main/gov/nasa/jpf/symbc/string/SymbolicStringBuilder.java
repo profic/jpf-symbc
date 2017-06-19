@@ -53,112 +53,94 @@ import java.util.Map;
 import gov.nasa.jpf.symbc.numeric.ConstraintExpressionVisitor;
 import gov.nasa.jpf.symbc.numeric.IntegerExpression;
 import gov.nasa.jpf.symbc.numeric.RealExpression;
-import gov.nasa.jpf.symbc.numeric.IntegerConstant;
 import gov.nasa.jpf.symbc.numeric.Expression;
-
 
 public class SymbolicStringBuilder extends Expression {
 
-  protected StringExpression str;
+	private StringExpression stringExpression;
 
-  public SymbolicStringBuilder() {
-    super();
-    str = null;
-  }
-
-  public SymbolicStringBuilder(StringExpression s) {
-    super();
-    str = s;
-
-  }
-
-  public SymbolicStringBuilder clone() {
-		return new SymbolicStringBuilder((StringExpression) this.str.clone());
+	public SymbolicStringBuilder() {
+		super();
+		this.stringExpression = null;
 	}
 
-  public SymbolicStringBuilder(String s) {
-	    this(new StringConstant(s));
-	  }
+	public SymbolicStringBuilder(StringExpression stringExpression) {
+		super();
+		this.stringExpression = stringExpression;
+	}
 
-  public SymbolicStringBuilder _clone()
-      throws CloneNotSupportedException {
-    return (SymbolicStringBuilder) clone();
-  }
+	public SymbolicStringBuilder(String str) {
+		this(new StringConstant(str));
+	}
+	
+	public StringExpression getStringExpression() {
+		return stringExpression;
+	}
 
-  public void _finalize()
-      throws Throwable {
-    finalize();
-  }
+	public void setStringExpression(StringExpression stringExpression) {
+		this.stringExpression = stringExpression;
+	}
+	
+	public String getStringPathCondition() {
+		return this.stringExpression.getStringPathCondition();
+	}
 
-  public IntegerExpression _hashCode() {
-    return new IntegerConstant(hashCode());
-  }
+	public SymbolicStringBuilder clone() {
+		return new SymbolicStringBuilder((StringExpression) this.stringExpression.clone());
+	}
+	
+	public String toString() {
+		return this.stringExpression.toString();
+	}
 
+	public String _formattedToString() {
+		return this.stringExpression._formattedToString();
+	}
 
-  public String toString() {
-    return str.toString();
-  }
+	public void _append(SymbolicStringBuilder symbolicStringBuilder) {
+		this.stringExpression = this.stringExpression._concat(symbolicStringBuilder.stringExpression);
+	}
 
-  public String stringPC() {
-	    return str.stringPC();
-	  }
+	public void _append(StringExpression stringExpression) {
+		this.stringExpression = this.stringExpression._concat(stringExpression);
+	}
 
-  public String _formattedToString() {
-    return str._formattedToString();
-  }
+	public void _append(IntegerExpression integerExpression) {
+		this.stringExpression = this.stringExpression._concat(integerExpression);
+	}
 
-  public void _append(SymbolicStringBuilder s){
-	  str = str._concat(s.str);
-  }
+	public void _append(RealExpression realExpression) {
+		this.stringExpression = this.stringExpression._concat(realExpression);
+	}
 
-  public void _append(StringExpression s){
-	  str = str._concat(s);
-  }
+	public void _append(String string) {
+		this.stringExpression = this.stringExpression._concat(new StringConstant(string));
+	}
 
-  public void _append(IntegerExpression e){
-	  str = str._concat(e);
-  }
+	public void _append(int intValue) {
+		this._append(Integer.toString(intValue));
+	}
 
-  public void _append(RealExpression r){
-	  str = str._concat(r);
-  }
+	public void _append(long longValue) {
+		this._append(Long.toString(longValue));
+	}
 
-  public void _append(String s){
-	  str = str._concat(new StringConstant(s));
-  }
+	public void _append(float floatValue) {
+		this._append(Float.toString(floatValue));
+	}
 
-  public void _append(int i){
-	  this._append(Integer.toString(i));
-  }
+	public void _append(double doubleValue) {
+		this._append(Double.toString(doubleValue));
+	}
 
-  public void _append(long i){
-	  this._append(Long.toString(i));
-  }
-
-  public void _append(float i){
-	  this._append(Float.toString(i));
-  }
-
-  public void _append(double i){
-	  this._append(Double.toString(i));
-  }
-
-  public void getVarsVals(Map<String, Object> varsVals) {
-  }
-
-  public StringExpression getstr(){
-	return str;
-  }
-
-  public void putstr(StringExpression s){
-	  str = s;
-  }
+	public void getVarsVals(Map<String, Object> varsVals) {
+	}
 
 	// JacoGeldenhuys
 	@Override
 	public void accept(ConstraintExpressionVisitor visitor) {
 		visitor.preVisit(this);
-		str.accept(visitor);
+		stringExpression.accept(visitor);
 		visitor.postVisit(this);
 	}
 
@@ -166,10 +148,9 @@ public class SymbolicStringBuilder extends Expression {
 	public int compareTo(Expression expr) {
 		if (expr instanceof SymbolicStringBuilder) {
 			SymbolicStringBuilder s = (SymbolicStringBuilder) expr;
-			return getstr().compareTo(s.getstr());
+			return getStringExpression().compareTo(s.getStringExpression());
 		} else {
 			return getClass().getCanonicalName().compareTo(expr.getClass().getCanonicalName());
 		}
 	}
-
 }

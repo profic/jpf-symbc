@@ -381,12 +381,12 @@ public class SymbolicStringConstraintsGeneralToText {
 		else if (e instanceof SymbolicLastIndexOfInteger) {
 			SymbolicLastIndexOfInteger sioi = (SymbolicLastIndexOfInteger) e;
 			//println ("[processIntegerConstraint] Found indexOf constraint with " + sioi.getName());
-			StringGraph expression = convertToGraph (sioi.expression);
-			StringGraph source = convertToGraph (sioi.source);
+			StringGraph expression = convertToGraph (sioi.getExpression());
+			StringGraph source = convertToGraph (sioi.getExpression());
 			global_graph.mergeIn(expression);
 			global_graph.mergeIn(source);
-			Vertex v1 = global_graph.findVertex(sioi.expression.getName());
-			Vertex v2 = global_graph.findVertex(sioi.source.getName());
+			Vertex v1 = global_graph.findVertex(sioi.getExpression().getName());
+			Vertex v2 = global_graph.findVertex(sioi.getSource().getName());
 			global_graph.addEdge(v2, v1, new EdgeLastIndexOf("EdgeLastIndexOf_" + v2.getName () + "_" + v1.getName(), v2, v1, sioi));
 			PathCondition.flagSolved = true; //TODO: Review			
 		}
@@ -420,7 +420,7 @@ public class SymbolicStringConstraintsGeneralToText {
 		else if (e instanceof SymbolicIndexOfCharInteger) {
 			SymbolicIndexOfCharInteger sioi = (SymbolicIndexOfCharInteger) e;
 			//println ("[processIntegerConstraint] Found indexOf (char) constraint with " + sioi.getName());
-			StringGraph source = convertToGraph (sioi.source);
+			StringGraph source = convertToGraph (sioi.getSource());
 			Vertex v1;
 			if (sioi.getExpression() instanceof IntegerConstant) {
 				v1 = new Vertex ("CHAR_" + sioi.getExpression().solution(), String.valueOf ((char) sioi.getExpression().solution()), true);
@@ -430,7 +430,7 @@ public class SymbolicStringConstraintsGeneralToText {
 			}
 			global_graph.addVertex(v1);
 			global_graph.mergeIn(source);
-			Vertex v2 = global_graph.findVertex(sioi.source.getName());
+			Vertex v2 = global_graph.findVertex(sioi.getSource().getName());
 			global_graph.addEdge(v2, v1, new EdgeIndexOfChar("EdgeIndexOfChar_" + v2.getName () + "_" + v1.getName(), v2, v1, sioi));
 			PathCondition.flagSolved = true; //TODO: Review
 			

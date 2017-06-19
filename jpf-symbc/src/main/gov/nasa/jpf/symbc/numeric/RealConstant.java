@@ -39,151 +39,124 @@ package gov.nasa.jpf.symbc.numeric;
 
 import java.util.Map;
 
-
 public class RealConstant extends RealExpression {
-  public double value;
+	private double value;
 
-  public RealConstant (double i) {
-    value = i;
-  }
+	public RealConstant(double value) {
+		this.value = value;
+	}
 
-  public RealExpression _minus (double i) {
-		//simplify
-	  if (i == 0)
-		  return this;
+	public double getValue() {
+		return this.value;
+	}
 
-    return new RealConstant(value - i);
-  }
-
-  public RealExpression _minus (RealExpression e) {
-		//simplify
-		if (e instanceof RealConstant) {
-			RealConstant rc = (RealConstant)e;
-			if (rc.value == 0)
-				return this;
-		}
-		if (e == this)
-			return new RealConstant(0);
-
-    if (e instanceof RealConstant) {
-      return new RealConstant(value - ((RealConstant) e).value);
-    } else {
-      return super._minus(e);
-    }
-  }
-
-  public RealExpression _mul (double i) {
-      //simplify
-	  if (i == 1)
-		  return this;
-	  if (i == 0)
-		  return new RealConstant(0);
-
-    return new RealConstant(value * i);
-  }
-
-  public RealExpression _mul (RealExpression e) {
-		//simplify
-		if (e instanceof RealConstant) {
-			RealConstant rc = (RealConstant)e;
-			if (rc.value == 1)
-				return this;
-			if (rc.value == 0)
-				return new RealConstant(0);
-		}
-
-    if (e instanceof RealConstant) {
-      return new RealConstant(value * ((RealConstant) e).value);
-    } else {
-      return super._mul(e);
-    }
-  }
-
-  public RealExpression _plus (double i) {
-      //simplify
-	  if (i == 0)
-		  return this;
-
-	  return new RealConstant(value + i);
-  }
-
-  public RealExpression _plus (RealExpression e) {
-		//simplify
-		if (e instanceof RealConstant) {
-			RealConstant ic = (RealConstant)e;
-			if (ic.value == 0)
-				return this;
-		}
-
-    if (e instanceof RealConstant) {
-      return new RealConstant(value + ((RealConstant) e).value);
-    } else {
-      return super._plus(e);
-    }
-  }
-  
-  public RealExpression _div (double i) {
-	    assert (i!=0);
-		//simplify
-	    if (i == 1)
-	    	return this;
-	    return new RealConstant(value / i);
-	  }
-
-  public RealExpression _div (RealExpression e) {
-		//simplify
-		if (e instanceof RealConstant) {
-			RealConstant ic = (RealConstant)e;
-			if (ic.value == 1)
-				return this;
-		}
-
-		if (e instanceof RealConstant) {
-	      assert(((RealConstant) e).value!=0);	
-	      return new RealConstant(value / ((RealConstant) e).value);
-	    } else {
-	      return super._div(e);
-	    }
-	  }
-
-	public RealExpression _neg () 
-	{
-		if (value == 0)
+	public RealExpression _plus(double addendum) {
+		if (addendum == 0) {
 			return this;
-		else
-			return super._neg();
+		} else {
+			return new RealConstant(this.getValue() + addendum);
+		}
 	}
 
-  public boolean equals (Object o) {
-    if (!(o instanceof RealConstant)) {
-      return false;
-    }
-
-    return value == ((RealConstant) o).value;
-  }
-
-  public String toString () {
-    return "CONST_" + value + "";
-  }
-
-  public String prefix_notation ()
-	{
-		return ""+value;
+	public RealExpression _plus(RealExpression addendumExpression) {
+		if (addendumExpression instanceof RealConstant) {
+			RealConstant addendum = (RealConstant) addendumExpression;
+			return this._plus(addendum.getValue());
+		} else {
+			return super._plus(addendumExpression);
+		}
 	}
-  
-  public String stringPC () {
-    return "CONST_" + value + "";
-  }
 
-  public double value () {
-    return value;
-  }
-  
-  public double solution() {
-  		return value;
-  }
+	public RealExpression _minus(double subtrahend) {
+		if (subtrahend == 0) {
+			return this;
+		} else {
+			return new RealConstant(this.getValue() - subtrahend);
+		}
+	}
 
-  public void getVarsVals(Map<String,Object> varsVals) {}
+	public RealExpression _minus(RealExpression subtrahendExpression) {
+		if (subtrahendExpression instanceof RealConstant) {
+			RealConstant subtrahend = (RealConstant) subtrahendExpression;
+			return this._minus(subtrahend.getValue());
+		} else {
+			return super._minus(subtrahendExpression);
+		}
+	}
+
+	public RealExpression _mul(double multiplier) {
+		if (multiplier == 1) {
+			return this;
+		} else if (multiplier == 0) {
+			return new RealConstant(0);
+		} else {
+			return new RealConstant(this.getValue() * multiplier);
+		}
+	}
+
+	public RealExpression _mul(RealExpression multiplierExpression) {
+		if (multiplierExpression instanceof RealConstant) {
+			RealConstant multiplier = (RealConstant) multiplierExpression;
+			return this._mul(multiplier.getValue());
+		} else {
+			return super._mul(multiplierExpression);
+		}
+	}
+
+	public RealExpression _div(double divider) {
+		assert (divider != 0);
+		if (divider == 1) {
+			return this;
+		} else if (this.getValue() == 0) {
+			return new RealConstant(0);
+		} else {
+			return new RealConstant(this.getValue() / divider);
+		}
+	}
+
+	public RealExpression _div(RealExpression dividerExpression) {
+		if (dividerExpression instanceof RealConstant) {
+			RealConstant divider = (RealConstant) dividerExpression;
+			return this._div(divider.getValue());
+		} else {
+			return super._div(dividerExpression);
+		}
+	}
+
+	public RealExpression _neg() {
+		if (this.getValue() == 0) {
+			return this;
+		} else {
+			return new RealConstant(-this.getValue());
+		}
+	}
+
+	public boolean equals(Object o) {
+		if (!(o instanceof RealConstant)) {
+			return false;
+		} else {
+			return this.getValue() == ((RealConstant) o).getValue();
+		}
+	}
+
+	public String toString() {
+		return "CONST_" + this.getValue() + "";
+	}
+
+	public String prefix_notation() {
+		return "" + this.getValue();
+	}
+
+	public String getStringPathCondition() {
+		return "CONST_" + this.getValue() + "";
+	}
+
+	public double solution() {
+		return this.getValue();
+	}
+
+	public void getVarsVals(Map<String, Object> varsVals) {
+	}
 
 	// JacoGeldenhuys
 	@Override
@@ -196,10 +169,9 @@ public class RealConstant extends RealExpression {
 	public int compareTo(Expression expr) {
 		if (expr instanceof RealConstant) {
 			RealConstant e = (RealConstant) expr;
-			return Double.compare(value(), e.value());
+			return Double.compare(this.getValue(), e.getValue());
 		} else {
 			return getClass().getCanonicalName().compareTo(expr.getClass().getCanonicalName());
 		}
 	}
-
 }

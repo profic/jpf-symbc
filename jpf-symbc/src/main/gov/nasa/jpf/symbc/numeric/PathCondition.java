@@ -311,6 +311,7 @@ public class PathCondition implements Comparable<PathCondition> {
 	public Constraint last() {
 		Constraint t = header;
 		Constraint last = null;
+		
 		while (t != null) {
 			last = t;
 			t = t.and;
@@ -320,17 +321,19 @@ public class PathCondition implements Comparable<PathCondition> {
 	}
 
 	public boolean solve() {
-		if (SymbolicInstructionFactory.greenSolver == null)
+		if (SymbolicInstructionFactory.greenSolver == null) {
 			return solveOld();
-		else 
-			return solveGreen();			
+		} else {
+			return solveGreen();
+		}
 	}
 	
 	public boolean simplify() {
-		if (SymbolicInstructionFactory.greenSolver == null)
+		if (SymbolicInstructionFactory.greenSolver == null) {
 			return simplifyOld();
-		else 
+		} else {
 			return simplifyGreen();
+		}
 	}
 	
 	public Map<String, Object> solveWithValuation() {

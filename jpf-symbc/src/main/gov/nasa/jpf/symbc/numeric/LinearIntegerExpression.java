@@ -58,7 +58,7 @@ abstract class LinearIntegerExpression extends IntegerExpression
 		//simplify
 		if (e instanceof IntegerConstant) {
 			IntegerConstant ic = (IntegerConstant)e;
-			if (ic.value == 0)
+			if (ic.getValue() == 0)
 				return this;
 		}
 		if (e == this)
@@ -86,9 +86,9 @@ abstract class LinearIntegerExpression extends IntegerExpression
 		//simplify
 		if (e instanceof IntegerConstant) {
 			IntegerConstant ic = (IntegerConstant)e;
-			if (ic.value == 1)
+			if (ic.getValue() == 1)
 				return this;
-			if (ic.value == 0)
+			if (ic.getValue() == 0)
 				return new IntegerConstant(0);
 		}
 
@@ -114,8 +114,8 @@ abstract class LinearIntegerExpression extends IntegerExpression
 		//simplify
 		if (e instanceof IntegerConstant) {
 			IntegerConstant ic = (IntegerConstant)e;
-			assert (ic.value != 0);
-			if (ic.value == 1)
+			assert (ic.getValue() != 0);
+			if (ic.getValue() == 1)
 				return this;
 			else
 				new BinaryLinearIntegerExpression(this, MUL, e);
@@ -145,7 +145,7 @@ abstract class LinearIntegerExpression extends IntegerExpression
 		//simplify
 		if (e instanceof IntegerConstant) {
 			IntegerConstant ic = (IntegerConstant)e;
-			if (ic.value == 0)
+			if (ic.getValue() == 0)
 				return this;
 		}
 
@@ -171,7 +171,7 @@ abstract class LinearIntegerExpression extends IntegerExpression
     public IntegerExpression _and(IntegerExpression e) {
     	if(e instanceof IntegerConstant) {
     		IntegerConstant ic = (IntegerConstant) e;
-    		if(ic.value == 0) {
+    		if(ic.getValue() == 0) {
     			return new IntegerConstant(0);
     		}
     		return new BinaryLinearIntegerExpression(this, AND, e);
@@ -192,7 +192,7 @@ abstract class LinearIntegerExpression extends IntegerExpression
     public IntegerExpression _or(IntegerExpression e) {
     	if(e instanceof IntegerConstant) {
     		IntegerConstant ic = (IntegerConstant) e;
-    		if(ic.value == 0) {
+    		if(ic.getValue() == 0) {
     			return this;
     		}
     		return new BinaryLinearIntegerExpression(this, OR, e);
@@ -227,7 +227,7 @@ abstract class LinearIntegerExpression extends IntegerExpression
     public IntegerExpression _shiftR(IntegerExpression e) {
     	if(e instanceof IntegerConstant) {
     		IntegerConstant ic = (IntegerConstant) e;
-    		if(ic.value == 0) {
+    		if(ic.getValue() == 0) {
     			return this;
     		}
     		return new BinaryLinearIntegerExpression(this, SHIFTR, e);
@@ -248,7 +248,7 @@ abstract class LinearIntegerExpression extends IntegerExpression
     public IntegerExpression _shiftUR(IntegerExpression e) {
     	if(e instanceof IntegerConstant) {
     		IntegerConstant ic = (IntegerConstant) e;
-    		if(ic.value == 0) {
+    		if(ic.getValue() == 0) {
     			return this;
     		}
     		return new BinaryLinearIntegerExpression(this, SHIFTUR, e);
@@ -269,7 +269,7 @@ abstract class LinearIntegerExpression extends IntegerExpression
     public IntegerExpression _shiftL(IntegerExpression e) {
     	if(e instanceof IntegerConstant) {
     		IntegerConstant ic = (IntegerConstant) e;
-    		if(ic.value == 0) {
+    		if(ic.getValue() == 0) {
     			return this;
     		}
     		return new BinaryLinearIntegerExpression(this, SHIFTL, e);

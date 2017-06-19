@@ -1,0 +1,5 @@
+symbolic.min_int_var1 = 10
+symbolic.max_int_var1 = 99
+
+symbolic.min_double_var2 = -0.9
+symbolic.max_double_var2 = 1.2

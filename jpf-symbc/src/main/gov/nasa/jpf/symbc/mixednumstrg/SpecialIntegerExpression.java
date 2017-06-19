@@ -83,8 +83,8 @@ public class SpecialIntegerExpression extends IntegerExpression {
 	  }
 
 
-	  public String stringPC() {
-		    return op.toString() + "__" + opr.stringPC() + "__";
+	  public String getStringPathCondition() {
+		    return op.toString() + "__" + opr.getStringPathCondition() + "__";
 		  }
 
 	  public String toString() {

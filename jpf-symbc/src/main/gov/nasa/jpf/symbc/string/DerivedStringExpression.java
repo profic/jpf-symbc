@@ -141,11 +141,11 @@ public class DerivedStringExpression extends StringExpression {
     right.getVarsVals(varsVals);
   }
 
-  public String stringPC() {
+  public String getStringPathCondition() {
   if (left != null)
-        return left.stringPC() + "." + op.toString() + "(" + right.stringPC() + ")";
+        return left.getStringPathCondition() + "." + op.toString() + "(" + right.getStringPathCondition() + ")";
   else if (right != null)
-    return "." + op.toString() + "(" + right.stringPC() + ")";
+    return "." + op.toString() + "(" + right.getStringPathCondition() + ")";
   else 
   {
     StringBuilder s = new StringBuilder();

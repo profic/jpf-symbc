@@ -102,10 +102,10 @@ public class StringConstraint {
 
   public String stringPC() {
     if(left != null) {
-        return "(" +left.stringPC() + comp.toString() + right.stringPC() + ")"
+        return "(" +left.getStringPathCondition() + comp.toString() + right.getStringPathCondition() + ")"
             + ((and == null) ? "" : " && " + and.stringPC());
        } else {
-          return "(" +comp.toString() + right.stringPC() + ")"
+          return "(" +comp.toString() + right.getStringPathCondition() + ")"
             + ((and == null) ? "" : " && " + and.stringPC());
        }
   }

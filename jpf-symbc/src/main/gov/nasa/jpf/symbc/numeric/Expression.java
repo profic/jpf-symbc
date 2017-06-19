@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-
 //Copyright (C) 2005 United States Government as represented by the
 //Administrator of the National Aeronautics and Space Administration
 //(NASA).  All Rights Reserved.
@@ -34,19 +33,21 @@
 //THE SUBJECT SOFTWARE WILL BE ERROR FREE, OR ANY WARRANTY THAT
 //DOCUMENTATION, IF PROVIDED, WILL CONFORM TO THE SUBJECT SOFTWARE.
 
-
 package gov.nasa.jpf.symbc.numeric;
-
 
 import java.util.Map;
 import java.util.LinkedList;
 
-
 public abstract class Expression implements Comparable<Expression> {
 	public static LinkedList<String> trackedSymVars = new LinkedList<String>();
-    public abstract String stringPC();
-    public abstract void getVarsVals(Map<String,Object> varsVals);
+
+	public abstract String getStringPathCondition();
+
+	public abstract void getVarsVals(Map<String, Object> varsVals);
+
 	public abstract void accept(ConstraintExpressionVisitor visitor);
-	public String prefix_notation() {throw new RuntimeException("error printing");}
-	
+
+	public String prefix_notation() {
+		throw new RuntimeException("error printing");
+	}
 }

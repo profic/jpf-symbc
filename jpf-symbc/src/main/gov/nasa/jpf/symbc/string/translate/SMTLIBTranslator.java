@@ -222,7 +222,7 @@ public class SMTLIBTranslator {
 
 	private String numericExpressionToSMTLIB(IntegerExpression ie){
 		if(ie instanceof IntegerConstant){
-			return Integer.toString((int)((IntegerConstant) ie).value);
+			return Integer.toString((int)((IntegerConstant) ie).getValue());
 		}
 		else if (ie instanceof SymbolicLastIndexOfCharInteger){
 			return translateSymbolicLastIndexOfChar(ie);
@@ -286,14 +286,14 @@ public class SMTLIBTranslator {
 			
 			if( npc.getRight() instanceof SymbolicCharAtInteger && npc.getLeft() instanceof IntegerConstant ){
 				stringCastLeft = true;
-				int x = (int)((IntegerConstant)npc.getLeft()).value;
+				int x = (int)((IntegerConstant)npc.getLeft()).getValue();
 				arg1 = "\"" + Character.toString((char) x) + "\"";
 			}
 			else{
 				arg1 = numericExpressionToSMTLIB((IntegerExpression) npc.getLeft());
 			}
 			if( npc.getLeft() instanceof SymbolicCharAtInteger && npc.getRight() instanceof IntegerConstant ){
-				int y = (int)((IntegerConstant)npc.getRight()).value;
+				int y = (int)((IntegerConstant)npc.getRight()).getValue();
 				arg2 = "\"" + Character.toString((char) y) + "\"";
 			}
 			else{
@@ -535,7 +535,7 @@ public class SMTLIBTranslator {
 	}
 
 	private String translateStringConstant(StringExpression se) {
-		return "\"" + ((StringConstant) se).value + "\"";
+		return "\"" + ((StringConstant) se).getValue() + "\"";
 	}
 
 	private String translateSymbolicLastIndexOfChar(IntegerExpression ie) {

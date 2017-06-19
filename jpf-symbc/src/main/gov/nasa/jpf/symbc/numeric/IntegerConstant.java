@@ -42,266 +42,247 @@ import java.util.Map;
 import static gov.nasa.jpf.symbc.numeric.Operator.*;
 
 public class IntegerConstant extends LinearIntegerExpression {
-  public long value;
+	private long value;
 
-  public IntegerConstant (long i) {
-	  value = i;
-  }
-
-  public IntegerExpression _minus (long i) {
-      if (i == 0)
-          return this;
-	  return new IntegerConstant(value - i);
-  }
-
-  public IntegerExpression _minus_reverse (long i) {
-    return new IntegerConstant(i - value);
-  }
-
-  public IntegerExpression _minus (IntegerExpression e) {
-      //simplify
-      if (e instanceof IntegerConstant) {
-          IntegerConstant ic = (IntegerConstant)e;
-          if (ic.value == 0)
-              return this;
-      }
-      if (e == this)
-          return new IntegerConstant(0);
-
-    if (e instanceof IntegerConstant) {
-      return new IntegerConstant(value - ((IntegerConstant) e).value);
-    } else {
-      return super._minus(e);
-    }
-  }
-
-  public IntegerExpression _div (long i) {
-      //simplify
-      if (i == 1)
-          return this;
-      assert (i != 0);
-    return new IntegerConstant(value / i);
-  }
-
-  public IntegerExpression _div_reverse (long i) {
-	  //simplify
-	  assert  (value !=0);
-	  return new IntegerConstant(i / value);
-  }
-
-  public IntegerExpression _div (IntegerExpression e) {
-	  // simplify
-	  if (e instanceof IntegerConstant) {
-		  IntegerConstant ic = (IntegerConstant) e;
-		  assert (ic.value != 0);
-		  if (ic.value == 1)
-			  return this;
-		  else
-			  return new IntegerConstant(value / ic.value);
-	  }
-	  if (e == this)
-		  return new IntegerConstant(1);
-
-	 return super._div(e);
-  }
-
-  public IntegerExpression _mul (long i) {
-      //simplify
-      if (i == 1)
-          return this;
-      if (i == 0)
-          return new IntegerConstant(0);
-
-    return new IntegerConstant(value * i);
-  }
-
-  public IntegerExpression _mul (IntegerExpression e) {
-      // simplify
-      if (e instanceof IntegerConstant) {
-          IntegerConstant ic = (IntegerConstant) e;
-          if (ic.value == 1)
-              return this;
-          if (ic.value == 0)
-              return new IntegerConstant(0);
-      }
-
-    if (e instanceof IntegerConstant) {
-      return new IntegerConstant(value * ((IntegerConstant) e).value);
-    } else if (e instanceof LinearIntegerExpression) {
-      return new BinaryLinearIntegerExpression(this, MUL, e);
-    } else {
-      return super._mul(e);
-    }
-  }
-
-
-  public IntegerExpression _plus (long i) {
-      //simplify
-      if (i == 0)
-          return this;
-
-    return new IntegerConstant(value + i);
-  }
-
-  public IntegerExpression _plus (IntegerExpression e) {
-      //simplify
-      if (e instanceof IntegerConstant) {
-          IntegerConstant ic = (IntegerConstant)e;
-          if (ic.value == 0)
-              return this;
-      }
-
-    if (e instanceof IntegerConstant) {
-      return new IntegerConstant(value + ((IntegerConstant) e).value);
-    } else {
-      return super._plus(e);
-    }
-  }
-
-	public IntegerExpression _neg ()
-	{
-		if (value == 0)
-			return this;
-		else
-			return super._neg();
+	public IntegerConstant(long value) {
+		this.value = value;
 	}
 
-	public IntegerExpression _and (long i) {
-		   if (i == 0) {
-			   return new IntegerConstant(0);
-		   }
-		    return new IntegerConstant(value & i);
-		}
-
-	public IntegerExpression _and (IntegerExpression e) {
-		if (e instanceof IntegerConstant) {
-			if(((IntegerConstant) e).value == 0) {
-				return new IntegerConstant(0);
-			}
-			return new IntegerConstant(value & ((IntegerConstant) e).value);
-		}
-		return new BinaryLinearIntegerExpression(this, AND, e);
+	public long getValue() {
+		return this.value;
 	}
 
-	public IntegerExpression _or (long i) {
+	public IntegerExpression _plus(long i) {
 		if (i == 0) {
 			return this;
+		} else {
+			return new IntegerConstant(this.getValue() + i);
 		}
-		return new IntegerConstant(value | i);
 	}
 
-	public IntegerExpression _or (IntegerExpression e) {
-		if (e instanceof IntegerConstant) {
-			if(((IntegerConstant) e).value == 0) {
-				return this;
-			}
-			return new IntegerConstant(value | ((IntegerConstant) e).value);
+	public IntegerExpression _plus(IntegerExpression addendumExpression) {
+		if (addendumExpression instanceof IntegerConstant) {
+			IntegerConstant addendum = (IntegerConstant) addendumExpression;
+			return this._plus(addendum.getValue());
+		} else {
+			return super._plus(addendumExpression);
 		}
-		return new BinaryLinearIntegerExpression(this, OR, e);
 	}
 
-	public IntegerExpression _xor (long i) {
-		    return new IntegerConstant(value ^ i);
-	}
-
-	public IntegerExpression _xor (IntegerExpression e) {
-		if (e instanceof IntegerConstant) {
-			return new IntegerConstant(value ^ ((IntegerConstant) e).value);
+	public IntegerExpression _minus(long subtrahend) {
+		if (subtrahend == 0) {
+			return this;
+		} else {
+			return new IntegerConstant(this.getValue() - subtrahend);
 		}
-		return new BinaryLinearIntegerExpression(this, XOR, e);
 	}
 
-
-	public IntegerExpression _shiftL (long i) {
-	    return new IntegerConstant(value << i);
-	}
-
-	public IntegerExpression _shiftL (IntegerExpression e) {
-		if (e instanceof IntegerConstant) {
-			return new IntegerConstant(value << ((IntegerConstant) e).value);
+	public IntegerExpression _minus(IntegerExpression subtrahendExpression) {
+		if (subtrahendExpression instanceof IntegerConstant) {
+			IntegerConstant subtrahend = (IntegerConstant) subtrahendExpression;
+			return this._minus(subtrahend.getValue());
+		} else {
+			return super._minus(subtrahendExpression);
 		}
-		return new BinaryLinearIntegerExpression(this, SHIFTL, e);
 	}
 
-	public IntegerExpression _shiftR (long i) {
-	    return new IntegerConstant(value >> i);
+	public IntegerExpression _minus_reverse(long minuend) {
+		return new IntegerConstant(minuend - this.getValue());
 	}
 
-	public IntegerExpression _shiftR (IntegerExpression e) {
-		if (e instanceof IntegerConstant) {
-			return new IntegerConstant(value >> ((IntegerConstant) e).value);
+	public IntegerExpression _mul(long multiplier) {
+		if (multiplier == 1) {
+			return this;
+		} else if (multiplier == 0) {
+			return new IntegerConstant(0);
+		} else {
+			return new IntegerConstant(this.getValue() * multiplier);
 		}
-		return new BinaryLinearIntegerExpression(this, SHIFTR, e);
 	}
 
-	public IntegerExpression _shiftUR (long i) {
-	    return new IntegerConstant(value >>> i);
-	}
-
-	public IntegerExpression _shiftUR (IntegerExpression e) {
-		if (e instanceof IntegerConstant) {
-			return new IntegerConstant(value >>> ((IntegerConstant) e).value);
+	public IntegerExpression _mul(IntegerExpression multiplierExpression) {
+		if (multiplierExpression instanceof IntegerConstant) {
+			IntegerConstant multiplier = (IntegerConstant) multiplierExpression;
+			return this._mul(multiplier.getValue());
+		} else if (multiplierExpression instanceof LinearIntegerExpression) {
+			return new BinaryLinearIntegerExpression(this, MUL, multiplierExpression);
+		} else {
+			return super._mul(multiplierExpression);
 		}
-		return new BinaryLinearIntegerExpression(this, SHIFTUR, e);
+	}
+
+	public IntegerExpression _div(long divider) {
+		assert (divider != 0);
+		if (divider == 1) {
+			return this;
+		} else if (this.getValue() == 0) {
+			return new IntegerConstant(0);
+		} else {
+			return new IntegerConstant(this.getValue() / divider);
+		}
+	}
+
+	public IntegerExpression _div(IntegerExpression dividerExpression) {
+		if (dividerExpression instanceof IntegerConstant) {
+			IntegerConstant divider = (IntegerConstant) dividerExpression;
+			return this._div(divider.getValue());
+		} else {
+			return super._div(dividerExpression);
+		}
+	}
+
+	public IntegerExpression _div_reverse(long dividend) {
+		assert (this.getValue() != 0);
+		return new IntegerConstant(dividend / this.getValue());
+	}
+
+	public IntegerExpression _neg() {
+		if (this.getValue() == 0) {
+			return this;
+		} else {
+			return super._neg();
+		}
+	}
+
+	public IntegerExpression _and(long conjunct) {
+		if (conjunct == 0) {
+			return new IntegerConstant(0);
+		} else {
+			return new IntegerConstant(this.getValue() & conjunct);
+		}
+	}
+
+	public IntegerExpression _and(IntegerExpression conjunctExpression) {
+		if (conjunctExpression instanceof IntegerConstant) {
+			IntegerConstant conjunct = (IntegerConstant) conjunctExpression;
+			return this._and(conjunct.getValue());
+		} else {
+			return new BinaryLinearIntegerExpression(this, AND, conjunctExpression);
+		}
+	}
+
+	public IntegerExpression _or(long disjunct) {
+		if (disjunct == 0) {
+			return this;
+		} else {
+			return new IntegerConstant(this.getValue() | disjunct);
+		}
+	}
+
+	public IntegerExpression _or(IntegerExpression disjunctExpression) {
+		if (disjunctExpression instanceof IntegerConstant) {
+			IntegerConstant disjunct = (IntegerConstant) disjunctExpression;
+			return this._or(disjunct.getValue());
+		} else {
+			return new BinaryLinearIntegerExpression(this, OR, disjunctExpression);
+		}
+	}
+
+	public IntegerExpression _xor(long operand) {
+		return new IntegerConstant(this.getValue() ^ operand);
+	}
+
+	public IntegerExpression _xor(IntegerExpression operandExpression) {
+		if (operandExpression instanceof IntegerConstant) {
+			IntegerConstant operand = (IntegerConstant) operandExpression;
+			return this._xor(operand.getValue());
+		} else {
+			return new BinaryLinearIntegerExpression(this, XOR, operandExpression);
+		}
+	}
+
+	public IntegerExpression _shiftL(long numberOfPositions) {
+		return new IntegerConstant(this.getValue() << numberOfPositions);
+	}
+
+	public IntegerExpression _shiftL(IntegerExpression numberOfPositionsExpression) {
+		if (numberOfPositionsExpression instanceof IntegerConstant) {
+			IntegerConstant numberOfPositions = (IntegerConstant) numberOfPositionsExpression;
+			return this._shiftL(numberOfPositions.getValue());
+		} else {
+			return new BinaryLinearIntegerExpression(this, SHIFTL, numberOfPositionsExpression);
+		}
+	}
+
+	public IntegerExpression _shiftR(long numberOfPositions) {
+		return new IntegerConstant(this.getValue() >> numberOfPositions);
+	}
+
+	public IntegerExpression _shiftR(IntegerExpression numberOfPositionsExpression) {
+		if (numberOfPositionsExpression instanceof IntegerConstant) {
+			IntegerConstant numberOfPositions = (IntegerConstant) numberOfPositionsExpression;
+			return this._shiftR(numberOfPositions.getValue());
+		} else {
+			return new BinaryLinearIntegerExpression(this, SHIFTR, numberOfPositionsExpression);
+		}
+	}
+
+	public IntegerExpression _shiftUR(long numberOfPositions) {
+		return new IntegerConstant(this.getValue() >>> numberOfPositions);
+	}
+
+	public IntegerExpression _shiftUR(IntegerExpression numberOfPositionsExpression) {
+		if (numberOfPositionsExpression instanceof IntegerConstant) {
+			IntegerConstant numberOfPositions = (IntegerConstant) numberOfPositionsExpression;
+			return this._shiftUR(numberOfPositions.getValue());
+		} else {
+			return new BinaryLinearIntegerExpression(this, SHIFTUR, numberOfPositionsExpression);
+		}
 	}
 
 	@Override
-  public boolean equals (Object o) {
-    if (!(o instanceof IntegerConstant)) {
-      return false;
-    }
-
-    return value == ((IntegerConstant) o).value;
-  }
+	public boolean equals(Object o) {
+		if (!(o instanceof IntegerConstant)) {
+			return false;
+		} else {
+			return this.getValue() == ((IntegerConstant) o).getValue();
+		}
+	}
 
 	@Override
-  public int hashCode() { // analogous to java.lang.Long
-	  return (int)(this.value^(value>>>32));
-  }
- 
-  public String toString () {
-    return value + "";
-  }
-
-  public String prefix_notation ()
-	{
-		return ""+value;
+	public int hashCode() { // analogous to java.lang.Long
+		return (int) (this.getValue() ^ (this.getValue() >>> 32));
 	}
-  
-  public String stringPC () {
-    return value + "";
-  }
 
-  public int value () {
-    return (int) value;
-  }
+	public String toString() {
+		return this.getStringPathCondition();
+	}
 
-  public long solution() { // to be fixed
-  		return value; 
-  }
-  
-  public int solutionInt() {
-	  assert(value>=Integer.MIN_VALUE && value<=Integer.MAX_VALUE);
-	  return (int) value;
-  }
-  
-  public short solutionShort() {
-	  assert(value>=Short.MIN_VALUE && value<=Short.MAX_VALUE);
-	  return (short) value;
-  }
-  
-  public byte solutionByte() {
-	  assert(value>=Byte.MIN_VALUE && value<=Byte.MAX_VALUE);
-	  return (byte) value;
-  }
-  
-  public char solutionChar() {
-	  assert(value>=Character.MIN_VALUE && value<=Character.MAX_VALUE);
-	  return (char) value;
-  }
+	public String prefix_notation() {
+		return "" + this.getValue();
+	}
 
-  public void getVarsVals(Map<String,Object> varsVals) {}
-  
+	public String getStringPathCondition() {
+		return this.getValue() + "";
+	}
+
+	public long solution() { // to be fixed
+		return this.getValue();
+	}
+
+	public int solutionInt() {
+		assert (this.getValue() >= Integer.MIN_VALUE && this.getValue() <= Integer.MAX_VALUE);
+		return (int) this.getValue();
+	}
+
+	public short solutionShort() {
+		assert (this.getValue() >= Short.MIN_VALUE && this.getValue() <= Short.MAX_VALUE);
+		return (short) this.getValue();
+	}
+
+	public byte solutionByte() {
+		assert (this.getValue() >= Byte.MIN_VALUE && this.getValue() <= Byte.MAX_VALUE);
+		return (byte) this.getValue();
+	}
+
+	public char solutionChar() {
+		assert (this.getValue() >= Character.MIN_VALUE && this.getValue() <= Character.MAX_VALUE);
+		return (char) this.getValue();
+	}
+
+	public void getVarsVals(Map<String, Object> varsVals) {
+	}
+
 	// JacoGeldenhuys
 	@Override
 	public void accept(ConstraintExpressionVisitor visitor) {
@@ -313,12 +294,11 @@ public class IntegerConstant extends LinearIntegerExpression {
 	public int compareTo(Expression expr) {
 		if (expr instanceof IntegerConstant) {
 			IntegerConstant e = (IntegerConstant) expr;
-			long a = value();
-			long b = e.value();
+			long a = this.getValue();
+			long b = e.getValue();
 			return (a < b) ? -1 : (a > b) ? 1 : 0;
 		} else {
 			return getClass().getCanonicalName().compareTo(expr.getClass().getCanonicalName());
 		}
 	}
-
 }

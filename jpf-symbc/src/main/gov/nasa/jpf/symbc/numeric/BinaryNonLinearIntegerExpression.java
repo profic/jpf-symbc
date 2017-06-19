@@ -59,39 +59,49 @@ public class BinaryNonLinearIntegerExpression extends NonLinearIntegerExpression
 	public long solution() {
 		long l = left.solution();
 		long r = right.solution();
-		switch(op){
-		  case PLUS:       return l + r;
-		  case MINUS:      return l - r;
-		  case MUL: return l * r;
-		  case DIV: return l / r;
-		  case AND: return l & r;
-		  case OR: return l | r;
-		  case XOR: return l ^ r;
-		  case SHIFTL: return l << r;
-		  case SHIFTR: return l >> r;
-		  case SHIFTUR: return l >>> r;
-		  default: throw new RuntimeException("## Error: BinaryNonLinearSolution solution: l " + l + " op " + op + " r " + r);
+		switch (op) {
+		case PLUS:
+			return l + r;
+		case MINUS:
+			return l - r;
+		case MUL:
+			return l * r;
+		case DIV:
+			return l / r;
+		case AND:
+			return l & r;
+		case OR:
+			return l | r;
+		case XOR:
+			return l ^ r;
+		case SHIFTL:
+			return l << r;
+		case SHIFTR:
+			return l >> r;
+		case SHIFTUR:
+			return l >>> r;
+		default:
+			throw new RuntimeException("## Error: BinaryNonLinearSolution solution: l " + l + " op " + op + " r " + r);
 		}
 	}
 
-    public void getVarsVals(Map<String,Object> varsVals) {
-    	left.getVarsVals(varsVals);
-    	right.getVarsVals(varsVals);
-    }
+	public void getVarsVals(Map<String, Object> varsVals) {
+		left.getVarsVals(varsVals);
+		right.getVarsVals(varsVals);
+	}
 
-	public String stringPC() {
-		return "(" + left.stringPC() + op.toString() + right.stringPC() + ")";
+	public String getStringPathCondition() {
+		return "(" + left.getStringPathCondition() + op.toString() + right.getStringPathCondition() + ")";
 	}
 
 	public String toString() {
 		return "(" + left.toString() + op.toString() + right.toString() + ")";
 	}
 
-	public String prefix_notation ()
-	{
-		return "(" + op.prefix_notation() + " "+ left.prefix_notation()  + " "+right.prefix_notation() + ")";
+	public String prefix_notation() {
+		return "(" + op.prefix_notation() + " " + left.prefix_notation() + " " + right.prefix_notation() + ")";
 	}
-	
+
 	// JacoGeldenhuys
 	@Override
 	public void accept(ConstraintExpressionVisitor visitor) {
@@ -117,5 +127,4 @@ public class BinaryNonLinearIntegerExpression extends NonLinearIntegerExpression
 			return getClass().getCanonicalName().compareTo(expr.getClass().getCanonicalName());
 		}
 	}
-
 }

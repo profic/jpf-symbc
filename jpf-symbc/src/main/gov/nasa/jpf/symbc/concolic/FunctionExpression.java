@@ -54,38 +54,36 @@ import java.lang.reflect.*;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-public class FunctionExpression extends RealExpression
-{
+public class FunctionExpression extends RealExpression {
 	String class_name;
 	String method_name;
 	Class<?>[] argTypes;
-	public Expression [] sym_args;
+	public Expression[] sym_args;
 	static URLClassLoader clsLoader = null;
 	ArrayList<PathCondition> conditions;
 
 	// what happens when there are no arguments?
-	public FunctionExpression (String cls, String mth, Class<?>[] ast, 
-			Expression [] sym_as, ArrayList<PathCondition> conditions)
-	{
+	public FunctionExpression(String cls, String mth, Class<?>[] ast, Expression[] sym_as,
+			ArrayList<PathCondition> conditions) {
 		class_name = cls;
 		method_name = mth;
-		assert(ast != null && sym_as != null && sym_as.length == ast.length);
+		assert (ast != null && sym_as != null && sym_as.length == ast.length);
 		// do we need a deep copy here or a shallow copy is enough?
 		argTypes = ast;
 		sym_args = sym_as;
 		this.conditions = conditions;
 	}
 
-	// here we assume that the solution is always double; if it is not we can cast it later;
-	public double solution()
-	{
+	// here we assume that the solution is always double; if it is not we can
+	// cast it later;
+	public double solution() {
 		// here we need to use reflection to invoke the method with
 		// name method_name and with parameters the solutions of the arguments
 
-		assert(sym_args!=null && sym_args.length >0);
+		assert (sym_args != null && sym_args.length > 0);
 
 		try {
-			if(clsLoader == null) {
+			if (clsLoader == null) {
 				ArrayList<String> list = new ArrayList<String>();
 				String[] cp = ClassLoaderInfo.getCurrentClassLoader().getClassPathElements();
 				cp = FileUtils.expandWildcards(cp);
@@ -95,7 +93,7 @@ public class FunctionExpression extends RealExpression
 				URL[] urls = FileUtils.getURLs(list);
 				clsLoader = new URLClassLoader(urls);
 			}
-			
+
 			Class<?> cls = null;
 			try {
 				cls = Class.forName(class_name, true, clsLoader);
@@ -105,31 +103,31 @@ public class FunctionExpression extends RealExpression
 			} catch (UnsatisfiedLinkError e) {
 				e.printStackTrace();
 				System.out.println("unsatisfied link error");
-				
+
 			}
-			
-			  Object[] args = new Object[sym_args.length];
-		      for (int i=0; i<args.length; i++)
-		    	  if (sym_args[i] instanceof IntegerExpression) {
-			        args[i] = new Long(((IntegerExpression)sym_args[i]).solution());
-		    	  }
-			      else {// RealExpression
-			    	args[i] = new Double(((RealExpression)sym_args[i]).solution());
-			      }
-		      Method m = cls.getMethod(method_name, argTypes);
-		      int modifiers = m.getModifiers();
-		      if (Modifier.isStatic(modifiers) && Modifier.isPublic(modifiers)){
-		    	  Object result = null;
-		    	  try {
-		    		  result = m.invoke(null, args); // here we need the type of the result
-		    	  } catch(InvocationTargetException e) {
-		    		 e.printStackTrace();
-		    		 System.err.println("exception :" + e.getMessage());
-		    	  }
-		        if (result instanceof Number) {
-		        	return ((Number) result).doubleValue();
-		        }
-		      }
+
+			Object[] args = new Object[sym_args.length];
+			for (int i = 0; i < args.length; i++)
+				if (sym_args[i] instanceof IntegerExpression) {
+					args[i] = new Long(((IntegerExpression) sym_args[i]).solution());
+				} else {// RealExpression
+					args[i] = new Double(((RealExpression) sym_args[i]).solution());
+				}
+			Method m = cls.getMethod(method_name, argTypes);
+			int modifiers = m.getModifiers();
+			if (Modifier.isStatic(modifiers) && Modifier.isPublic(modifiers)) {
+				Object result = null;
+				try {
+					result = m.invoke(null, args); // here we need the type of
+													// the result
+				} catch (InvocationTargetException e) {
+					e.printStackTrace();
+					System.err.println("exception :" + e.getMessage());
+				}
+				if (result instanceof Number) {
+					return ((Number) result).doubleValue();
+				}
+			}
 		}
 
 		catch (Throwable e) {
@@ -138,28 +136,29 @@ public class FunctionExpression extends RealExpression
 		return 0.0;
 	}
 
-    public void getVarsVals(Map<String,Object> varsVals) {
-    	if (sym_args!=null)
-    		for (int i = 0; i < sym_args.length; i++)
-    			sym_args[i].getVarsVals(varsVals);
-    }
+	public void getVarsVals(Map<String, Object> varsVals) {
+		if (sym_args != null)
+			for (int i = 0; i < sym_args.length; i++)
+				sym_args[i].getVarsVals(varsVals);
+	}
 
-	public String stringPC() {
-		String result="";
-		if (sym_args!=null)
-    		for (int i = 0; i < sym_args.length; i++)
-    			result = result + sym_args[i].stringPC() + " ";
-		return "(" + class_name +"." + method_name + "(" + result + ")";
+	public String getStringPathCondition() {
+		String result = "";
+		if (sym_args != null)
+			for (int i = 0; i < sym_args.length; i++)
+				result = result + sym_args[i].getStringPathCondition() + " ";
+		return "(" + class_name + "." + method_name + "(" + result + ")";
 
 	}
 
-	public String toString () {
-		String result="";
-		if (sym_args!=null)
-    		for (int i = 0; i < sym_args.length; i++)
-    			result = result + sym_args[i].toString() + " ";
-		return "(" + class_name +"." + method_name + "(" + result + ")";
+	public String toString() {
+		String result = "";
+		if (sym_args != null)
+			for (int i = 0; i < sym_args.length; i++)
+				result = result + sym_args[i].toString() + " ";
+		return "(" + class_name + "." + method_name + "(" + result + ")";
 	}
+
 	@Override
 	public void accept(ConstraintExpressionVisitor visitor) {
 		visitor.preVisit(this);
@@ -202,7 +201,4 @@ public class FunctionExpression extends RealExpression
 			return getClass().getCanonicalName().compareTo(expr.getClass().getCanonicalName());
 		}
 	}
-
-	
-
 }

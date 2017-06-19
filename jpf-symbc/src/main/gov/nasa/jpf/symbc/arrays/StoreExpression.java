@@ -47,8 +47,8 @@ public class StoreExpression extends Expression {
         return;
     }
 
-    public String stringPC() {
-        return arrayExpression.stringPC() + "[" + indexExpression.stringPC() + "] <- " + value.stringPC();
+    public String getStringPathCondition() {
+        return arrayExpression.getStringPathCondition() + "[" + indexExpression.getStringPathCondition() + "] <- " + value.getStringPathCondition();
     }
 
     public int compareTo(Expression expr) {
@@ -57,6 +57,6 @@ public class StoreExpression extends Expression {
     }
 
     public String toString() {
-        return this.stringPC();
+        return this.getStringPathCondition();
     }
 }

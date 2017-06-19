@@ -84,9 +84,9 @@ public class SpecialRealExpression extends RealExpression {
 	  }
 
 
-	  public String stringPC() {
+	  public String getStringPathCondition() {
 //		    return "." + op.toString() + "[" + opr.stringPC() + "]";
-        return op.toString() + "__" + opr.stringPC() + "__";
+        return op.toString() + "__" + opr.getStringPathCondition() + "__";
 		  }
 
 	  public String toString() {

@@ -56,77 +56,79 @@ import gov.nasa.jpf.symbc.numeric.SymbolicInteger;
 
 public class StringSymbolic extends StringExpression {
 
-  public static final String UNDEFINED = "**UNDEFINED**";
-  public String solution = UNDEFINED;
-  public static String SYM_STRING_SUFFIX = "_SYMSTRING";
-  private String name;
-  private IntegerExpression length;
+	public static final String UNDEFINED = "**UNDEFINED**";
+	public static String SYM_STRING_SUFFIX = "_SYMSTRING";
+	
+	private String name;
+	private IntegerExpression length;
+	private String solution = UNDEFINED;
 
-  public StringSymbolic() {
-	   super();
+	public StringSymbolic() {
+		super();
 
-	   StringPathCondition.flagSolved = false;
-  }
+		StringPathCondition.flagSolved = false;
+	}
 
-  public StringSymbolic(String n) {
-    super();
-    name = n;
-    length = new SymbolicInteger(name + ".length");
-	trackedSymVars.add(fixName(name));
-	StringPathCondition.flagSolved=false;
-  }
+	public StringSymbolic(String n) {
+		super();
+		name = n;
+		length = new SymbolicInteger(name + ".length");
+		trackedSymVars.add(fixName(name));
+		StringPathCondition.flagSolved = false;
+	}
 
-  public StringSymbolic clone() {
-	  String newName = new String(this.name);
-	  return new StringSymbolic(newName);
-  }
+	public StringSymbolic clone() {
+		String newName = new String(this.name);
+		return new StringSymbolic(newName);
+	}
 
-  public String toString() {
-	   if (!StringPathCondition.flagSolved) {
-		      return (name != null) ? name : "STR_" + hashCode();
-		    } else {
-		      return (name != null) ? name + "[" + solution + "]" : "STR_" + hashCode()
-		          + "[" + solution + "]";
-		    }
-  }
+	public String toString() {
+		if (!StringPathCondition.flagSolved) {
+			return (name != null) ? name : "STR_" + hashCode();
+		} else {
+			return (name != null) ? name + "[" + solution + "]" : "STR_" + hashCode() + "[" + solution + "]";
+		}
+	}
 
-	public String stringPC () {
+	public String getStringPathCondition() {
 		if (!StringPathCondition.flagSolved) {
 			return (name != null) ? name : "STR_" + hashCode();
 
 		} else {
-			return (name != null) ? name + "[" + solution + "]" :
-				"STR_" + hashCode() + "[" + solution + "]";
+			return (name != null) ? name + "[" + solution + "]" : "STR_" + hashCode() + "[" + solution + "]";
 		}
 	}
 
-	   public void getVarsVals(Map<String,Object> varsVals) {
-	    	varsVals.put(fixName(name), solution);
-	    }
+	public void getVarsVals(Map<String, Object> varsVals) {
+		varsVals.put(fixName(name), solution);
+	}
 
-	   public String fixName(String name) {
-	    	if (name.endsWith(SYM_STRING_SUFFIX)) {
-	    		name = name.substring(0, name.lastIndexOf(SYM_STRING_SUFFIX));
-	    	}
-	    	return name;
-	    }
-
-	   public IntegerExpression ___length() {
-		    return length;
-		  }
-
-		public String getName() {
-			return (name != null) ? name : "STRING_" + hashCode();
+	public String fixName(String name) {
+		if (name.endsWith(SYM_STRING_SUFFIX)) {
+			name = name.substring(0, name.lastIndexOf(SYM_STRING_SUFFIX));
 		}
+		return name;
+	}
 
-	  public String solution() {
-	    return solution;
-	  }
+	public IntegerExpression ___length() {
+		return length;
+	}
+
+	public String getName() {
+		return (name != null) ? name : "STRING_" + hashCode();
+	}
+	
+	public void setSolution(String solution) {
+		this.solution = solution;
+	}
+
+	public String solution() {
+		return this.solution;
+	}
 
 	@Override
 	public void accept(ConstraintExpressionVisitor visitor) {
 		visitor.preVisit(this);
 		visitor.postVisit(this);
 	}
-
 }

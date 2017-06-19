@@ -20,21 +20,22 @@ package gov.nasa.jpf.symbc.string;
 
 import gov.nasa.jpf.symbc.numeric.SymbolicInteger;
 
-public class SymbolicLastIndexOfInteger extends SymbolicInteger{
-	StringExpression source, expression;
-	
-	public SymbolicLastIndexOfInteger (String name, int l, int u, StringExpression source, StringExpression expression) {
-		super (name, l, u);
+public class SymbolicLastIndexOfInteger extends SymbolicInteger {
+	private StringExpression source;
+	private StringExpression expression;
+
+	public SymbolicLastIndexOfInteger(String name, int lowerBound, int upperBound,
+			StringExpression source, StringExpression expression) {
+		super(name, lowerBound, upperBound);
 		this.source = source;
 		this.expression = expression;
 	}
-	
+
 	public StringExpression getSource() {
 		return source;
 	}
-	
-	public StringExpression getExpression () {
+
+	public StringExpression getExpression() {
 		return expression;
 	}
-
 }

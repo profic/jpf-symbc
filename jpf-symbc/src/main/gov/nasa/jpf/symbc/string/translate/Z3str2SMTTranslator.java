@@ -215,7 +215,7 @@ public class Z3str2SMTTranslator {
 
 	private String numericExpressionToSMTLIB(IntegerExpression ie) {
 		if (ie instanceof IntegerConstant) {
-			int x = (int) ((IntegerConstant) ie).value;
+			int x = (int) ((IntegerConstant) ie).getValue();
 			if (x >= 0) {
 				return Integer.toString(x);
 			} else {
@@ -461,7 +461,7 @@ public class Z3str2SMTTranslator {
 		// value in the constraint. However, the solvers expect strings
 		// of length 1 in place of characters, so we must make a cast.
 		if (si.getExpression() instanceof IntegerConstant) {
-			int x = (int) ((IntegerConstant) si.getExpression()).value;
+			int x = (int) ((IntegerConstant) si.getExpression()).getValue();
 			arg2 = "\"" + Character.toString((char) x) + "\"";
 		} else {
 			arg2 = numericExpressionToSMTLIB(si.getExpression());
@@ -484,7 +484,7 @@ public class Z3str2SMTTranslator {
 		// cast. Otherwise, recursively translate the argument, which is
 		// a numeric expression.
 		if (sioci.getExpression() instanceof IntegerConstant) {
-			int x = (int) ((IntegerConstant) sioci.getExpression()).value;
+			int x = (int) ((IntegerConstant) sioci.getExpression()).getValue();
 			arg2 = "\"" + Character.toString((char) x) + "\"";
 		} else {
 			arg2 = numericExpressionToSMTLIB(sioci.getExpression());
@@ -590,7 +590,7 @@ public class Z3str2SMTTranslator {
 	}
 
 	private String translateStringConstant(StringExpression se) {
-		return "\"" + ((StringConstant) se).value + "\"";
+		return "\"" + ((StringConstant) se).getValue() + "\"";
 	}
 
 	private String translateSymbolicLastIndexOfChar(IntegerExpression ie) {

@@ -40,59 +40,49 @@ package gov.nasa.jpf.symbc.numeric;
 
 import java.util.Map;
 
-public class MathRealExpression extends RealExpression
-{
+public class MathRealExpression extends RealExpression {
 	public RealExpression arg1, arg2;
-	public MathFunction   op;
-	//int exp; // for power
+	public MathFunction op;
+	// int exp; // for power
 
-	public MathRealExpression (final MathFunction o, final RealExpression a)
-	{
-		assert
-		o == MathFunction.ABS || //Added for dReal by Nima
-		o == MathFunction.SIN || o == MathFunction.COS ||
-		o == MathFunction.EXP ||
-		o == MathFunction.ASIN || o == MathFunction.ACOS ||
-		o == MathFunction.ATAN || o == MathFunction.LOG ||
-		o == MathFunction.TAN  || o == MathFunction.SQRT;
+	public MathRealExpression(final MathFunction o, final RealExpression a) {
+		assert o == MathFunction.ABS || // Added for dReal by Nima
+				o == MathFunction.SIN || o == MathFunction.COS || o == MathFunction.EXP || o == MathFunction.ASIN
+				|| o == MathFunction.ACOS || o == MathFunction.ATAN || o == MathFunction.LOG || o == MathFunction.TAN
+				|| o == MathFunction.SQRT;
 
 		op = o;
 		arg1 = a;
 	}
 
-	//TODO: to generalize this...
-//	public MathRealExpression (MathFunction o, RealExpression a, int e)
-//	{
-//		op = o;
-//		arg1 = a;
-//		if (o == MathFunction.POW)
-//			exp = e;
-//
-//	}
+	// TODO: to generalize this...
+	// public MathRealExpression (MathFunction o, RealExpression a, int e)
+	// {
+	// op = o;
+	// arg1 = a;
+	// if (o == MathFunction.POW)
+	// exp = e;
+	//
+	// }
 
-	public MathRealExpression (final MathFunction o, final RealExpression a1, final double a2)
-	{
-		assert
-		o == MathFunction.POW || o == MathFunction.ATAN2;
+	public MathRealExpression(final MathFunction o, final RealExpression a1, final double a2) {
+		assert o == MathFunction.POW || o == MathFunction.ATAN2;
 		op = o;
 		arg1 = a1;
 		arg2 = new RealConstant(a2);
 
 	}
 
-	public MathRealExpression (final MathFunction o, final double a1, final RealExpression a2)
-	{
-		assert
-		o == MathFunction.POW || o == MathFunction.ATAN2;
+	public MathRealExpression(final MathFunction o, final double a1, final RealExpression a2) {
+		assert o == MathFunction.POW || o == MathFunction.ATAN2;
 		op = o;
 		arg1 = new RealConstant(a1);
 		arg2 = a2;
 
 	}
-	public MathRealExpression (final MathFunction o, final RealExpression a1, final RealExpression a2)
-	{
-		assert
-		o == MathFunction.POW || o == MathFunction.ATAN2;
+
+	public MathRealExpression(final MathFunction o, final RealExpression a1, final RealExpression a2) {
+		assert o == MathFunction.POW || o == MathFunction.ATAN2;
 		op = o;
 		arg1 = a1;
 		arg2 = a2;
@@ -112,60 +102,69 @@ public class MathRealExpression extends RealExpression
 	}
 
 	@Override
-  public double solution()
-	{
-		final double a1 = (arg1==null?0:arg1.solution());
-	    final double a2 = (arg2==null?0:arg2.solution());
-		switch(op){
-		   case ABS: return Math.abs(a1); // Added for dReal by Nima
-		   case COS:  return Math.cos(a1);
-		   case SIN:  return Math.sin(a1);
-		   case EXP: return Math.exp(a1);
-		   case ASIN: return Math.asin(a1);
-		   case ACOS: return Math.acos(a1);
-		   case ATAN: return Math.atan(a1);
-		   case LOG: return Math.log(a1);
-		   case TAN: return Math.tan(a1);
-		   case SQRT: return Math.sqrt(a1);
-		   case POW:  return Math.pow(a1,a2);
-		   case ATAN2:  return Math.atan2(a1,a2);
-           default:   throw new
-           	RuntimeException("## Error: MathRealExpression solution: math function " + op);
+	public double solution() {
+		final double a1 = (arg1 == null ? 0 : arg1.solution());
+		final double a2 = (arg2 == null ? 0 : arg2.solution());
+		switch (op) {
+		case ABS:
+			return Math.abs(a1); // Added for dReal by Nima
+		case COS:
+			return Math.cos(a1);
+		case SIN:
+			return Math.sin(a1);
+		case EXP:
+			return Math.exp(a1);
+		case ASIN:
+			return Math.asin(a1);
+		case ACOS:
+			return Math.acos(a1);
+		case ATAN:
+			return Math.atan(a1);
+		case LOG:
+			return Math.log(a1);
+		case TAN:
+			return Math.tan(a1);
+		case SQRT:
+			return Math.sqrt(a1);
+		case POW:
+			return Math.pow(a1, a2);
+		case ATAN2:
+			return Math.atan2(a1, a2);
+		default:
+			throw new RuntimeException("## Error: MathRealExpression solution: math function " + op);
 		}
 	}
 
-    @Override
-    public void getVarsVals(final Map<String,Object> varsVals) {
-    	if (arg1 != null) arg1.getVarsVals(varsVals);
-    	if (arg2 != null) arg2.getVarsVals(varsVals);
-    }
-
 	@Override
-  public String stringPC() {
-		if (op == MathFunction.ABS || //Added for dReal by Nima
-		    op == MathFunction.SIN || op == MathFunction.COS ||
-			op == MathFunction.EXP ||
-			op == MathFunction.ASIN || op == MathFunction.ACOS ||
-			op == MathFunction.ATAN || op == MathFunction.LOG ||
-			op == MathFunction.TAN || op == MathFunction.SQRT)
-			return "(" + op.toString() + "(" + arg1.stringPC() + "))";
-		else //op == MathFunction.POW || op == MathFunction.ATAN2
-			return "(" + op.toString() + "(" + arg1.stringPC() + "," + arg2.stringPC() + "))";
+	public void getVarsVals(final Map<String, Object> varsVals) {
+		if (arg1 != null)
+			arg1.getVarsVals(varsVals);
+		if (arg2 != null)
+			arg2.getVarsVals(varsVals);
 	}
 
 	@Override
-  public String toString () {
-		if (op == MathFunction.ABS || //Added for dReal by Nima
-		    op == MathFunction.SIN || op == MathFunction.COS ||
-				op == MathFunction.EXP ||
-				op == MathFunction.ASIN || op == MathFunction.ACOS ||
-				op == MathFunction.ATAN || op == MathFunction.LOG ||
-				op == MathFunction.TAN || op == MathFunction.SQRT)
-			return  op.toString() + "(" + arg1.toString() + ")";
-		else //op == MathFunction.POW || op == MathFunction.ATAN2
-			return  op.toString() + "(" + arg1.toString() + "," + arg2.toString() + ")";
+	public String getStringPathCondition() {
+		if (op == MathFunction.ABS || // Added for dReal by Nima
+				op == MathFunction.SIN || op == MathFunction.COS || op == MathFunction.EXP || op == MathFunction.ASIN
+				|| op == MathFunction.ACOS || op == MathFunction.ATAN || op == MathFunction.LOG
+				|| op == MathFunction.TAN || op == MathFunction.SQRT)
+			return "(" + op.toString() + "(" + arg1.getStringPathCondition() + "))";
+		else // op == MathFunction.POW || op == MathFunction.ATAN2
+			return "(" + op.toString() + "(" + arg1.getStringPathCondition() + "," + arg2.getStringPathCondition() + "))";
 	}
-	
+
+	@Override
+	public String toString() {
+		if (op == MathFunction.ABS || // Added for dReal by Nima
+				op == MathFunction.SIN || op == MathFunction.COS || op == MathFunction.EXP || op == MathFunction.ASIN
+				|| op == MathFunction.ACOS || op == MathFunction.ATAN || op == MathFunction.LOG
+				|| op == MathFunction.TAN || op == MathFunction.SQRT)
+			return op.toString() + "(" + arg1.toString() + ")";
+		else // op == MathFunction.POW || op == MathFunction.ATAN2
+			return op.toString() + "(" + arg1.toString() + "," + arg2.toString() + ")";
+	}
+
 	@Override
 	public void accept(final ConstraintExpressionVisitor visitor) {
 		visitor.preVisit(this);

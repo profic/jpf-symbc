@@ -43,8 +43,8 @@ public class SelectExpression extends Expression {
         return;
     }
 
-    public String stringPC() {
-        return arrayExpression.stringPC() + "[" + indexExpression.stringPC() + "]";
+    public String getStringPathCondition() {
+        return arrayExpression.getStringPathCondition() + "[" + indexExpression.getStringPathCondition() + "]";
     }
 
     public int compareTo(Expression expr) {
@@ -53,6 +53,6 @@ public class SelectExpression extends Expression {
     }
 
     public String toString() {
-        return this.stringPC();
+        return this.getStringPathCondition();
     }
 }

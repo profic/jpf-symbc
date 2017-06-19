@@ -36,51 +36,47 @@
 //
 package gov.nasa.jpf.symbc.bytecode;
 
-
 import gov.nasa.jpf.symbc.numeric.RealExpression;
 import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.StackFrame;
 import gov.nasa.jpf.vm.ThreadInfo;
 import gov.nasa.jpf.vm.Types;
 
-
 /**
- * Subtract double
- * ..., value1, value2 => ..., result
+ * Subtract double ..., value1, value2 => ..., result
  */
 public class DSUB extends gov.nasa.jpf.jvm.bytecode.DSUB {
 
-  @Override
-  public Instruction execute (ThreadInfo th) {
-	  
-	StackFrame sf = th.getModifiableTopFrame();
-	
-	RealExpression sym_v1 = (RealExpression) sf.getLongOperandAttr(); 
-    double v1 = Types.longToDouble(sf.popLong());
-    RealExpression sym_v2 = (RealExpression) sf.getLongOperandAttr();
-    double v2 = Types.longToDouble(sf.popLong());
-    
-    double r = v2 - v1;
-    if(sym_v1==null && sym_v2==null)
-    	sf.pushLong(Types.doubleToLong(r)); 
-    else
-    	sf.pushLong(0); 
+	@Override
+	public Instruction execute(ThreadInfo th) {
 
-    RealExpression result = null;
-	if(sym_v2!=null) {
-		if (sym_v1!=null)
-			result = sym_v2._minus(sym_v1);
-		else // v1 is concrete
-			result = sym_v2._minus(v1);
-	}else if (sym_v1!=null)
-		result = sym_v1._minus_reverse(v2);
-	
-	sf.setLongOperandAttr(result);
-	
-	//System.out.println("Execute DSUB: "+ sf.getLongOperandAttr());
+		StackFrame sf = th.getModifiableTopFrame();
 
+		RealExpression sym_v1 = (RealExpression) sf.getLongOperandAttr();
+		double v1 = Types.longToDouble(sf.popLong());
+		RealExpression sym_v2 = (RealExpression) sf.getLongOperandAttr();
+		double v2 = Types.longToDouble(sf.popLong());
 
-    return getNext(th);
-  }
+		double r = v2 - v1;
+		if (sym_v1 == null && sym_v2 == null)
+			sf.pushLong(Types.doubleToLong(r));
+		else
+			sf.pushLong(0);
 
+		RealExpression result = null;
+		if (sym_v2 != null) {
+			if (sym_v1 != null) {
+				result = sym_v2._minus(sym_v1);
+			} else {
+				// v1 is concrete
+				result = sym_v2._minus(v1);
+			}
+		} else if (sym_v1 != null) {
+			result = sym_v1._minus_reverse(v2);
+		}
+
+		sf.setLongOperandAttr(result);
+
+		return getNext(th);
+	}
 }

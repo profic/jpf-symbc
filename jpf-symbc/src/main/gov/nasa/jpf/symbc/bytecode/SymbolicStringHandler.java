@@ -114,7 +114,7 @@ public class SymbolicStringHandler {
 					if (sym_v1 instanceof SymbolicStringBuilder) { // check if
 						// StringBuilder has
 						// empty attribute
-						if (((SymbolicStringBuilder) sym_v1).getstr() != null) {
+						if (((SymbolicStringBuilder) sym_v1).getStringExpression() != null) {
 							return true;
 						}
 					} else if (sym_v1 instanceof IntegerExpression && cname.equals("java.lang.StringBuilder")){
@@ -807,7 +807,7 @@ public class SymbolicStringHandler {
 			} else {
 				sf.pop(); /* string object */
 				sf.pop(); /* one stringBuilder Object */
-				sym_v2.putstr(sym_v1);
+				sym_v2.setStringExpression(sym_v1);
 				sf.setOperandAttr(sym_v2);
 				return invInst.getNext();
 			}
@@ -2030,7 +2030,7 @@ public class SymbolicStringHandler {
 		if (sym_v1 instanceof SymbolicStringBuilder) {
 			sf.pop();
 			SymbolicStringBuilder sym_v3 = (SymbolicStringBuilder) sym_v1;
-			StringExpression sym_v2 = StringExpression._valueOf((StringExpression) sym_v3.getstr());
+			StringExpression sym_v2 = StringExpression._valueOf((StringExpression) sym_v3.getStringExpression());
 			int objRef = th.getHeap().newString("", th).getObjectRef(); /*
 																																	 * dummy
 																																	 * String
@@ -2185,7 +2185,7 @@ public class SymbolicStringHandler {
 
 		if (sym_v2 == null)
 			sym_v2 = new SymbolicStringBuilder();
-		if ((sym_v1 == null) & (sym_v2.getstr() == null)) {
+		if ((sym_v1 == null) & (sym_v2.getStringExpression() == null)) {
 			throw new RuntimeException("ERROR: symbolic string method must have one symbolic operand: handleStringAppend");
 		} else {
 			int s1 = sf.pop();
@@ -2196,11 +2196,11 @@ public class SymbolicStringHandler {
 				String val = e1.asString();
 				sym_v2._append(val);
 				sf.push(s2, true); /* symbolic string Builder element */
-			} else if (sym_v2.getstr() == null) { // operand 1 is concrete; get string
+			} else if (sym_v2.getStringExpression() == null) { // operand 1 is concrete; get string
 				// from String builder object
 				ElementInfo e1 = th.getElementInfo(s2);
 				String val = getStringEquiv(e1);
-				sym_v2.putstr(new StringConstant(val));
+				sym_v2.setStringExpression(new StringConstant(val));
 				sym_v2._append(sym_v1);
 				// setVariableAttribute(ei, invInst, th, sf, s2, sym_v2); //set the
 				// value of the attribute of local StringBuilder element as sym_v2
@@ -2229,7 +2229,7 @@ public class SymbolicStringHandler {
 		//check if all parameters are concrete
 		boolean concreteSubstring = (sym_end == null & sym_start == null & sym_string == null);
 		
-		if (concreteSubstring & sym_builder.getstr() == null) {
+		if (concreteSubstring & sym_builder.getStringExpression() == null) {
 			throw new RuntimeException("ERROR: symbolic string method must have one symbolic operand: HandleStringAppend3");
 		} else {
 			int endRef = sf.pop();
@@ -2258,10 +2258,10 @@ public class SymbolicStringHandler {
 			}
 			
 			//append to the symbolic string
-			if(sym_builder.getstr() == null) { //stringbuilder is concrete 
+			if(sym_builder.getStringExpression() == null) { //stringbuilder is concrete 
 				ElementInfo eiBuilder = th.getElementInfo(builderRef);
 				String builderContents = getStringEquiv(eiBuilder);
-				sym_builder.putstr(new StringConstant(builderContents));
+				sym_builder.setStringExpression(new StringConstant(builderContents));
 			}
 			
 			sym_builder._append(substring);
@@ -2348,7 +2348,7 @@ public class SymbolicStringHandler {
 
 		if (sym_v2 == null)
 			sym_v2 = new SymbolicStringBuilder();
-		if ((sym_v1 == null) & (sym_v2.getstr() == null)) {
+		if ((sym_v1 == null) & (sym_v2.getStringExpression() == null)) {
 			throw new RuntimeException("ERROR: symbolic string method must have one symbolic operand: handleCharAppend");
 		} else {
 			char s1 = (char) sf.pop();
@@ -2357,11 +2357,11 @@ public class SymbolicStringHandler {
 				String val = Character.toString(s1);
 				sym_v2._append(val);
 				sf.push(s2, true); /* symbolic string Builder element */
-			} else if (sym_v2.getstr() == null) { // operand 1 is concrete; get string
+			} else if (sym_v2.getStringExpression() == null) { // operand 1 is concrete; get string
 				// from String builder object
 				ElementInfo e1 = th.getElementInfo(s2);
 				String val = getStringEquiv(e1);
-				sym_v2.putstr(new StringConstant(val));
+				sym_v2.setStringExpression(new StringConstant(val));
 				sym_v2._append(sym_v1);
 				sf.push(s2, true); /* symbolic string Builder element */
 			} else { // both operands are symbolic
@@ -2381,7 +2381,7 @@ public class SymbolicStringHandler {
 
 		if (sym_v2 == null)
 			sym_v2 = new SymbolicStringBuilder();
-		if ((sym_v1 == null) & (sym_v2.getstr() == null)) {
+		if ((sym_v1 == null) & (sym_v2.getStringExpression() == null)) {
 			throw new RuntimeException("ERROR: symbolic string method must have one symbolic operand: handleByteAppend");
 		} else {
 			byte s1 = (byte) sf.pop();
@@ -2390,11 +2390,11 @@ public class SymbolicStringHandler {
 				String val = Byte.toString(s1);
 				sym_v2._append(val);
 				sf.push(s2, true); /* symbolic string Builder element */
-			} else if (sym_v2.getstr() == null) { // operand 1 is concrete; get string
+			} else if (sym_v2.getStringExpression() == null) { // operand 1 is concrete; get string
 				// from String builder object
 				ElementInfo e1 = th.getElementInfo(s2);
 				String val = getStringEquiv(e1);
-				sym_v2.putstr(new StringConstant(val));
+				sym_v2.setStringExpression(new StringConstant(val));
 				sym_v2._append(sym_v1);
 				sf.push(s2, true); /* symbolic string Builder element */
 			} else { // both operands are symbolic
@@ -2414,7 +2414,7 @@ public class SymbolicStringHandler {
 
 		if (sym_v2 == null)
 			sym_v2 = new SymbolicStringBuilder();
-		if ((sym_v1 == null) & (sym_v2.getstr() == null)) {
+		if ((sym_v1 == null) & (sym_v2.getStringExpression() == null)) {
 			throw new RuntimeException("ERROR: symbolic string method must have one symbolic operand: handleShortAppend");
 		} else {
 			short s1 = (short) sf.pop();
@@ -2423,11 +2423,11 @@ public class SymbolicStringHandler {
 				String val = Short.toString(s1);
 				sym_v2._append(val);
 				sf.push(s2, true); /* symbolic string Builder element */
-			} else if (sym_v2.getstr() == null) { // operand 1 is concrete; get string
+			} else if (sym_v2.getStringExpression() == null) { // operand 1 is concrete; get string
 				// from String builder object
 				ElementInfo e1 = th.getElementInfo(s2);
 				String val = getStringEquiv(e1);
-				sym_v2.putstr(new StringConstant(val));
+				sym_v2.setStringExpression(new StringConstant(val));
 				sym_v2._append(sym_v1);
 				sf.push(s2, true); /* symbolic string Builder element */
 			} else { // both operands are symbolic
@@ -2447,7 +2447,7 @@ public class SymbolicStringHandler {
 
 		if (sym_v2 == null)
 			sym_v2 = new SymbolicStringBuilder();
-		if ((sym_v1 == null) & (sym_v2.getstr() == null)) {
+		if ((sym_v1 == null) & (sym_v2.getStringExpression() == null)) {
 			throw new RuntimeException("ERROR: symbolic string method must have one symbolic operand: hanldeIntAppend");
 		} else {
 			int s1 = sf.pop();
@@ -2456,11 +2456,11 @@ public class SymbolicStringHandler {
 				String val = Integer.toString(s1);
 				sym_v2._append(val);
 				sf.push(s2, true); /* symbolic string Builder element */
-			} else if (sym_v2.getstr() == null) { // operand 1 is concrete; get string
+			} else if (sym_v2.getStringExpression() == null) { // operand 1 is concrete; get string
 				// from String builder object
 				ElementInfo e1 = th.getElementInfo(s2);
 				String val = getStringEquiv(e1);
-				sym_v2.putstr(new StringConstant(val));
+				sym_v2.setStringExpression(new StringConstant(val));
 				sym_v2._append(sym_v1);
 				sf.push(s2, true); /* symbolic string Builder element */
 			} else { // both operands are symbolic
@@ -2480,7 +2480,7 @@ public class SymbolicStringHandler {
 
 		if (sym_v2 == null)
 			sym_v2 = new SymbolicStringBuilder();
-		if ((sym_v1 == null) & (sym_v2.getstr() == null)) {
+		if ((sym_v1 == null) & (sym_v2.getStringExpression() == null)) {
 			throw new RuntimeException("ERROR: symbolic string method must have one symbolic operand: hanldeFloatAppend");
 		} else {
 			float s1 = Types.intToFloat(sf.pop());
@@ -2489,11 +2489,11 @@ public class SymbolicStringHandler {
 				String val = Float.toString(s1);
 				sym_v2._append(val);
 				sf.push(s2, true); /* symbolic string Builder element */
-			} else if (sym_v2.getstr() == null) { // operand 1 is concrete; get string
+			} else if (sym_v2.getStringExpression() == null) { // operand 1 is concrete; get string
 				// from String builder object
 				ElementInfo e1 = th.getElementInfo(s2);
 				String val = getStringEquiv(e1);
-				sym_v2.putstr(new StringConstant(val));
+				sym_v2.setStringExpression(new StringConstant(val));
 				sym_v2._append(sym_v1);
 				sf.push(s2, true); /* symbolic string Builder element */
 			} else { // both operands are symbolic
@@ -2512,7 +2512,7 @@ public class SymbolicStringHandler {
 
 		if (sym_v2 == null)
 			sym_v2 = new SymbolicStringBuilder();
-		if ((sym_v1 == null) & (sym_v2.getstr() == null)) {
+		if ((sym_v1 == null) & (sym_v2.getStringExpression() == null)) {
 			throw new RuntimeException("ERROR: symbolic string method must have one symbolic operand: hanldeBooleanAppend");
 		} else {
 			boolean s1 = Types.intToBoolean(sf.pop());
@@ -2521,11 +2521,11 @@ public class SymbolicStringHandler {
 				String val = Boolean.toString(s1);
 				sym_v2._append(val);
 				sf.push(s2, true); /* symbolic string Builder element */
-			} else if (sym_v2.getstr() == null) { // operand 1 is concrete; get string
+			} else if (sym_v2.getStringExpression() == null) { // operand 1 is concrete; get string
 				// from String builder object
 				ElementInfo e1 = th.getElementInfo(s2);
 				String val = getStringEquiv(e1);
-				sym_v2.putstr(new StringConstant(val));
+				sym_v2.setStringExpression(new StringConstant(val));
 				sym_v2._append(sym_v1); /*
 																 * String s1 =
 																 * AbstractionUtilityMethods.unknownString();
@@ -2555,7 +2555,7 @@ public class SymbolicStringHandler {
 
 		if (sym_v2 == null)
 			sym_v2 = new SymbolicStringBuilder();
-		if ((sym_v1 == null) & (sym_v2.getstr() == null)) {
+		if ((sym_v1 == null) & (sym_v2.getStringExpression() == null)) {
 			throw new RuntimeException("ERROR: symbolic string method must have one symbolic operand: handleLongAppend");
 		} else {
 			long s1 = sf.popLong();
@@ -2564,11 +2564,11 @@ public class SymbolicStringHandler {
 				String val = Long.toString(s1);
 				sym_v2._append(val);
 				sf.push(s2, true); /* symbolic string Builder element */
-			} else if (sym_v2.getstr() == null) { // operand 1 is concrete; get string
+			} else if (sym_v2.getStringExpression() == null) { // operand 1 is concrete; get string
 				// from String builder object
 				ElementInfo e1 = th.getElementInfo(s2);
 				String val = getStringEquiv(e1);
-				sym_v2.putstr(new StringConstant(val));
+				sym_v2.setStringExpression(new StringConstant(val));
 				sym_v2._append(sym_v1);
 				sf.push(s2, true); /* symbolic string Builder element */
 			} else { // both operands are symbolic
@@ -2591,7 +2591,7 @@ public class SymbolicStringHandler {
 
 		if (sym_v2 == null)
 			sym_v2 = new SymbolicStringBuilder();
-		if ((sym_v1 == null) & (sym_v2.getstr() == null)) {
+		if ((sym_v1 == null) & (sym_v2.getStringExpression() == null)) {
 			throw new RuntimeException("ERROR: symbolic string method must have one symbolic operand");
 		} else {
 
@@ -2599,11 +2599,11 @@ public class SymbolicStringHandler {
 				String val = Double.toString(s1);
 				sym_v2._append(val);
 				sf.push(s2, true); /* symbolic string Builder element */
-			} else if (sym_v2.getstr() == null) { // operand 1 is concrete; get string
+			} else if (sym_v2.getStringExpression() == null) { // operand 1 is concrete; get string
 				// from String builder object
 				ElementInfo e1 = th.getElementInfo(s2);
 				String val = getStringEquiv(e1);
-				sym_v2.putstr(new StringConstant(val));
+				sym_v2.setStringExpression(new StringConstant(val));
 				sym_v2._append(sym_v1);
 				sf.push(s2, true); /* symbolic string Builder element */
 			} else { // both operands are symbolic
@@ -2630,22 +2630,22 @@ public class SymbolicStringHandler {
 		// System.out.println(invInst.getSourceLocation());
 		if (sym_v2 == null)
 			sym_v2 = new SymbolicStringBuilder();
-		if ((sym_v1 == null) && (sym_v2.getstr() == null)) {
+		if ((sym_v1 == null) && (sym_v2.getStringExpression() == null)) {
 			throw new RuntimeException("ERROR: symbolic string method must have one symbolic operand: handleObjectAppend");
 		} else {
 			int s1 = sf.pop();
 			ElementInfo e2 = th.getElementInfo(s1);
 			int s2 = sf.pop();
 			if (sym_v1 == null || (sym_v1 instanceof SymbolicStringBuilder 
-					&& ((SymbolicStringBuilder) sym_v1).getstr() == null)) { // operand 0 is concrete
+					&& ((SymbolicStringBuilder) sym_v1).getStringExpression() == null)) { // operand 0 is concrete
 				String val = getStringEquiv(e2);
 				sym_v2._append(val);
 				sf.push(s2, true); /* symbolic string Builder element */
-			} else if (sym_v2.getstr() == null) { // operand 1 is concrete; get string
+			} else if (sym_v2.getStringExpression() == null) { // operand 1 is concrete; get string
 				// from String builder object
 				ElementInfo e1 = th.getElementInfo(s2);
 				String val = getStringEquiv(e1);
-				sym_v2.putstr(new StringConstant(val));
+				sym_v2.setStringExpression(new StringConstant(val));
 				if (sym_v1 instanceof SymbolicStringBuilder)
 					sym_v2._append((SymbolicStringBuilder) sym_v1);
 				else if (sym_v1 instanceof StringExpression)
@@ -2682,22 +2682,22 @@ public class SymbolicStringHandler {
 		if (sym_v1 == null)
 			sym_v1 = new SymbolicStringBuilder();
 
-		if ((sym_v1.getstr() == null) & (sym_v2.getstr() == null)) {
+		if ((sym_v1.getStringExpression() == null) & (sym_v2.getStringExpression() == null)) {
 			throw new RuntimeException("ERROR: symbolic string method must have one symbolic operand: hanldeStringBuilderAppend");
 		} else {
 			int s1 = sf.pop();
 			int s2 = sf.pop();
 
-			if (sym_v1.getstr() == null) { // operand 0 is concrete
+			if (sym_v1.getStringExpression() == null) { // operand 0 is concrete
 				ElementInfo e1 = th.getElementInfo(s1);
 				String val = getStringEquiv(e1);
 				sym_v2._append(val);
 				sf.push(s2, true); /* symbolic string Builder element */
-			} else if (sym_v2.getstr() == null) { // operand 1 is concrete; get string
+			} else if (sym_v2.getStringExpression() == null) { // operand 1 is concrete; get string
 				// from String builder object
 				ElementInfo e1 = th.getElementInfo(s2);
 				String val = getStringEquiv(e1);
-				sym_v2.putstr(new StringConstant(val));
+				sym_v2.setStringExpression(new StringConstant(val));
 				sym_v2._append(sym_v1);
 				sf.push(s2, true); /* symbolic string Builder element */
 			} else { // both operands are symbolic
@@ -2754,7 +2754,7 @@ public class SymbolicStringHandler {
 		StringExpression sym_v1 = null;
 		if (sym_obj_v2 instanceof SymbolicStringBuilder) {
 			SymbolicStringBuilder sym_v2 = (SymbolicStringBuilder) sym_obj_v2;
-			sym_v1 = sym_v2.getstr();
+			sym_v1 = sym_v2.getStringExpression();
 		} else {
 			throw new RuntimeException("ERROR: symbolic type not Handled: toString");
 		}

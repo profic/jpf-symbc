@@ -94,7 +94,7 @@ public class ArrayExpression extends Expression {
        return new ArrayExpression(name, l);
     }
 
-   public String stringPC() {
+   public String getStringPathCondition() {
         return (name != null) ? name : "ARRAY_" + hashCode();
     }
 
@@ -113,6 +113,6 @@ public class ArrayExpression extends Expression {
     }
 
     public String toString() {
-        return this.stringPC();
+        return this.getStringPathCondition();
     }
 }

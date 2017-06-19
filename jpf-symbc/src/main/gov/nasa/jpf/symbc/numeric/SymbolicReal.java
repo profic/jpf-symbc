@@ -44,131 +44,119 @@ import java.util.Random;
 
 public class SymbolicReal extends RealExpression {
 	public static double UNDEFINED = Double.MIN_VALUE;
-	public double _min = 0;
-	public double _max = 0;
 	public double solution = UNDEFINED; // C
 	public double solution_inf = UNDEFINED; // C
 	public double solution_sup = UNDEFINED; // C
 
-	int unique_id;
+	private int unique_id;
 
-	static String SYM_REAL_SUFFIX = "_SYMREAL";// C: what is this?
+	static String SYM_REAL_SUFFIX = "_SYMREAL"; // C: what is this?
+	
+	private double min = 0;
+	private double max = 0;
 	private String name;
 
-	public SymbolicReal () {
-		super();
-		unique_id = MinMax.UniqueId++;
-		//PathCondition.flagSolved = false;
-		name = "REAL_" + hashCode();
-		_min = MinMax.getVarMinDouble(name);
-		_max = MinMax.getVarMaxDouble(name);
+	public SymbolicReal() {
+		this(MinMax.getMinDouble(), MinMax.getMaxDouble());
 	}
 
-	public SymbolicReal (String s) {
-		super();
-		unique_id = MinMax.UniqueId++;
-		//PathCondition.flagSolved = false;
-		name = s;
-		_min = MinMax.getVarMinDouble(name);
-		_max = MinMax.getVarMaxDouble(name);
-		//trackedSymVars.add(fixName(name));
+	public SymbolicReal(String name) {
+		this(MinMax.getMinDouble(), MinMax.getMaxDouble());
+		this.name = name;
 	}
 
-	public SymbolicReal (double l, double u) {
-		super();
-		unique_id = MinMax.UniqueId++;
-		_min = l;
-		_max = u;
-		//PathCondition.flagSolved = false;
-    name = "REAL_" + hashCode();
+	public SymbolicReal(double lowerBound, double upperBound) {
+		this(null, lowerBound, upperBound);
 	}
 
-	public SymbolicReal (String s, double l, double u) {
+	public SymbolicReal(String name, double lowerBound, double upperBound) {
 		super();
-		unique_id = MinMax.UniqueId++;
-		_min = l;
-		_max = u;
-		name = s;
-		//PathCondition.flagSolved = false;
-		//trackedSymVars.add(fixName(name));
+		this.unique_id = MinMax.UniqueId++;
+		this.min = lowerBound;
+		this.max = upperBound;
+		this.name = (name != null) ? name : "REAL_" + hashCode();
 	}
 
+	public double getMin() {
+		return min;
+	}
+	
+	public double getMax() {
+		return max;
+	}
+	
 	public String getName() {
-		return (name != null) ? name : "REAL_" + hashCode();
+		return name;
 	}
 
-	public String stringPC () {
-		return (name != null) ? name : "REAL_" + hashCode();
-
+	public String getStringPathCondition() {
+		return getName();
 	}
 
-	public String toString () {
+	public String toString() {
 		if (!PathCondition.flagSolved) {
-			return (name != null) ? name : "REAL_" + hashCode();
-
+			return (this.getName() != null) ? this.getName() : "REAL_" + hashCode();
 		} else {
-			return (name != null) ? name + "[" + solution + /* "<" + solution_inf + "," + solution_sup + ">" + */  "]" :
-				"REAL_" + hashCode() + "[" + solution + "]";
-//			return (name != null) ? name + "[" + solution_inf + "," + solution_sup +  "]" :
-//				"REAL_" + hashCode() + "[" + + solution_inf + "," + solution_sup +  "]";
+			return (this.getName() != null) ? this.getName() + "[" + solution
+					+ /* "<" + solution_inf + "," + solution_sup + ">" + */ "]"
+					: "REAL_" + hashCode() + "[" + solution + "]";
+			// return (name != null) ? name + "[" + solution_inf + "," +
+			// solution_sup + "]" :
+			// "REAL_" + hashCode() + "[" + + solution_inf + "," + solution_sup
+			// + "]";
 		}
 	}
 
-	public String prefix_notation ()
-	{
-		return (name != null) ? name : "REAL_" + hashCode();
+	public String prefix_notation() {
+		return (this.getName() != null) ? this.getName() : "REAL_" + hashCode();
 	}
 
 	public double solution() {
 		if (PathCondition.flagSolved) {
-			if (solution == UNDEFINED && SymbolicInstructionFactory.concolicMode) {
-				// return a random value in concolic mode; note that if the solution happens to be exactly the value of UNDEFINED, then there is a bug
-				double d;
-				d = new Random().nextDouble();
-				if(d < 0.5)
-					d = _min * d;
-				else
-					d = _max * d;
-				solution = d;
+			if ((solution == UNDEFINED) && SymbolicInstructionFactory.concolicMode) {
+				// return a random value in concolic mode; note that if the
+				// solution happens to be exactly the value of UNDEFINED, then
+				// there is a bug
+				double r = new Random().nextDouble();
+				solution = min + (max - min) * r ;
 			}
 			return solution;
-		}
-		else
+		} else
 			throw new RuntimeException("## Error: PC not solved!");
 	}
 
-    public void getVarsVals(Map<String,Object> varsVals) {
-    	varsVals.put(fixName(name), solution);
-    }
+	public void getVarsVals(Map<String, Object> varsVals) {
+		varsVals.put(fixName(this.getName()), this.solution);
+	}
 
-    private String fixName(String name) {
-    	if (name.endsWith(SYM_REAL_SUFFIX)) {
-    		name = name.substring(0, name.lastIndexOf(SYM_REAL_SUFFIX));
-    	}
-    	return name;
-    }
+	private String fixName(String name) {
+		if (name.endsWith(SYM_REAL_SUFFIX)) {
+			name = name.substring(0, name.lastIndexOf(SYM_REAL_SUFFIX));
+		}
+		return name;
+	}
 
-    public boolean equals (Object o) {
-        return (o instanceof SymbolicReal) &&
-               (this.equals((SymbolicReal) o));
-    }
-    private boolean equals (SymbolicReal s) {
-//      if (name != null)
-//          return (this.name.equals(s.name)) &&
-//                 (this._max == s._max) &&
-//                 (this._min == s._min);
-//      else
-//          return (this._max == s._max) &&
-//                 (this._min == s._min);
-  	return this.unique_id == s.unique_id;
-  }
+	public boolean equals(Object o) {
+		return (o instanceof SymbolicReal) && (this.equals((SymbolicReal) o));
+	}
 
-  public int hashCode() {
-      //return Integer.toHexString(_min ^ _max).hashCode();
-  	return unique_id;
-  }
-  
-//	JacoGeldenhuys
+	private boolean equals(SymbolicReal s) {
+		// if (name != null)
+		// return (this.name.equals(s.name)) &&
+		// (this._max == s._max) &&
+		// (this._min == s._min);
+		// else
+		// return (this._max == s._max) &&
+		// (this._min == s._min);
+		return this.unique_id == s.unique_id;
+	}
+
+	public int hashCode() {
+		// return Integer.toHexString(_min ^ _max).hashCode();
+		return unique_id;
+	}
+
+	// JacoGeldenhuys
 	@Override
 	public void accept(ConstraintExpressionVisitor visitor) {
 		visitor.preVisit(this);
