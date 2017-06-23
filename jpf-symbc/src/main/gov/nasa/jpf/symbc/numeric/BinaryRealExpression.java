@@ -41,17 +41,13 @@ import java.util.Map;
 
 public class BinaryRealExpression extends RealExpression {
 	private RealExpression left;
-	private Operator operator;
 	private RealExpression right;
+	private Operator operator;
 
 	public BinaryRealExpression(RealExpression left, Operator operator, RealExpression right) {
 		this.left = left;
 		this.operator = operator;
 		this.right = right;
-	}
-	
-	public Operator getOperator() {
-		return operator;
 	}
 
 	public RealExpression getLeft() {
@@ -60,6 +56,10 @@ public class BinaryRealExpression extends RealExpression {
 
 	public RealExpression getRight() {
 		return right;
+	}
+	
+	public Operator getOperator() {
+		return operator;
 	}
 
 	public double solution() {

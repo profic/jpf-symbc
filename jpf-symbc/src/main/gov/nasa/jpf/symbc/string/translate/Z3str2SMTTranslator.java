@@ -504,7 +504,7 @@ public class Z3str2SMTTranslator {
 
 	private String translateBinaryLinearIntegerExpression(IntegerExpression ie) {
 		BinaryLinearIntegerExpression blie = (BinaryLinearIntegerExpression) ie;
-		String op = blie.getOp().toString();
+		String op = blie.getOperator().toString();
 		String arg1 = numericExpressionToSMTLIB(blie.getLeft());
 		String arg2 = numericExpressionToSMTLIB(blie.getRight());
 		return "(" + op + " " + arg1 + " " + arg2 + ")";

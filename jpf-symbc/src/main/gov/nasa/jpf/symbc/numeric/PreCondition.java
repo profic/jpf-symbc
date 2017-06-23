@@ -40,38 +40,32 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 public class PreCondition {
-	PathCondition pc;
+	private PathCondition pathCondition;
 
-
-	public PathCondition createPathCondition(String assumeString,
-			Map<String,Expression> expressionMap) {
-
-		//System.out.println("Pre-condition: "+assumeString);
-		pc = new PathCondition();
-		if (assumeString.contains("&&")){
-			StringTokenizer st = new StringTokenizer(assumeString,"&&");
-			while (st.hasMoreTokens()){
+	public PathCondition createPathCondition(String assumeString, Map<String, Expression> expressionMap) {
+		this.pathCondition = new PathCondition();
+		if (assumeString.contains("&&")) {
+			StringTokenizer st = new StringTokenizer(assumeString, "&&");
+			while (st.hasMoreTokens()) {
 				String expressionString = st.nextToken();
-				addExpression(expressionString,expressionMap);
+				addExpression(expressionString, expressionMap);
 			}
-		}else{
-			addExpression(assumeString,expressionMap);
+		} else {
+			addExpression(assumeString, expressionMap);
 		}
-		return pc;
+		return this.pathCondition;
 	}
 
-	public PathCondition addConstraints(PathCondition pc, String assumeString,
-			Map<String,Expression> expressionMap) {
-
-		this.pc = pc;
-		if (assumeString.contains("&&")){
-			StringTokenizer st = new StringTokenizer(assumeString,"&&");
-			while (st.hasMoreTokens()){
+	public PathCondition addConstraints(PathCondition pc, String assumeString, Map<String, Expression> expressionMap) {
+		this.pathCondition = pc;
+		if (assumeString.contains("&&")) {
+			StringTokenizer st = new StringTokenizer(assumeString, "&&");
+			while (st.hasMoreTokens()) {
 				String expressionString = st.nextToken();
-				addExpression(expressionString,expressionMap);
+				addExpression(expressionString, expressionMap);
 			}
-		}else{
-			addExpression(assumeString,expressionMap);
+		} else {
+			addExpression(assumeString, expressionMap);
 		}
 
 		return pc;
@@ -82,12 +76,11 @@ public class PreCondition {
 	 */
 	// needs to be extended for more complex expressions
 	// TODO: check
-	private void addExpression(String expressionString,
-			Map<String,Expression> expressionMap){
+	private void addExpression(String expressionString, Map<String, Expression> expressionMap) {
 
-		StringTokenizer st = null;
-		//String operator = "";
-		Comparator c;
+		StringTokenizer stringTokenizer = null;
+		// String operator = "";
+		Comparator comparator;
 		String lhs = "";
 		String rhs = "";
 		Expression lhsExpression = null;
@@ -95,81 +88,64 @@ public class PreCondition {
 		long lhsInt, rhsInt;
 		double lhsDouble, rhsDouble;
 
-		if (expressionString.contains("!=")){
-			st = new StringTokenizer(expressionString,"!=");
-			c= Comparator.NE;
-			lhs = st.nextToken();
-			rhs = st.nextToken();
-		}else if (expressionString.contains("==")){
-			st = new StringTokenizer(expressionString,"==");
-			c = Comparator.EQ;
-			lhs = st.nextToken();
-			rhs = st.nextToken();
-		}else if (expressionString.contains(">=")){
-			st = new StringTokenizer(expressionString,">=");
-			c = Comparator.GE;
-			lhs = st.nextToken();
-			rhs = st.nextToken();
-		}else if (expressionString.contains("<=")){
-			st = new StringTokenizer(expressionString,"<=");
-			c = Comparator.LE;
-			lhs = st.nextToken();
-			rhs = st.nextToken();
-		}else if (expressionString.contains(">")){
-			st = new StringTokenizer(expressionString,">");
-			c = Comparator.GT;
-			lhs = st.nextToken();
-			rhs = st.nextToken();
-
-		}else if (expressionString.contains("<")){
-			st = new StringTokenizer(expressionString,"<");
-			c = Comparator.LT;
-			lhs = st.nextToken();
-			rhs = st.nextToken();
-		}else
+		if (expressionString.contains("!=")) {
+			stringTokenizer = new StringTokenizer(expressionString, "!=");
+			comparator = Comparator.NE;
+		} else if (expressionString.contains("==")) {
+			stringTokenizer = new StringTokenizer(expressionString, "==");
+			comparator = Comparator.EQ;
+		} else if (expressionString.contains(">=")) {
+			stringTokenizer = new StringTokenizer(expressionString, ">=");
+			comparator = Comparator.GE;
+		} else if (expressionString.contains("<=")) {
+			stringTokenizer = new StringTokenizer(expressionString, "<=");
+			comparator = Comparator.LE;
+		} else if (expressionString.contains(">")) {
+			stringTokenizer = new StringTokenizer(expressionString, ">");
+			comparator = Comparator.GT;
+		} else if (expressionString.contains("<")) {
+			stringTokenizer = new StringTokenizer(expressionString, "<");
+			comparator = Comparator.LT;
+		} else
 			throw new RuntimeException("## Error: parse error in pre-condition (op)");
-
-
+		
+		lhs = stringTokenizer.nextToken();
+		rhs = stringTokenizer.nextToken();
 
 		if (expressionMap.containsKey(lhs))
 			lhsExpression = expressionMap.get(lhs);
 		else {
 			// expect a number here
-			try{
+			try {
 				lhsInt = Long.parseLong(lhs);
 				lhsExpression = new IntegerConstant(lhsInt);
-			}
-			catch(Exception e1){
+			} catch (Exception e1) {
 				try {
 					lhsDouble = Double.parseDouble(lhs);
 					lhsExpression = new RealConstant(lhsDouble);
-				}
-				catch(Exception e2) {
+				} catch (Exception e2) {
 					throw new RuntimeException("## Error: parse error in pre-condition " + lhs + "not a number");
 				}
 			}
 		}
 
-
 		if (expressionMap.containsKey(rhs))
 			rhsExpression = expressionMap.get(rhs);
 		else {
-			//expect a number here
-			try{
+			// expect a number here
+			try {
 				rhsInt = Long.parseLong(rhs);
 				rhsExpression = new IntegerConstant(rhsInt);
-			}
-			catch(Exception e1){
+			} catch (Exception e1) {
 				try {
 					rhsDouble = Double.parseDouble(rhs);
 					rhsExpression = new RealConstant(rhsDouble);
-				}
-				catch(Exception e2) {
+				} catch (Exception e2) {
 					throw new RuntimeException("## Error: parse error in pre-condition " + rhs + "not a number");
 				}
 			}
 		}
 
-		pc._addDet(c, lhsExpression, rhsExpression);
+		this.pathCondition._addDet(comparator, lhsExpression, rhsExpression);
 	}
 }

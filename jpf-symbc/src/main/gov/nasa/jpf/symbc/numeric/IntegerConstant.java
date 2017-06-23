@@ -52,11 +52,11 @@ public class IntegerConstant extends LinearIntegerExpression {
 		return this.value;
 	}
 
-	public IntegerExpression _plus(long i) {
-		if (i == 0) {
+	public IntegerExpression _plus(long addendum) {
+		if (addendum == 0) {
 			return this;
 		} else {
-			return new IntegerConstant(this.getValue() + i);
+			return new IntegerConstant(this.getValue() + addendum);
 		}
 	}
 
@@ -140,7 +140,7 @@ public class IntegerConstant extends LinearIntegerExpression {
 		if (this.getValue() == 0) {
 			return this;
 		} else {
-			return super._neg();
+			return new IntegerConstant(-this.getValue());
 		}
 	}
 

@@ -91,9 +91,9 @@ public class PCParser {
 		IntegerExpression e_rightRef;
 
 		if (eRef instanceof BinaryLinearIntegerExpression) {
-			opRef = ((BinaryLinearIntegerExpression) eRef).op;
-			e_leftRef = ((BinaryLinearIntegerExpression) eRef).left;
-			e_rightRef = ((BinaryLinearIntegerExpression) eRef).right;
+			opRef = ((BinaryLinearIntegerExpression) eRef).getOperator();
+			e_leftRef = ((BinaryLinearIntegerExpression) eRef).getLeft();
+			e_rightRef = ((BinaryLinearIntegerExpression) eRef).getRight();
 		} else { // bin non lin expr
 			if (pb instanceof ProblemCoral || pb instanceof ProblemZ3 || pb instanceof ProblemZ3BitVector
 					|| pb instanceof ProblemZ3Incremental || pb instanceof ProblemZ3BitVectorIncremental) {

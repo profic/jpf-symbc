@@ -55,10 +55,10 @@ public class TestRealConstant extends TestJPF {
 		RealConstant realConstant2 = new RealConstant(value2);
 		RealConstant realConstant3 = new RealConstant(value3);
 		BinaryRealExpression binaryExpression = new BinaryRealExpression(realConstant2, PLUS, realConstant3);
-		
+
 		RealExpression sumExpression = realConstant1._plus(binaryExpression);
 		double result = sumExpression.solution();
-		
+
 		assertEquals(result, value1 + (value2 + value3));
 	}
 
@@ -66,10 +66,10 @@ public class TestRealConstant extends TestJPF {
 	public void minusDoubleShouldReturnCorrectDifference() {
 		double minued = 2.0d;
 		double[] subtrahends = { 0.0d, 1.0d, 5.0d, -7.0d, minued };
-		RealConstant realConstant = new RealConstant(minued);
+		RealConstant minuedConstant = new RealConstant(minued);
 
 		for (double subtrahend : subtrahends) {
-			RealConstant result = (RealConstant) realConstant._minus(subtrahend);
+			RealConstant result = (RealConstant) minuedConstant._minus(subtrahend);
 
 			assertEquals(result.getValue(), minued - subtrahend);
 		}
@@ -79,16 +79,16 @@ public class TestRealConstant extends TestJPF {
 	public void minusRealConstantShouldReturnCorrectDifference() {
 		double minued = 2.0d;
 		double[] subtrahends = { 0.0d, 1.0d, 5.0d, -7.0d, minued };
-		RealConstant realConstant = new RealConstant(minued);
+		RealConstant minuedConstant = new RealConstant(minued);
 
 		for (double subtrahend : subtrahends) {
 			RealConstant subrahendConstant = new RealConstant(subtrahend);
-			RealConstant result = (RealConstant) realConstant._minus(subrahendConstant);
+			RealConstant result = (RealConstant) minuedConstant._minus(subrahendConstant);
 
 			assertEquals(result.getValue(), minued - subtrahend);
 		}
 	}
-	
+
 	@Test
 	public void minusBinaryRealExpressionSolutionShouldReturnCorrectDifference() {
 		double value1 = 11.0d;
@@ -98,40 +98,42 @@ public class TestRealConstant extends TestJPF {
 		RealConstant realConstant2 = new RealConstant(value2);
 		RealConstant realConstant3 = new RealConstant(value3);
 		BinaryRealExpression binaryExpression = new BinaryRealExpression(realConstant2, MINUS, realConstant3);
-		
+
 		RealExpression sumExpression = realConstant1._minus(binaryExpression);
 		double result = sumExpression.solution();
-		
+
 		assertEquals(result, value1 - (value2 - value3));
 	}
 
 	@Test
 	public void mulDoubleShouldReturnCorrectProduct() {
-		double value = 7.0d;
-		double[] multipliers = { 0.0d, 1.0d, 10.0d, -5.0d, value };
-		RealConstant realConstant = new RealConstant(value);
+		double[] multipliers = { 0.0d, 1.0d, 7.0d, 8.0d, -2.0d, -3.0d, 13.3d, -6.5d };
 
-		for (double multiplier : multipliers) {
-			RealConstant result = (RealConstant) realConstant._mul(multiplier);
+		for (double multiplier1 : multipliers) {
+			RealConstant multiplierConstant = new RealConstant(multiplier1);
+			for (double multiplier2 : multipliers) {
+				RealConstant result = (RealConstant) multiplierConstant._mul(multiplier2);
 
-			assertEquals(result.getValue(), value * multiplier);
+				assertEquals(result.getValue(), multiplier1 * multiplier2);
+			}
 		}
 	}
 
 	@Test
 	public void mulRealConstantShouldReturnCorrectProduct() {
-		double value = 7.0d;
-		double[] multipliers = { 0.0d, 1.0d, 10.0d, -5.0d, value };
-		RealConstant realConstant = new RealConstant(value);
+		double[] multipliers = { 0.0d, 1.0d, 7.0d, 8.0d, -2.0d, -3.0d, 13.3d, -6.5d };
 
-		for (double multiplier : multipliers) {
-			RealConstant multiplierConstant = new RealConstant(multiplier);
-			RealConstant result = (RealConstant) realConstant._mul(multiplierConstant);
+		for (double multiplier1 : multipliers) {
+			RealConstant multiplierConstant1 = new RealConstant(multiplier1);
+			for (double multiplier2 : multipliers) {
+				RealConstant multiplierConstant2 = new RealConstant(multiplier2);
+				RealConstant result = (RealConstant) multiplierConstant1._mul(multiplierConstant2);
 
-			assertEquals(result.getValue(), value * multiplier);
+				assertEquals(result.getValue(), multiplier1 * multiplier2);
+			}
 		}
 	}
-	
+
 	@Test
 	public void mulBinaryRealExpressionSolutionShouldReturnCorrectProduct() {
 		double value1 = 11.0d;
@@ -141,23 +143,25 @@ public class TestRealConstant extends TestJPF {
 		RealConstant realConstant2 = new RealConstant(value2);
 		RealConstant realConstant3 = new RealConstant(value3);
 		BinaryRealExpression binaryExpression = new BinaryRealExpression(realConstant2, MUL, realConstant3);
-		
+
 		RealExpression sumExpression = realConstant1._mul(binaryExpression);
 		double result = sumExpression.solution();
-		
+
 		assertEquals(result, value1 * (value2 * value3));
 	}
 
 	@Test
 	public void divDoubleShouldReturnCorrectQuotient() {
-		double dividend = 12.0d;
-		double[] dividers = { 1.0d, 3.0d, 5.0d, -6.0d, -7.0d, dividend };
-		RealConstant realConstant = new RealConstant(dividend);
+		double[] dividends = { 0.0d, -6.5d, 11.0d, -15.0d, 12.0d };
+		double[] dividers = { 1.0d, 3.0d, 5.0d, -6.0d, -7.0d, 12.0d };
 
-		for (double divider : dividers) {
-			RealConstant result = (RealConstant) realConstant._div(divider);
+		for (double dividend : dividends) {
+			RealConstant dividendConstant = new RealConstant(dividend);
+			for (double divider : dividers) {
+				RealConstant result = (RealConstant) dividendConstant._div(divider);
 
-			assertEquals(result.getValue(), dividend / divider);
+				assertEquals(result.getValue(), dividend / divider);
+			}
 		}
 	}
 
@@ -165,16 +169,16 @@ public class TestRealConstant extends TestJPF {
 	public void divRealConstantShouldReturnCorrectQuotient() {
 		double dividend = 12.0d;
 		double[] dividers = { 1.0d, 3.0d, 5.0d, -6.0d, -7.0d, dividend };
-		RealConstant realConstant = new RealConstant(dividend);
+		RealConstant dividendConstant = new RealConstant(dividend);
 
 		for (double divider : dividers) {
 			RealConstant dividerConstant = new RealConstant(divider);
-			RealConstant result = (RealConstant) realConstant._div(dividerConstant);
+			RealConstant result = (RealConstant) dividendConstant._div(dividerConstant);
 
 			assertEquals(result.getValue(), dividend / divider);
 		}
 	}
-	
+
 	@Test
 	public void divBinaryRealExpressionSolutionShouldReturnCorrectQuotient() {
 		double value1 = 11.0d;
@@ -184,10 +188,10 @@ public class TestRealConstant extends TestJPF {
 		RealConstant realConstant2 = new RealConstant(value2);
 		RealConstant realConstant3 = new RealConstant(value3);
 		BinaryRealExpression binaryExpression = new BinaryRealExpression(realConstant2, DIV, realConstant3);
-		
+
 		RealExpression sumExpression = realConstant1._div(binaryExpression);
 		double result = sumExpression.solution();
-		
+
 		assertEquals(result, value1 / (value2 / value3));
 	}
 
@@ -242,5 +246,32 @@ public class TestRealConstant extends TestJPF {
 		double result = realConstant.solution();
 
 		assertEquals(result, value);
+	}
+	
+	@Test
+	public void compareToForEqualRealConstantShouldReturnZero() {
+		double value = 17.5d;
+		RealConstant realConstant1 = new RealConstant(value);
+		RealConstant realConstant2 = new RealConstant(value);
+		
+		assertEquals(0, realConstant1.compareTo(realConstant2));
+	}
+	
+	@Test
+	public void compareToWithGreaterRealConstantShouldReturnMinusOne() {
+		double value = 17.5d;
+		RealConstant realConstant1 = new RealConstant(value);
+		RealConstant realConstant2 = new RealConstant(value + 1);
+		
+		assertEquals(-1, realConstant1.compareTo(realConstant2));
+	}
+	
+	@Test
+	public void compareToWithLesserIntegerConstantShouldReturnOne() {
+		double value = 17.5d;
+		RealConstant realConstant1 = new RealConstant(value);
+		RealConstant realConstant2 = new RealConstant(value - 1);
+		
+		assertEquals(1, realConstant1.compareTo(realConstant2));
 	}
 }

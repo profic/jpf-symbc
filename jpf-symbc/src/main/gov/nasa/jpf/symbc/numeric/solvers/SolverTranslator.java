@@ -263,7 +263,7 @@ public class SolverTranslator {
 		public void postVisit(BinaryLinearIntegerExpression expression) {
 			Expression l;
 			Expression r;
-			switch (expression.getOp()) {
+			switch (expression.getOperator()) {
 			case PLUS:
 				r = stack.pop();
 				l = stack.pop();
@@ -280,7 +280,7 @@ public class SolverTranslator {
 				stack.push(new Operation(Operation.Operator.MUL, l, r));
 				break;
 			default:
-				System.out.println("SolverTranslator : unsupported operation " + expression.getOp());
+				System.out.println("SolverTranslator : unsupported operation " + expression.getOperator());
 				throw new RuntimeException();
 			}
 		}
