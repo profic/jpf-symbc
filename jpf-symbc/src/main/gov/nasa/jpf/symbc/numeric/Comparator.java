@@ -39,25 +39,49 @@ package gov.nasa.jpf.symbc.numeric;
 
 public enum Comparator {
 
-   EQ(" = ") { public Comparator not() { return NE; }},
-   NE(" != ") { public Comparator not() { return EQ; }},
-   LT(" < ")  { public Comparator not() { return GE; }},
-   LE(" <= ") { public Comparator not() { return GT; }},
-   GT(" > ")  { public Comparator not() { return LE; }},
-   GE(" >= ") { public Comparator not() { return LT; }};
+	EQ(" = ") {
+		public Comparator not() {
+			return NE;
+		}
+	},
+	NE(" != ") {
+		public Comparator not() {
+			return EQ;
+		}
+	},
+	LT(" < ") {
+		public Comparator not() {
+			return GE;
+		}
+	},
+	LE(" <= ") {
+		public Comparator not() {
+			return GT;
+		}
+	},
+	GT(" > ") {
+		public Comparator not() {
+			return LE;
+		}
+	},
+	GE(" >= ") {
+		public Comparator not() {
+			return LT;
+		}
+	};
 
-   private final String str;
+	private final String str;
 
-   Comparator(String str){
-	   this.str= str;
-   }
-   
-   public abstract Comparator not();
-   
-   @Override
-   public String toString() {
-	 return str;
-   }
+	Comparator(String str) {
+		this.str = str;
+	}
+
+	public abstract Comparator not();
+
+	@Override
+	public String toString() {
+		return str;
+	}
 
 	/**
 	 * Apply this comparator to the given operands.

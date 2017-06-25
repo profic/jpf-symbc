@@ -38,32 +38,36 @@
 package gov.nasa.jpf.symbc.numeric;
 
 public class MixedConstraint extends Constraint {
-    public MixedConstraint(RealExpression l, Comparator c, IntegerExpression r) {
-      super(l, c, r);
-    }
+	public MixedConstraint(RealExpression left, Comparator comparator, IntegerExpression right) {
+		super(left, comparator, right);
+	}
 
-    public MixedConstraint(MixedConstraint mc) {
-        super(mc.getLeft(), mc.getComparator(), mc.getRight());
-      }
+	public MixedConstraint(IntegerExpression left, Comparator comparator, RealExpression right) {
+		super(left, comparator, right);
+	}
 
-    public Constraint copy() {
-        return new MixedConstraint(this);
-    }
-    
-    public String toString() {
-      return /* "%Mixed% " + */super.toString();
-    }
-    
-    public RealExpression getLeft() {
-        return (RealExpression) super.getLeft();
-    }
-    
-    public IntegerExpression getRight() {
-        return (IntegerExpression) super.getRight();
-    }
-    
-    @Override
-    public MixedConstraint not() {
-        return new MixedConstraint(getLeft(), getComparator().not(), getRight());
-    }    
+	public MixedConstraint(MixedConstraint mixedConstraint) {
+		super(mixedConstraint.getLeft(), mixedConstraint.getComparator(), mixedConstraint.getRight());
+	}
+
+	public Constraint copy() {
+		return new MixedConstraint(this);
+	}
+
+	public String toString() {
+		return /* "%Mixed% " + */super.toString();
+	}
+
+	public RealExpression getLeft() {
+		return (RealExpression) super.getLeft();
+	}
+
+	public IntegerExpression getRight() {
+		return (IntegerExpression) super.getRight();
+	}
+
+	@Override
+	public MixedConstraint not() {
+		return new MixedConstraint(getLeft(), getComparator().not(), getRight());
+	}
 }

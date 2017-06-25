@@ -63,9 +63,9 @@ public class AASTORE extends gov.nasa.jpf.jvm.bytecode.AASTORE {
           PCChoiceGenerator temp_cg = (PCChoiceGenerator)ti.getVM().getLastChoiceGeneratorOfType(PCChoiceGenerator.class);
           if (temp_cg != null) {
               // There was a previous path condition
-              if (temp_cg.getCurrentPC().arrayExpressions.containsKey(ti.getElementInfo(ti.getModifiableTopFrame().peek(2)).toString())) {
+              if (temp_cg.getCurrentPC().getArrayExpressions().containsKey(ti.getElementInfo(ti.getModifiableTopFrame().peek(2)).toString())) {
                   // There was a previous symbolic object associated to this array. We retrieve it.
-                  ti.getModifiableTopFrame().setOperandAttr(2, temp_cg.getCurrentPC().arrayExpressions.get(ti.getElementInfo(ti.getModifiableTopFrame().peek(2)).toString()));
+                  ti.getModifiableTopFrame().setOperandAttr(2, temp_cg.getCurrentPC().getArrayExpressions().get(ti.getElementInfo(ti.getModifiableTopFrame().peek(2)).toString()));
               }
           }
 
@@ -175,8 +175,8 @@ public class AASTORE extends gov.nasa.jpf.jvm.bytecode.AASTORE {
           assert (indexAttr != null) : "indexAttr shouldn't be null in AASTORE instruction";
 
           arrayAttr = (ArrayExpression)peekArrayAttr(ti);
-          if (pc.arrayExpressions.containsKey(arrayAttr.getRootName())) {
-              arrayAttr = (ArrayExpression)pc.arrayExpressions.get(arrayAttr.getRootName());
+          if (pc.getArrayExpressions().containsKey(arrayAttr.getRootName())) {
+              arrayAttr = (ArrayExpression)pc.getArrayExpressions().get(arrayAttr.getRootName());
           }
           assert (arrayAttr != null) : "arrayAttr shouldn't be null in AASTORE instruction";
 
@@ -213,7 +213,7 @@ public class AASTORE extends gov.nasa.jpf.jvm.bytecode.AASTORE {
 
                   StoreExpression se = new StoreExpression(arrayAttr, indexAttr, sym_value);
                   pc._addDet(Comparator.EQ, se, newArrayAttr);
-                  pc.arrayExpressions.put(newArrayAttr.getRootName(), newArrayAttr);
+                  pc.getArrayExpressions().put(newArrayAttr.getRootName(), newArrayAttr);
 
                   return getNext(ti);
               } else {

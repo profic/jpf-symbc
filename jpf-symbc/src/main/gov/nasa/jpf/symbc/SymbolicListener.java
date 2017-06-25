@@ -299,7 +299,7 @@ public class SymbolicListener extends PropertyListenerAdapter implements Publish
 							else
 								pc.solve();
 
-							if (!PathCondition.flagSolved) {
+							if (!PathCondition.isSolved()) {
 							  return;
 							}
 

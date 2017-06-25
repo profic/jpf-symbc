@@ -298,11 +298,11 @@ public class PreProcessGraphBackup {
 				if (e1.equals(e2)) continue;
 				if (e1 instanceof EdgeConcat || e2 instanceof EdgeConcat) continue;
 				if (!e1.getSource().equals(e2.getSource())) continue;
-				if (PathCondition.flagSolved == false && scg.isSatisfiable(pc)) {
+				if (PathCondition.isSolved() == false && scg.isSatisfiable(pc)) {
 					scg.solve(pc);
-					PathCondition.flagSolved = true;
+					PathCondition.setSolved(true);
 				}
-				else if (PathCondition.flagSolved == false){
+				else if (PathCondition.isSolved() == false){
 					//println ("[preprocess] Intermediate solving failed");
 					return false;
 				}
@@ -588,11 +588,11 @@ public class PreProcessGraphBackup {
 		//Speedup between charAt and indexOf
 		for (Edge e1: g.getEdges()) {
 			for (Edge e2: g.getEdges()) {
-				if (PathCondition.flagSolved == false && scg.isSatisfiable(pc)) {
+				if (PathCondition.isSolved() == false && scg.isSatisfiable(pc)) {
 					scg.solve(pc);
-					PathCondition.flagSolved = true;
+					PathCondition.setSolved(true);
 				}
-				else if (PathCondition.flagSolved == false){
+				else if (PathCondition.isSolved() == false){
 					//println ("[preprocess] Intermediate solving failed");
 					return false;
 				}
@@ -932,12 +932,12 @@ public class PreProcessGraphBackup {
 		if (scg.isSatisfiable(pc)) { 
 			//println ("is Sat");
 			scg.solve(pc);
-			PathCondition.flagSolved = true;
+			PathCondition.setSolved(true);
 			System.out.println("HIERSO");
 			for (Vertex v: g.getVertices()) {
 				System.out.println(v.getName() + " " + v.getSymbolicLength().solution());
 			}
-			if (pc.header != null) {
+			if (pc.getHeader() != null) {
 				//println(pc.header.toString());
 			}
 		}

@@ -21,67 +21,65 @@ package gov.nasa.jpf.symbc.numeric;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LogicalORLinearIntegerConstraints extends Constraint{
-	
+public class LogicalORLinearIntegerConstraints extends Constraint {
+
 	private List<LinearIntegerConstraint> list;
 	public String comment;
-	
-	public LogicalORLinearIntegerConstraints () {
-		super (null, null, null);
+
+	public LogicalORLinearIntegerConstraints() {
+		super(null, null, null);
 		list = new ArrayList<LinearIntegerConstraint>();
 	}
-	
-	public LogicalORLinearIntegerConstraints (List<LinearIntegerConstraint> l) {
-		super (null, null, null);
+
+	public LogicalORLinearIntegerConstraints(List<LinearIntegerConstraint> l) {
+		super(null, null, null);
 		list = l;
 	}
 
-    public Constraint copy() {
-        return new LogicalORLinearIntegerConstraints(list);
-    }
-	
-	
-	public void addToList (LinearIntegerConstraint lic) {
+	public Constraint copy() {
+		return new LogicalORLinearIntegerConstraints(list);
+	}
+
+	public void addToList(LinearIntegerConstraint lic) {
 		if (!list.contains(lic)) {
 			list.add(lic);
 		}
 	}
 
-	public List<LinearIntegerConstraint> getList () {
+	public List<LinearIntegerConstraint> getList() {
 		return list;
 	}
-	
+
 	@Override
 	public Constraint not() {
 		throw new UnsupportedOperationException("Not supported");
-		//return null;
+		// return null;
 	}
-	
-	public String toString () {
+
+	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		if (list.size() == 1) {
 			return list.get(0).toString();
-		}
-		else {
-			sb.append (list.get(0).toString());
+		} else {
+			sb.append(list.get(0).toString());
 		}
 		for (int i = 1; i < list.size(); i++) {
-			sb.append (" OR ");
-			sb.append (list.get(i).toString());
+			sb.append(" OR ");
+			sb.append(list.get(i).toString());
 		}
-		sb.append ("(" + comment + ")");
-		if (and != null) {
-			sb.append (" && \n");
-			sb.append (and.stringPC());
+		sb.append("(" + comment + ")");
+		if (getNextConstraint() != null) {
+			sb.append(" && \n");
+			sb.append(getNextConstraint().stringPC());
 		}
 		return sb.toString();
 	}
-	
-	public String stringPC () {
+
+	public String stringPC() {
 		return this.toString();
 	}
-	
-	public boolean equals (Object o) {
+
+	public boolean equals(Object o) {
 		if (!(o instanceof LogicalORLinearIntegerConstraints))
 			return false;
 		LogicalORLinearIntegerConstraints other = (LogicalORLinearIntegerConstraints) o;

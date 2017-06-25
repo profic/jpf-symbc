@@ -51,7 +51,7 @@ public class SymbolicReal extends RealExpression {
 	private int unique_id;
 
 	static String SYM_REAL_SUFFIX = "_SYMREAL"; // C: what is this?
-	
+
 	private double min = 0;
 	private double max = 0;
 	private String name;
@@ -80,11 +80,11 @@ public class SymbolicReal extends RealExpression {
 	public double getMin() {
 		return min;
 	}
-	
+
 	public double getMax() {
 		return max;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
@@ -94,7 +94,7 @@ public class SymbolicReal extends RealExpression {
 	}
 
 	public String toString() {
-		if (!PathCondition.flagSolved) {
+		if (!PathCondition.isSolved()) {
 			return (this.getName() != null) ? this.getName() : "REAL_" + hashCode();
 		} else {
 			return (this.getName() != null) ? this.getName() + "[" + solution
@@ -112,13 +112,13 @@ public class SymbolicReal extends RealExpression {
 	}
 
 	public double solution() {
-		if (PathCondition.flagSolved) {
+		if (PathCondition.isSolved()) {
 			if ((solution == UNDEFINED) && SymbolicInstructionFactory.concolicMode) {
 				// return a random value in concolic mode; note that if the
 				// solution happens to be exactly the value of UNDEFINED, then
 				// there is a bug
 				double r = new Random().nextDouble();
-				solution = min + (max - min) * r ;
+				solution = min + (max - min) * r;
 			}
 			return solution;
 		} else

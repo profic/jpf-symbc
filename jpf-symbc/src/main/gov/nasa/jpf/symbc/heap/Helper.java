@@ -165,7 +165,7 @@ public class Helper {
               } else {
                   arrayAttr = new ArrayExpression(eiRef.toString(), typeClass.substring(2, typeClass.length() -1));
               }
-              ti.getVM().getLastChoiceGeneratorOfType(PCChoiceGenerator.class).getCurrentPC().arrayExpressions.put(eiRef.toString(), arrayAttr);
+              ti.getVM().getLastChoiceGeneratorOfType(PCChoiceGenerator.class).getCurrentPC().getArrayExpressions().put(eiRef.toString(), arrayAttr);
           }
 
 		  // create new HeapNode based on above info
@@ -222,7 +222,7 @@ public class Helper {
               } else {
                   arrayAttr = new ArrayExpression(eiRef.toString(), typeClass.substring(2, typeClass.length() -1));
               }
-              ti.getVM().getLastChoiceGeneratorOfType(PCChoiceGenerator.class).getCurrentPC().arrayExpressions.put(eiRef.toString(), arrayAttr);
+              ti.getVM().getLastChoiceGeneratorOfType(PCChoiceGenerator.class).getCurrentPC().getArrayExpressions().put(eiRef.toString(), arrayAttr);
           }
 
 		  // create new HeapNode based on above info

@@ -43,9 +43,9 @@ public class ARRAYLENGTH extends gov.nasa.jpf.jvm.bytecode.ARRAYLENGTH {
         PCChoiceGenerator temp_cg = (PCChoiceGenerator)th.getVM().getLastChoiceGeneratorOfType(PCChoiceGenerator.class);
         if (temp_cg != null) {
             // There was a previous pathcondition
-            if (temp_cg.getCurrentPC().arrayExpressions.containsKey(th.getElementInfo(th.getModifiableTopFrame().peek(0)).toString())) {
+            if (temp_cg.getCurrentPC().getArrayExpressions().containsKey(th.getElementInfo(th.getModifiableTopFrame().peek(0)).toString())) {
                 // The array was previously in the path condition, we retrieve the symbolic object.
-              th.getModifiableTopFrame().setOperandAttr(0, temp_cg.getCurrentPC().arrayExpressions.get(th.getElementInfo(th.getModifiableTopFrame().peek(0)).toString())); 
+              th.getModifiableTopFrame().setOperandAttr(0, temp_cg.getCurrentPC().getArrayExpressions().get(th.getElementInfo(th.getModifiableTopFrame().peek(0)).toString())); 
             }
         }
 

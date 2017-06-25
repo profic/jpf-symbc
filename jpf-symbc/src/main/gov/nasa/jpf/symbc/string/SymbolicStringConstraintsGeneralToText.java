@@ -293,7 +293,7 @@ public class SymbolicStringConstraintsGeneralToText {
 		 * to a subgraph and add it to the global_graph
 		 */
 		
-		Constraint constraint = pc.getNpc().header;
+		Constraint constraint = pc.getNpc().getHeader();
 		//println ("[isSatisfiable] Int cons given:" + pc.npc.header);
 		while (constraint != null) {
 			//First solve any previous integer constriants
@@ -301,13 +301,13 @@ public class SymbolicStringConstraintsGeneralToText {
 			
 			processIntegerConstraint(constraint.getLeft());
 			processIntegerConstraint(constraint.getRight());
-			constraint = constraint.getTail();
+			constraint = constraint.getNextConstraint();
 		}
 		
 		//First solve any previous integer constriants
 		SymbolicConstraintsGeneral scg = new SymbolicConstraintsGeneral();
 		scg.solve(pc.getNpc());
-		PathCondition.flagSolved = true;
+		PathCondition.setSolved(true);
 		
 		
 		//Start solving
@@ -319,9 +319,9 @@ public class SymbolicStringConstraintsGeneralToText {
 			return false;
 		}
 		logger.info(global_graph.toPlainText());
-		if (pc.getNpc().header != null) {
+		if (pc.getNpc().getHeader() != null) {
 			logger.info ("\nvvv vvv vvv vvv\n");
-			System.out.println(pc.getNpc().header);
+			System.out.println(pc.getNpc().getHeader());
 			System.out.println("\n^^^ ^^^ ^^^ ^^^\n");
 		}
 		return true;
@@ -343,10 +343,10 @@ public class SymbolicStringConstraintsGeneralToText {
 	 * is added to global_graph
 	 */
 	private void processIntegerConstraint (Expression e) {
-		if (PathCondition.flagSolved == false) {
+		if (PathCondition.isSolved() == false) {
 			SymbolicConstraintsGeneral scg = new SymbolicConstraintsGeneral();
 			scg.solve(global_spc.getNpc());
-			PathCondition.flagSolved = true;
+			PathCondition.setSolved(true);
 		}
 		if (e instanceof SymbolicCharAtInteger) {
 			//foundStringIntegerConstraint = true;
@@ -354,7 +354,7 @@ public class SymbolicStringConstraintsGeneralToText {
 			//println ("[processIntegerConstraint] Found charAt constraint with " + scai.se.getName());
 			StringGraph sg = convertToGraph(scai.se);
 			global_graph.mergeIn(sg);
-			PathCondition.flagSolved = true;
+			PathCondition.setSolved(true);
 			/*if (!(scai.index instanceof IntegerConstant)) {
 				throw new RuntimeException("OOPS! " + scai.index.toString());
 			}
@@ -376,7 +376,7 @@ public class SymbolicStringConstraintsGeneralToText {
 			Vertex v1 = global_graph.findVertex(sioi.expression.getName());
 			Vertex v2 = global_graph.findVertex(sioi.source.getName());
 			global_graph.addEdge(v2, v1, new EdgeIndexOf("EdgeIndexOf_" + v2.getName () + "_" + v1.getName(), v2, v1, sioi));
-			PathCondition.flagSolved = true; //TODO: Review			
+			PathCondition.setSolved(true); //TODO: Review			
 		}
 		else if (e instanceof SymbolicLastIndexOfInteger) {
 			SymbolicLastIndexOfInteger sioi = (SymbolicLastIndexOfInteger) e;
@@ -388,7 +388,7 @@ public class SymbolicStringConstraintsGeneralToText {
 			Vertex v1 = global_graph.findVertex(sioi.getExpression().getName());
 			Vertex v2 = global_graph.findVertex(sioi.getSource().getName());
 			global_graph.addEdge(v2, v1, new EdgeLastIndexOf("EdgeLastIndexOf_" + v2.getName () + "_" + v1.getName(), v2, v1, sioi));
-			PathCondition.flagSolved = true; //TODO: Review			
+			PathCondition.setSolved(true); //TODO: Review			
 		}
 		else if (e instanceof SymbolicLastIndexOf2Integer) {
 			SymbolicLastIndexOf2Integer sioi = (SymbolicLastIndexOf2Integer) e;
@@ -401,7 +401,7 @@ public class SymbolicStringConstraintsGeneralToText {
 			Vertex v2 = global_graph.findVertex(sioi.source.getName());
 			global_graph.addEdge(v2, v1, new EdgeLastIndexOf2("EdgeIndexOf2_" + v2.getName () + "_" + v1.getName(), v2, v1, sioi));
 			processIntegerConstraint(sioi.getMinIndex());
-			PathCondition.flagSolved = true; //TODO: Review
+			PathCondition.setSolved(true); //TODO: Review
 			
 		}
 		else if (e instanceof SymbolicLastIndexOfChar2Integer) {
@@ -414,7 +414,7 @@ public class SymbolicStringConstraintsGeneralToText {
 			Vertex v2 = global_graph.findVertex(sioi.source.getName());
 			global_graph.addEdge(v2, v1, new EdgeLastIndexOfChar2("EdgeIndexOfChar_" + v2.getName () + "_" + v1.getName(), v2, v1, sioi));
 			processIntegerConstraint(sioi.getMinDist());
-			PathCondition.flagSolved = true; //TODO: Review
+			PathCondition.setSolved(true); //TODO: Review
 			
 		}
 		else if (e instanceof SymbolicIndexOfCharInteger) {
@@ -432,7 +432,7 @@ public class SymbolicStringConstraintsGeneralToText {
 			global_graph.mergeIn(source);
 			Vertex v2 = global_graph.findVertex(sioi.getSource().getName());
 			global_graph.addEdge(v2, v1, new EdgeIndexOfChar("EdgeIndexOfChar_" + v2.getName () + "_" + v1.getName(), v2, v1, sioi));
-			PathCondition.flagSolved = true; //TODO: Review
+			PathCondition.setSolved(true); //TODO: Review
 			
 		}
 		else if (e instanceof SymbolicLastIndexOfCharInteger) {
@@ -450,7 +450,7 @@ public class SymbolicStringConstraintsGeneralToText {
 			global_graph.mergeIn(source);
 			Vertex v2 = global_graph.findVertex(sioi.source.getName());
 			global_graph.addEdge(v2, v1, new EdgeLastIndexOfChar("EdgeIndexOfChar_" + v2.getName () + "_" + v1.getName(), v2, v1, sioi));
-			PathCondition.flagSolved = true; //TODO: Review
+			PathCondition.setSolved(true); //TODO: Review
 			
 		}
 		else if (e instanceof SymbolicIndexOfChar2Integer) {
@@ -463,7 +463,7 @@ public class SymbolicStringConstraintsGeneralToText {
 			Vertex v2 = global_graph.findVertex(sioi.source.getName());
 			global_graph.addEdge(v2, v1, new EdgeIndexOfChar2("EdgeIndexOfChar_" + v2.getName () + "_" + v1.getName(), v2, v1, sioi));
 			processIntegerConstraint(sioi.getMinDist());
-			PathCondition.flagSolved = true; //TODO: Review
+			PathCondition.setSolved(true); //TODO: Review
 			
 		}
 		else if (e instanceof SymbolicIndexOf2Integer) {
@@ -477,7 +477,7 @@ public class SymbolicStringConstraintsGeneralToText {
 			Vertex v2 = global_graph.findVertex(sioi.source.getName());
 			global_graph.addEdge(v2, v1, new EdgeIndexOf2("EdgeIndexOf2_" + v2.getName () + "_" + v1.getName(), v2, v1, sioi));
 			processIntegerConstraint(sioi.getMinIndex());
-			PathCondition.flagSolved = true; //TODO: Review
+			PathCondition.setSolved(true); //TODO: Review
 			
 		}
 		else if (e instanceof SymbolicLengthInteger) {

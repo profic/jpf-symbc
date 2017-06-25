@@ -862,16 +862,16 @@ public class SymbolicStringHandler {
 			if (conditionValue) {
 				if (sym_v1 != null) {
 					if (sym_v2 != null) { // both are symbolic values
-						pc.spc._addDet(comp, sym_v1, sym_v2);
+						pc.getStringPathCondition()._addDet(comp, sym_v1, sym_v2);
 					} else {
 						ElementInfo e2 = th.getElementInfo(s2);
 						String val = e2.asString();
-						pc.spc._addDet(comp, sym_v1, val);
+						pc.getStringPathCondition()._addDet(comp, sym_v1, val);
 					}
 				} else {
 					ElementInfo e1 = th.getElementInfo(s1);
 					String val = e1.asString();
-					pc.spc._addDet(comp, val, sym_v2);
+					pc.getStringPathCondition()._addDet(comp, val, sym_v2);
 				}
 				if (!pc.simplify()) {// not satisfiable
 					th.getVM().getSystemState().setIgnored(true);
@@ -883,17 +883,17 @@ public class SymbolicStringHandler {
 			} else {
 				if (sym_v1 != null) {
 					if (sym_v2 != null) { // both are symbolic values
-						pc.spc._addDet(comp.not(), sym_v1, sym_v2);
+						pc.getStringPathCondition()._addDet(comp.not(), sym_v1, sym_v2);
 					} else {
 						ElementInfo e2 = th.getElementInfo(s2);
 						String val = e2.asString();
-						pc.spc._addDet(comp.not(), sym_v1, val);
+						pc.getStringPathCondition()._addDet(comp.not(), sym_v1, val);
 
 					}
 				} else {
 					ElementInfo e1 = th.getElementInfo(s1);
 					String val = e1.asString();
-					pc.spc._addDet(comp.not(), val, sym_v2);
+					pc.getStringPathCondition()._addDet(comp.not(), val, sym_v2);
 				}
 				if (!pc.simplify()) {// not satisfiable
 					th.getVM().getSystemState().setIgnored(true);
@@ -1333,7 +1333,7 @@ public class SymbolicStringHandler {
 				assert pc != null;
 
 				if (conditionValue) {
-					pc.spc._addDet(StringComparator.ISLONG, (StringExpression) sym_v3);
+					pc.getStringPathCondition()._addDet(StringComparator.ISLONG, (StringExpression) sym_v3);
 					if (!pc.simplify()) {// not satisfiable
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
@@ -1345,7 +1345,7 @@ public class SymbolicStringHandler {
 						sf.setOperandAttr(result);
 					}
 				} else {
-					pc.spc._addDet(StringComparator.NOTLONG, (StringExpression) sym_v3);
+					pc.getStringPathCondition()._addDet(StringComparator.NOTLONG, (StringExpression) sym_v3);
 					if (!pc.simplify()) {// not satisfiable
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
@@ -1396,7 +1396,7 @@ public class SymbolicStringHandler {
 				assert pc != null;
 
 				if (conditionValue) {
-					pc.spc._addDet(StringComparator.ISBOOLEAN, (StringExpression) sym_v3);
+					pc.getStringPathCondition()._addDet(StringComparator.ISBOOLEAN, (StringExpression) sym_v3);
 					if (!pc.simplify()) {// not satisfiable
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
@@ -1408,7 +1408,7 @@ public class SymbolicStringHandler {
 						sf.setOperandAttr(result);
 					}
 				} else {
-					pc.spc._addDet(StringComparator.NOTBOOLEAN, (StringExpression) sym_v3);
+					pc.getStringPathCondition()._addDet(StringComparator.NOTBOOLEAN, (StringExpression) sym_v3);
 					if (!pc.simplify()) {// not satisfiable
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
@@ -1460,7 +1460,7 @@ public class SymbolicStringHandler {
 				assert pc != null;
 
 				if (conditionValue) {
-					pc.spc._addDet(StringComparator.ISINTEGER, (StringExpression) sym_v3);
+					pc.getStringPathCondition()._addDet(StringComparator.ISINTEGER, (StringExpression) sym_v3);
 					if (!pc.simplify()) {// not satisfiable
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
@@ -1472,7 +1472,7 @@ public class SymbolicStringHandler {
 						sf.setOperandAttr(result);
 					}
 				} else {
-					pc.spc._addDet(StringComparator.NOTINTEGER, (StringExpression) sym_v3);
+					pc.getStringPathCondition()._addDet(StringComparator.NOTINTEGER, (StringExpression) sym_v3);
 					if (!pc.simplify()) {// not satisfiable
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
@@ -1515,7 +1515,7 @@ public class SymbolicStringHandler {
 			assert pc != null;
 
 			if (conditionValue) {
-				pc.spc._addDet(StringComparator.ISINTEGER, (StringExpression) sym_v3);
+				pc.getStringPathCondition()._addDet(StringComparator.ISINTEGER, (StringExpression) sym_v3);
 				if (!pc.simplify()) {// not satisfiable
 					th.getVM().getSystemState().setIgnored(true);
 				} else {
@@ -1526,7 +1526,7 @@ public class SymbolicStringHandler {
 					sf.setOperandAttr(result);
 				}
 			} else {
-				pc.spc._addDet(StringComparator.NOTINTEGER, (StringExpression) sym_v3);
+				pc.getStringPathCondition()._addDet(StringComparator.NOTINTEGER, (StringExpression) sym_v3);
 				if (!pc.simplify()) {// not satisfiable
 					th.getVM().getSystemState().setIgnored(true);
 				} else {
@@ -1568,7 +1568,7 @@ public class SymbolicStringHandler {
 
 			assert pc != null;
 			if (conditionValue) {
-				pc.spc._addDet(StringComparator.ISFLOAT, (StringExpression) sym_v3);
+				pc.getStringPathCondition()._addDet(StringComparator.ISFLOAT, (StringExpression) sym_v3);
 				if (!pc.simplify()) {// not satisfiable
 					th.getVM().getSystemState().setIgnored(true);
 				} else {
@@ -1579,7 +1579,7 @@ public class SymbolicStringHandler {
 					sf.setOperandAttr(result);
 				}
 			} else {
-				pc.spc._addDet(StringComparator.NOTFLOAT, (StringExpression) sym_v3);
+				pc.getStringPathCondition()._addDet(StringComparator.NOTFLOAT, (StringExpression) sym_v3);
 				if (!pc.simplify()) {// not satisfiable
 					th.getVM().getSystemState().setIgnored(true);
 				} else {
@@ -1628,7 +1628,7 @@ public class SymbolicStringHandler {
 
 				assert pc != null;
 				if (conditionValue) {
-					pc.spc._addDet(StringComparator.ISFLOAT, (StringExpression) sym_v3);
+					pc.getStringPathCondition()._addDet(StringComparator.ISFLOAT, (StringExpression) sym_v3);
 					if (!pc.simplify()) {// not satisfiable
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
@@ -1640,7 +1640,7 @@ public class SymbolicStringHandler {
 						sf.setOperandAttr(result);
 					}
 				} else {
-					pc.spc._addDet(StringComparator.NOTFLOAT, (StringExpression) sym_v3);
+					pc.getStringPathCondition()._addDet(StringComparator.NOTFLOAT, (StringExpression) sym_v3);
 					if (!pc.simplify()) {// not satisfiable
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
@@ -1691,7 +1691,7 @@ public class SymbolicStringHandler {
 				assert pc != null;
 
 				if (conditionValue) {
-					pc.spc._addDet(StringComparator.ISDOUBLE, (StringExpression) sym_v3);
+					pc.getStringPathCondition()._addDet(StringComparator.ISDOUBLE, (StringExpression) sym_v3);
 					if (!pc.simplify()) {// not satisfiable
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
@@ -1703,7 +1703,7 @@ public class SymbolicStringHandler {
 						sf.setOperandAttr(result);
 					}
 				} else {
-					pc.spc._addDet(StringComparator.NOTDOUBLE, (StringExpression) sym_v3);
+					pc.getStringPathCondition()._addDet(StringComparator.NOTDOUBLE, (StringExpression) sym_v3);
 					if (!pc.simplify()) {// not satisfiable
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
@@ -1750,7 +1750,7 @@ public class SymbolicStringHandler {
 				assert pc != null;
 
 				if (conditionValue) {
-					pc.spc._addDet(StringComparator.ISDOUBLE, sym_v1);
+					pc.getStringPathCondition()._addDet(StringComparator.ISDOUBLE, sym_v1);
 					if (!pc.simplify()) {// not satisfiable
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
@@ -1761,7 +1761,7 @@ public class SymbolicStringHandler {
 						sf.setLongOperandAttr(sym_v2);
 					}
 				} else {
-					pc.spc._addDet(StringComparator.NOTDOUBLE, sym_v1);
+					pc.getStringPathCondition()._addDet(StringComparator.NOTDOUBLE, sym_v1);
 					if (!pc.simplify()) {// not satisfiable
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
@@ -1806,7 +1806,7 @@ public class SymbolicStringHandler {
 				assert pc != null;
 
 				if (conditionValue) {
-					pc.spc._addDet(StringComparator.ISLONG, sym_v1);
+					pc.getStringPathCondition()._addDet(StringComparator.ISLONG, sym_v1);
 					if (!pc.simplify()) {// not satisfiable
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
@@ -1817,7 +1817,7 @@ public class SymbolicStringHandler {
 						sf.setLongOperandAttr(sym_v2);
 					}
 				} else {
-					pc.spc._addDet(StringComparator.NOTLONG, sym_v1);
+					pc.getStringPathCondition()._addDet(StringComparator.NOTLONG, sym_v1);
 					if (!pc.simplify()) {// not satisfiable
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
@@ -1858,7 +1858,7 @@ public class SymbolicStringHandler {
 			assert pc != null;
 
 			if (conditionValue) {
-				pc.spc._addDet(StringComparator.ISBOOLEAN, sym_v1);
+				pc.getStringPathCondition()._addDet(StringComparator.ISBOOLEAN, sym_v1);
 				if (!pc.simplify()) {// not satisfiable
 					th.getVM().getSystemState().setIgnored(true);
 				} else {
@@ -1869,7 +1869,7 @@ public class SymbolicStringHandler {
 					sf.setOperandAttr(sym_v2);
 				}
 			} else {
-				pc.spc._addDet(StringComparator.NOTBOOLEAN, sym_v1);
+				pc.getStringPathCondition()._addDet(StringComparator.NOTBOOLEAN, sym_v1);
 				if (!pc.simplify()) {// not satisfiable
 					th.getVM().getSystemState().setIgnored(true);
 				} else {

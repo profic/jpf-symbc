@@ -69,7 +69,7 @@ public class PCAnalyzer {
 		boolean result = false;
 		splitPathCondition(working_pc);
 		if (simplePC.solve() == false) return false;
-		if(concolicPC == null || concolicPC.header == null) return true;
+		if(concolicPC == null || concolicPC.getHeader() == null) return true;
 
 		createSimplifiedPC();
 		result = solver.isSatisfiable(getSimplifiedPC());
@@ -86,7 +86,7 @@ public class PCAnalyzer {
 
 	public boolean isSatisfiable(final PathCondition pc, final SymbolicConstraintsGeneral solver) {
 		//System.out.println("PC "+pc);
-		if (pc == null || pc.header == null) return true;
+		if (pc == null || pc.getHeader() == null) return true;
 		boolean result = false;
 		final PathCondition working_pc = pc.make_copy();
 		final Constraint working_pc_last = working_pc.last();
@@ -124,20 +124,20 @@ public class PCAnalyzer {
 					// i.e. we can only handle one external function with only one parameter
 
 
-					if(extraPC == null || extraPC.header == null) return false;
+					if(extraPC == null || extraPC.getHeader() == null) return false;
 					if (SymbolicInstructionFactory.debugMode) {
 						System.out.println("--------extra PC------------"+tries);
 						System.out.println("extra pc " + extraPC);
 						System.out.println("--- end printing extra PC ---");
 					}
 
-					Constraint cRef = extraPC.header;
-					final int length = extraPC.count();
+					Constraint cRef = extraPC.getHeader();
+					final int length = extraPC.getCount();
 					while (cRef != null) {
 						cRef.setComparator(Comparator.GT); // TODO: should be NE but choco can not handle it
-						cRef=cRef.and;
+						cRef=cRef.getNextConstraint();
 					}
-					working_pc.prependAllConjuncts(extraPC.header);
+					working_pc.prependAllConjuncts(extraPC.getHeader());
 				}
 				else {
 					System.out.println("Heuristic random mode!");
@@ -193,7 +193,7 @@ public class PCAnalyzer {
 //						System.out.println("--- end printing Partition Heuristic working PC ---");
 //					}
 					//working_pc.prependAllConjuncts(partitionPC.header);
-					working_pc.appendAllConjuncts(partitionPC.header);
+					working_pc.appendAllConjuncts(partitionPC.getHeader());
 
 					if (SymbolicInstructionFactory.debugMode) {
 						System.out.println("--------Partition Heuristic working PC------------"+tries);
@@ -204,7 +204,7 @@ public class PCAnalyzer {
 					result = mixedIsSatisfiable(working_pc, solver);
 
 					if(working_pc_last!=null)
-						working_pc_last.and = null; // remove the conjuncts added from the partitions
+						working_pc_last.setNextConstraint(null); // remove the conjuncts added from the partitions
 
 					if(result)
 						//solver.solve(getSimplifiedPC());
@@ -220,10 +220,10 @@ public class PCAnalyzer {
 	// called only for satisfiable pc: could be simplified
 	// not in synch with the heuristics
 	public boolean solve(final PathCondition pc, final SymbolicConstraintsGeneral solver) {
-		if (pc == null || pc.header == null) return true;
+		if (pc == null || pc.getHeader() == null) return true;
 			splitPathCondition(pc);
 			simplePC.solve();
-			if(concolicPC == null || concolicPC.header == null) return true;
+			if(concolicPC == null || concolicPC.getHeader() == null) return true;
 			createSimplifiedPC();
 			return solver.solve(getSimplifiedPC());
 	}
@@ -233,7 +233,7 @@ public class PCAnalyzer {
 	 */
 	public void splitPathCondition(final PathCondition pc) {
 		final PathCondition newPC = pc.make_copy();
-		Constraint cRef = newPC.header;
+		Constraint cRef = newPC.getHeader();
 		simplePC = new PathCondition();
 		concolicPC = new PathCondition();
 
@@ -255,7 +255,7 @@ public class PCAnalyzer {
 			} else	{
 				throw new RuntimeException("## Error: Constraint not handled " + cRef);
 			}
-			cRef = cRef.and;
+			cRef = cRef.getNextConstraint();
 		}
 		if (SymbolicInstructionFactory.debugMode) {
 			System.out.println("--------begin after splitting------------");
@@ -307,7 +307,7 @@ public class PCAnalyzer {
 			case ATAN2: {
 				final RealConstraint c1 = new RealConstraint(e_arg1Ref, Comparator.EQ, new RealConstant(e_arg1Ref.solution()));
 				final RealConstraint c2 = new RealConstraint(e_arg2Ref, Comparator.EQ, new RealConstant(e_arg2Ref.solution()));
-				c1.and = c2;
+				c1.setNextConstraint(c2);
 				return c1;
 			}
 			default:
@@ -322,7 +322,7 @@ public class PCAnalyzer {
 			for(int i=1; i<sym_args.length; i++) {
 					final RealExpression e2 = (RealExpression)sym_args[i];
 					final RealConstraint c2 = new RealConstraint(e2, Comparator.EQ, new RealConstant(e2.solution()));
-					c2.and = c;
+					c2.setNextConstraint(c);
 					c = c2;
 			}
 			return c;
@@ -336,7 +336,7 @@ public class PCAnalyzer {
 			e_arg2Ref = ((BinaryNonLinearIntegerExpression)eRef).right;
 			final LinearIntegerConstraint c1 = new LinearIntegerConstraint(e_arg1Ref, Comparator.EQ, new IntegerConstant(e_arg1Ref.solution()));
 			final LinearIntegerConstraint c2 = new LinearIntegerConstraint(e_arg2Ref, Comparator.EQ, new IntegerConstant(e_arg2Ref.solution()));
-			c1.and = c2;
+			c1.setNextConstraint(c2);
 			return c1;
 		}
 		throw new RuntimeException("## Error: Expression " + eRef);
@@ -420,17 +420,17 @@ public class PCAnalyzer {
 		// with their execution results with simplePC arguments
 
 		//PathCondition simplifiedPC = new PathCondition();
-		Constraint cRef = concolicPC.header;
+		Constraint cRef = concolicPC.getHeader();
 
 		extraPC = new PathCondition();
 		while (cRef != null) {
 			simplePC.prependUnlessRepeated(traverseConstraint(cRef));
-			cRef = (RealConstraint)cRef.and;
+			cRef = (RealConstraint)cRef.getNextConstraint();
 		}
 		if(SymbolicInstructionFactory.debugMode) System.out.println("new PC " + simplePC);
-		if(extraPC.header!=null) {
+		if(extraPC.getHeader()!=null) {
 			if(SymbolicInstructionFactory.debugMode) System.out.println("extraPC constraints" + extraPC);
-			simplePC.appendAllConjuncts(extraPC.header);
+			simplePC.appendAllConjuncts(extraPC.getHeader());
 		}
 
 		if(SymbolicInstructionFactory.debugMode){
@@ -440,7 +440,7 @@ public class PCAnalyzer {
 				System.out.println("--------------------");
 			}
 
-		simplePC.flagSolved = false;
+		simplePC.setSolved(false);
 
 //		if (true /*SymbolicInstructionFactory.debugMode*/) {
 //			System.out.println("--------------------");

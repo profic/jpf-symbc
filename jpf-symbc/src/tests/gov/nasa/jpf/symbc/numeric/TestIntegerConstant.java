@@ -440,7 +440,7 @@ public class TestIntegerConstant extends TestJPF {
 	}
 	
 	@Test
-	public void compareToForEqualIntegerConstantsShouldReturnZero() {
+	public void compareToForEqualIntegerConstantShouldReturnZero() {
 		int value = 17;
 		IntegerConstant integerConstant1 = new IntegerConstant(value);
 		IntegerConstant integerConstant2 = new IntegerConstant(value);
@@ -449,7 +449,7 @@ public class TestIntegerConstant extends TestJPF {
 	}
 	
 	@Test
-	public void compareToWithGreaterIntegerConstantsShouldReturnMinusOne() {
+	public void compareToWithGreaterIntegerConstantShouldReturnMinusOne() {
 		int value = 17;
 		IntegerConstant integerConstant1 = new IntegerConstant(value);
 		IntegerConstant integerConstant2 = new IntegerConstant(value + 1);
@@ -458,7 +458,7 @@ public class TestIntegerConstant extends TestJPF {
 	}
 	
 	@Test
-	public void compareToWithLesserIntegerConstantsShouldReturnOne() {
+	public void compareToWithLesserIntegerConstantShouldReturnOne() {
 		int value = 17;
 		IntegerConstant integerConstant1 = new IntegerConstant(value);
 		IntegerConstant integerConstant2 = new IntegerConstant(value - 1);

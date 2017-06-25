@@ -1,7 +1,5 @@
 package gov.nasa.jpf.symbc.numeric;
 
-import gov.nasa.jpf.symbc.numeric.SymbolicInteger;
-import gov.nasa.jpf.symbc.numeric.MinMax;
 import gov.nasa.jpf.util.test.TestJPF;
 
 import org.junit.Test;

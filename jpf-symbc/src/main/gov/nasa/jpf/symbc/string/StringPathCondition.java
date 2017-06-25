@@ -56,150 +56,158 @@ import java.util.Map.Entry;
 import gov.nasa.jpf.symbc.numeric.PathCondition;
 
 public class StringPathCondition {
-	  static boolean flagSolved = false;
+	public String smtlib = "";
+	public Map<String, String> solution = Collections.<String, String>emptyMap();
+	public StringConstraint header;
+	int count = 0;
+	
+	private static boolean isSolved = false;
 
-	  public String smtlib = "";
-	  public Map<String, String> solution = Collections.<String,String>emptyMap();
-	  public StringConstraint header;
-	  int count = 0;
+	// Is this always a reference to the PC that contains this SPC?
+	private PathCondition npc = null;
 
-	  // Is this always a reference to the PC that contains this SPC?
-	  private PathCondition npc = null;
+	// Added for disambiguation, because there is no way to know whether
+	// the most recently added constraint is the first numeric constraint
+	// or the first string constraint. This knowledge is reset after popping!
 
-	  
-	  // Added for disambiguation, because there is no way to know whether
-	  // the most recently added constraint is the first numeric constraint
-	  // or the first string constraint. This knowledge is reset after popping!
+	// The latter only matters when the former is true.
+	private boolean isRecentlyAddedConstraintKnown = false;
+	private boolean isRecentlyAddedConstraintString = false;
+	
+	
+	public StringPathCondition(PathCondition npc) {
+		this.setNpc(npc);
+		header = null;
+	}
 
-	  // The latter only matters when the former is true.
-	  private boolean isRecentlyAddedConstraintKnown = false;
-	  private boolean isRecentlyAddedConstraintString = false;
+	static boolean isSolved() {
+		return isSolved;
+	}
 
-	  public boolean isRecentlyAddedConstraintKnown() {
-		  return isRecentlyAddedConstraintKnown;
-	  }
-	  
-	  public boolean isRecentlyAddedConstraintString() {
-		  if(! isRecentlyAddedConstraintKnown) { throw new RuntimeException("Undefined at this time!"); }
-		  return isRecentlyAddedConstraintString;
-	  }
+	static void setSolved(boolean isSolved) {
+		StringPathCondition.isSolved = isSolved;
+	}
 
-	  public boolean isRecentlyAddedConstraintNumeric() {
-		  if(! isRecentlyAddedConstraintKnown) { throw new RuntimeException("Undefined at this time!"); }
-		  return (! isRecentlyAddedConstraintString);
-	  }
-	  
-	  public void setRecentlyAddedConstraintString() {
-		  isRecentlyAddedConstraintKnown = true;
-		  isRecentlyAddedConstraintString = true;
-	  }
+	public boolean isRecentlyAddedConstraintKnown() {
+		return isRecentlyAddedConstraintKnown;
+	}
 
-	  public void setRecentlyAddedConstraintNumeric() {
-		  isRecentlyAddedConstraintKnown = true;
-		  isRecentlyAddedConstraintString = false;
-	  }
-	  
-	  public void setRecentlyAddedConstraintUnknown() {
-		  isRecentlyAddedConstraintKnown = false;
-	  }
-	  
+	public boolean isRecentlyAddedConstraintString() {
+		if (!isRecentlyAddedConstraintKnown) {
+			throw new RuntimeException("Undefined at this time!");
+		}
+		return isRecentlyAddedConstraintString;
+	}
 
-	  
-	  public StringPathCondition(PathCondition npc) {
-	    this.setNpc(npc);
-	    header = null;
-	  }
+	public boolean isRecentlyAddedConstraintNumeric() {
+		if (!isRecentlyAddedConstraintKnown) {
+			throw new RuntimeException("Undefined at this time!");
+		}
+		return (!isRecentlyAddedConstraintString);
+	}
 
-	  public StringPathCondition make_copy(PathCondition npc) {
-	    StringPathCondition pc_new = new StringPathCondition(npc);
-	    pc_new.header = this.header;
-	    pc_new.count = this.count;
-	    // PEND: Does copying these here break anything? Shouldn't. But check.
-	    pc_new.isRecentlyAddedConstraintKnown = this.isRecentlyAddedConstraintKnown;
-	    pc_new.isRecentlyAddedConstraintString = this.isRecentlyAddedConstraintString;
-	    return pc_new;
-	  }
+	public void setRecentlyAddedConstraintString() {
+		isRecentlyAddedConstraintKnown = true;
+		isRecentlyAddedConstraintString = true;
+	}
 
-	  // constraints on strings
-	  public void _addDet(StringComparator c, StringExpression l, String r) {
-	    flagSolved = false; // C
-	    _addDet(c, l, new StringConstant(r));
-	  }
+	public void setRecentlyAddedConstraintNumeric() {
+		isRecentlyAddedConstraintKnown = true;
+		isRecentlyAddedConstraintString = false;
+	}
 
-	  public void _addDet(StringComparator c, String l, StringExpression r) {
-	    flagSolved = false; // C
-	    _addDet(c, new StringConstant(l), r);
-	  }
+	public void setRecentlyAddedConstraintUnknown() {
+		isRecentlyAddedConstraintKnown = false;
+	}
 
-	  public void _addDet(StringComparator c,  StringExpression r) {
-		    setRecentlyAddedConstraintString();
-		    StringConstraint t;
+	public StringPathCondition make_copy(PathCondition npc) {
+		StringPathCondition pc_new = new StringPathCondition(npc);
+		pc_new.header = this.header;
+		pc_new.count = this.count;
+		// PEND: Does copying these here break anything? Shouldn't. But check.
+		pc_new.isRecentlyAddedConstraintKnown = this.isRecentlyAddedConstraintKnown;
+		pc_new.isRecentlyAddedConstraintString = this.isRecentlyAddedConstraintString;
+		return pc_new;
+	}
 
-		    flagSolved = false; // C
+	// constraints on strings
+	public void _addDet(StringComparator c, StringExpression l, String r) {
+		setSolved(false); // C
+		_addDet(c, l, new StringConstant(r));
+	}
 
-		    t = new StringConstraint(c, r);
+	public void _addDet(StringComparator c, String l, StringExpression r) {
+		setSolved(false); // C
+		_addDet(c, new StringConstant(l), r);
+	}
 
-		    if (!hasConstraint(t)) {
-		      t.and = header;
-		      header = t;
-		      count++;
-		    }
-		  }
+	public void _addDet(StringComparator c, StringExpression r) {
+		setRecentlyAddedConstraintString();
+		StringConstraint t;
 
-	  public void _addDet(StringComparator c, StringExpression l, StringExpression r) {
-	    setRecentlyAddedConstraintString();
-	    StringConstraint t;
+		setSolved(false); // C
 
-	    flagSolved = false; // C
+		t = new StringConstraint(c, r);
 
-	    t = new StringConstraint(r, c, l);
+		if (!hasConstraint(t)) {
+			t.and = header;
+			header = t;
+			count++;
+		}
+	}
 
-	    if (!hasConstraint(t)) {
-	      t.and = header;
-	      header = t;
-	      count++;
-	    }
-	  }
+	public void _addDet(StringComparator c, StringExpression l, StringExpression r) {
+		setRecentlyAddedConstraintString();
+		StringConstraint t;
 
-	  public int count() {
-	    return count;
-	  }
+		setSolved(false); // C
 
-	  public boolean hasConstraint(StringConstraint c) {
-	    StringConstraint t = header;
+		t = new StringConstraint(r, c, l);
 
-	    while (t != null) {
-	      if (c.equals(t)) {
-	        return true;
-	      }
+		if (!hasConstraint(t)) {
+			t.and = header;
+			header = t;
+			count++;
+		}
+	}
 
-	      t = t.and;
-	    }
-	    return false;
-	  }
+	public int count() {
+		return count;
+	}
 
-	  public boolean solve() {// warning: solve calls simplify
-		  SymbolicStringConstraintsGeneral solver = new SymbolicStringConstraintsGeneral();
-		  boolean result = solver.isSatisfiable(this);
-		  StringPathCondition.flagSolved = result;
-		  return result;
-	  }
+	public boolean hasConstraint(StringConstraint c) {
+		StringConstraint t = header;
 
-	  public boolean simplify() {
-	    SymbolicStringConstraintsGeneral solver = new SymbolicStringConstraintsGeneral();
-	    boolean result = solver.isSatisfiable(this);
-	    return result;
-	  }
+		while (t != null) {
+			if (c.equals(t)) {
+				return true;
+			}
 
-	  public String stringPC() {
-	    return "SPC # = " + count + ((header == null) ? "" : "\n" + header.stringPC()) +"\n"
-	    		+ "NPC "+npc.stringPC();
-	  }
+			t = t.and;
+		}
+		return false;
+	}
 
-	  public String toString() {
-	    return "SPC # = " + count + ((header == null) ? "" : "\n" + header.toString()) +"\n"
-	    		+ "NPC "+npc.toString();
-	  }
+	public boolean solve() {// warning: solve calls simplify
+		SymbolicStringConstraintsGeneral solver = new SymbolicStringConstraintsGeneral();
+		boolean result = solver.isSatisfiable(this);
+		StringPathCondition.setSolved(result);
+		return result;
+	}
+
+	public boolean simplify() {
+		SymbolicStringConstraintsGeneral solver = new SymbolicStringConstraintsGeneral();
+		boolean result = solver.isSatisfiable(this);
+		return result;
+	}
+
+	public String stringPC() {
+		return "SPC # = " + count + ((header == null) ? "" : "\n" + header.stringPC()) + "\n" + "NPC " + npc.stringPC();
+	}
+
+	public String toString() {
+		return "SPC # = " + count + ((header == null) ? "" : "\n" + header.toString()) + "\n" + "NPC " + npc.toString();
+	}
 
 	public PathCondition getNpc() {
 		return npc;
@@ -208,20 +216,16 @@ public class StringPathCondition {
 	public void setNpc(PathCondition npc) {
 		this.npc = npc;
 	}
-	
-	public Map<String, String> getSolution(){
+
+	public Map<String, String> getSolution() {
 		return this.solution;
 	}
-	
 
-	public String printableStringSolution(){
+	public String printableStringSolution() {
 		StringBuilder b = new StringBuilder();
 		for (Entry<String, String> sol : solution.entrySet()) {
 			b.append(sol.getKey()).append(" : \"").append(sol.getValue()).append("\"");
-	    }
+		}
 		return b.toString();
 	}
-	
-	
-
 }

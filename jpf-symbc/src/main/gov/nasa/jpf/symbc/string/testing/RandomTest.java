@@ -237,7 +237,7 @@ public class RandomTest {
 		System.out.println(sg.toDot());
 		boolean result = PreProcessGraph.preprocess(sg, pc);
 		//System.out.println(sg.toDot());
-		System.out.println(pc.header);
+		System.out.println(pc.getHeader());
 		System.out.println("Preprocessor " + result);
 		if (result == false) {}
 		else {

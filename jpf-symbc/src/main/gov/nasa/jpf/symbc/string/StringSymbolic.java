@@ -66,7 +66,7 @@ public class StringSymbolic extends StringExpression {
 	public StringSymbolic() {
 		super();
 
-		StringPathCondition.flagSolved = false;
+		StringPathCondition.setSolved(false);
 	}
 
 	public StringSymbolic(String n) {
@@ -74,7 +74,7 @@ public class StringSymbolic extends StringExpression {
 		name = n;
 		length = new SymbolicInteger(name + ".length");
 		trackedSymVars.add(fixName(name));
-		StringPathCondition.flagSolved = false;
+		StringPathCondition.setSolved(false);
 	}
 
 	public StringSymbolic clone() {
@@ -83,7 +83,7 @@ public class StringSymbolic extends StringExpression {
 	}
 
 	public String toString() {
-		if (!StringPathCondition.flagSolved) {
+		if (!StringPathCondition.isSolved()) {
 			return (name != null) ? name : "STR_" + hashCode();
 		} else {
 			return (name != null) ? name + "[" + solution + "]" : "STR_" + hashCode() + "[" + solution + "]";
@@ -91,7 +91,7 @@ public class StringSymbolic extends StringExpression {
 	}
 
 	public String getStringPathCondition() {
-		if (!StringPathCondition.flagSolved) {
+		if (!StringPathCondition.isSolved()) {
 			return (name != null) ? name : "STR_" + hashCode();
 
 		} else {

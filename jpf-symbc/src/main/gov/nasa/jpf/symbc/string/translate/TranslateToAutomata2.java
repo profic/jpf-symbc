@@ -218,7 +218,7 @@ public class TranslateToAutomata2 {
 				pc._addDet(resultloic);
 				//println ("Adding: " + resultloic);
 				
-				if (PathCondition.flagSolved == false) {
+				if (PathCondition.isSolved() == false) {
 					//println ("[isSat] Path Condition changed, starting integer solver...");
 					long startTime = System.currentTimeMillis();
 					boolean int_result = scg.isSatisfiable(pc);
@@ -228,7 +228,7 @@ public class TranslateToAutomata2 {
 					if (int_result) {
 						//println ("[isSat] Found to be sat, solving...");
 						scg.solve(pc);
-						PathCondition.flagSolved = true;
+						PathCondition.setSolved(true);
 						//println ("[isSat] solved " + global_pc.header.toString());
 						unsatStack1 = new Stack<LogicalORLinearIntegerConstraints>();
 						unsatStack2 = new Stack<LinearIntegerConstraint>();
@@ -1530,7 +1530,7 @@ public class TranslateToAutomata2 {
 				//Check if everything is still solved:
 				if (scg.isSatisfiable(global_pc)) {
 					scg.solve(global_pc);
-					global_pc.flagSolved = true;
+					global_pc.setSolved(true);
 					global_change = true;
 					return true;
 				} else {
@@ -1569,7 +1569,7 @@ public class TranslateToAutomata2 {
 				//Check if everything is still solved:
 				if (scg.isSatisfiable(global_pc)) {
 					scg.solve(global_pc);
-					global_pc.flagSolved = true;
+					global_pc.setSolved(true);
 					global_change = true;
 					return true;
 				} else {
@@ -1619,7 +1619,7 @@ public class TranslateToAutomata2 {
 				//Check if everything is still solved:
 				if (scg.isSatisfiable(global_pc)) {
 					scg.solve(global_pc);
-					global_pc.flagSolved = true;
+					global_pc.setSolved(true);
 					global_change = true;
 					return true;
 				} else {
@@ -1661,7 +1661,7 @@ public class TranslateToAutomata2 {
 				//Check if everything is still solved:
 				if (scg.isSatisfiable(global_pc)) {
 					scg.solve(global_pc);
-					global_pc.flagSolved = true;
+					global_pc.setSolved(true);
 					global_change = true;
 					return true;
 				} else {
@@ -1715,7 +1715,7 @@ public class TranslateToAutomata2 {
 				//Check if everything is still solved:
 				if (scg.isSatisfiable(global_pc)) {
 					scg.solve(global_pc);
-					global_pc.flagSolved = true;
+					global_pc.setSolved(true);
 					global_change = true;
 					return true;
 				} else {
@@ -1753,7 +1753,7 @@ public class TranslateToAutomata2 {
 				//Check if everything is still solved:
 				if (scg.isSatisfiable(global_pc)) {
 					scg.solve(global_pc);
-					global_pc.flagSolved = true;
+					global_pc.setSolved(true);
 					global_change = true;
 					return true;
 				} else {
@@ -1802,7 +1802,7 @@ public class TranslateToAutomata2 {
 				//Check if everything is still solved:
 				if (scg.isSatisfiable(global_pc)) {
 					scg.solve(global_pc);
-					global_pc.flagSolved = true;
+					global_pc.setSolved(true);
 					global_change = true;
 					return true;
 				} else {
@@ -1840,7 +1840,7 @@ public class TranslateToAutomata2 {
 				//Check if everything is still solved:
 				if (scg.isSatisfiable(global_pc)) {
 					scg.solve(global_pc);
-					global_pc.flagSolved = true;
+					global_pc.setSolved(true);
 					global_change = true;
 					return true;
 				} else {

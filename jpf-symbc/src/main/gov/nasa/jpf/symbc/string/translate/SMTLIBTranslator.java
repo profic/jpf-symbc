@@ -47,7 +47,7 @@ public class SMTLIBTranslator {
 	
 	public String translate(StringPathCondition pc, String AdditionalConstraints){
 		StringConstraint sc = pc.header;
-		Constraint npc = pc.getNpc().header;
+		Constraint npc = pc.getNpc().getHeader();
 		this.constraintsExpression = stringConstraintToSMTLIB(sc);
 		this.numericExpression = numericConstraintToSMTLIB(npc);
 		this.declarations = symbolicStringDeclarations(stringVariables) + symbolicNumericDeclarations(numericVariables);
@@ -301,7 +301,7 @@ public class SMTLIBTranslator {
 			}
 			
 			finalResult = finalResult + "\n" + "(assert (" + op + " " + arg1 + " " + arg2 + "))";
-			npc = npc.and;
+			npc = npc.getNextConstraint();
 		}
 		return finalResult;
 		

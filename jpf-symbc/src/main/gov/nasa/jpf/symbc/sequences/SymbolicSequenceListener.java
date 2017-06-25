@@ -179,8 +179,8 @@ public class SymbolicSequenceListener extends PropertyListenerAdapter implements
 			PathCondition pc = ((PCChoiceGenerator) cg).getCurrentPC().make_copy();
             HeapChoiceGenerator heapCG = vm.getLastChoiceGeneratorOfType(HeapChoiceGenerator.class);
             PathCondition heapPC = (heapCG==null ? new PathCondition() : heapCG.getCurrentPCheap().make_copy());
-            pc.appendPathcondition(heapPC);
-			System.out.println("pc "+ pc.count() + " "+pc);
+            pc.prependPathCondition(heapPC);
+			System.out.println("pc "+ pc.getCount() + " "+pc);
 
 			//solve the path condition
             /* TODO : Temp comment before update concolic module
@@ -227,7 +227,7 @@ public class SymbolicSequenceListener extends PropertyListenerAdapter implements
         			PathCondition pc = ((PCChoiceGenerator) cg).getCurrentPC().make_copy();
                     HeapChoiceGenerator heapCG = vm.getLastChoiceGeneratorOfType(HeapChoiceGenerator.class);
                     PathCondition heapPC = (heapCG==null ? new PathCondition() : heapCG.getCurrentPCheap().make_copy());
-                    pc.appendPathcondition(heapPC);
+                    pc.prependPathCondition(heapPC);
         			//solve the path condition
                     /* TODO : Comment until update of concolic module with jconstraints
         			if (SymbolicInstructionFactory.concolicMode) { //TODO: cleaner
@@ -440,7 +440,7 @@ public class SymbolicSequenceListener extends PropertyListenerAdapter implements
 
     private static String generateArrayElements(PathCondition pc, ArrayExpression e, Map<String, Object> val) {
         // We have an array of primitive type
-        if (pc == null || pc.header == null) {
+        if (pc == null || pc.getHeader() == null) {
             return "";
         }
         String arrayName = e.getName();
@@ -449,7 +449,7 @@ public class SymbolicSequenceListener extends PropertyListenerAdapter implements
         for (int i = 0; i< toIntExact(e.length.solution()); i++) {
             constructedRank[i] = -1;
         }
-        Constraint header = pc.header;
+        Constraint header = pc.getHeader();
         while (header != null) {
             if (header.getLeft() instanceof SelectExpression) {
                 SelectExpression currCst = (SelectExpression)header.getLeft();
@@ -463,7 +463,7 @@ public class SymbolicSequenceListener extends PropertyListenerAdapter implements
                     }
                 }
             }
-            header = header.and;
+            header = header.getNextConstraint();
         }
         return translateConstructedArray(constructedArray);
     }
@@ -471,7 +471,7 @@ public class SymbolicSequenceListener extends PropertyListenerAdapter implements
     private String generateReferenceArray(PathCondition pc, ArrayExpression e, Map<String, Object> val, String type) {
         // We have an array of reference type
         String result ="        " + type + " " + e.getName() + " = new " + type.substring(0, type.length() -1) + e.length.solution() + "]\n" ;
-        if (pc == null || pc.header == null) {
+        if (pc == null || pc.getHeader() == null) {
             return result; 
         }
         String arrayName = e.getName();
@@ -480,7 +480,7 @@ public class SymbolicSequenceListener extends PropertyListenerAdapter implements
         for (int i = 0; i< toIntExact(e.length.solution()); i++) {
             constructedRank[i] = -1;
         }
-        Constraint header = pc.header;
+        Constraint header = pc.getHeader();
         while (header != null) {
             if (header.getLeft() instanceof SelectExpression) {
                 SelectExpression currCst = (SelectExpression)header.getLeft();
@@ -494,7 +494,7 @@ public class SymbolicSequenceListener extends PropertyListenerAdapter implements
                     }
                 }
             }
-            header = header.and;
+            header = header.getNextConstraint();
         }
         return result;
 
@@ -512,11 +512,11 @@ public class SymbolicSequenceListener extends PropertyListenerAdapter implements
             }
             if (field instanceof ReferenceFieldInfo) {
                 if (((ReferenceFieldInfo)field).getType().contains("[]")) {
-                   if (!(pc.arrayExpressions.containsKey(fullName))) {
+                   if (!(pc.getArrayExpressions().containsKey(fullName))) {
                         generatedFields = generatedFields + "		" + fullName + " = new " + field.getType() + "{};\n";
                    }
                    else {
-                    ArrayExpression e = pc.arrayExpressions.get(fullName);
+                    ArrayExpression e = pc.getArrayExpressions().get(fullName);
                     if (e.getElemType().equals("?")) {
                         String arrayElems = generateArrayElements(pc, (ArrayExpression)e, val);
                         if (arrayElems != "") {

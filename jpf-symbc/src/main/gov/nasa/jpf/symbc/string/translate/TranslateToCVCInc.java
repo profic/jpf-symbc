@@ -127,12 +127,12 @@ public class TranslateToCVCInc {
 		for (Edge e: g.getEdges()) {
 			boolean result = handle(e);
 			if (result == false) {
-				if (PathCondition.flagSolved == false) {
+				if (PathCondition.isSolved() == false) {
 					//println ("[isSat] Path Condition changed, starting integer solver...");
 					if (scg.isSatisfiable(pc)) {
 						//println ("[isSat] Found to be sat, solving...");
 						scg.solve(pc);
-						PathCondition.flagSolved = true;
+						PathCondition.setSolved(true);
 						//println ("[isSat] solved " + global_pc.header.toString());
 						vc.delete();
 						return isSat (g, pc); //remove recursion

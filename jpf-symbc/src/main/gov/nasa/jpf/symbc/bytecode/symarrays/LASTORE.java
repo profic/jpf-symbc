@@ -60,8 +60,8 @@ public class LASTORE extends gov.nasa.jpf.jvm.bytecode.LASTORE {
           // Retrieve the array expression if it was previously in the pathcondition, and store it as an array attr
           PCChoiceGenerator temp_cg = (PCChoiceGenerator)ti.getVM().getLastChoiceGeneratorOfType(PCChoiceGenerator.class);
           if (temp_cg != null) {
-              if (temp_cg.getCurrentPC().arrayExpressions.containsKey(ti.getElementInfo(ti.getModifiableTopFrame().peek(3)).toString())) {
-                  ti.getModifiableTopFrame().setOperandAttr(3, temp_cg.getCurrentPC().arrayExpressions.get(ti.getElementInfo(ti.getModifiableTopFrame().peek(3)).toString()));
+              if (temp_cg.getCurrentPC().getArrayExpressions().containsKey(ti.getElementInfo(ti.getModifiableTopFrame().peek(3)).toString())) {
+                  ti.getModifiableTopFrame().setOperandAttr(3, temp_cg.getCurrentPC().getArrayExpressions().get(ti.getElementInfo(ti.getModifiableTopFrame().peek(3)).toString()));
               }
           }
 
@@ -166,7 +166,7 @@ public class LASTORE extends gov.nasa.jpf.jvm.bytecode.LASTORE {
 
                   StoreExpression se = new StoreExpression(arrayAttr, indexAttr, sym_value);
                   pc._addDet(Comparator.EQ, se, newArrayAttr);
-                  pc.arrayExpressions.put(newArrayAttr.getRootName(), newArrayAttr);
+                  pc.getArrayExpressions().put(newArrayAttr.getRootName(), newArrayAttr);
 
                   return getNext(ti);
              }

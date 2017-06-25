@@ -256,10 +256,10 @@ public class TranslateToAutomata {
 							result = handle (edge);
 							if (!result) {
 								//Check if path condition has changed
-								if (PathCondition.flagSolved == false) {
+								if (PathCondition.isSolved() == false) {
 									loops++;
 									logger.info ("[isSat] solving path condition: ");
-									logger.info(global_pc.header.toString());
+									logger.info(global_pc.getHeader().toString());
 									long startTime = System.currentTimeMillis();
 									boolean temp_result = scg.isSatisfiable(global_pc);
 									long temp_dur = System.currentTimeMillis() - startTime;
@@ -268,7 +268,7 @@ public class TranslateToAutomata {
 									if (temp_result) {
 										scg.solve(global_pc);
 										//println ("[isSat] solved");
-										PathCondition.flagSolved = true;
+										PathCondition.setSolved(true);
 										//println(global_pc.header.toString());
 										restart = true;
 										result = false;
@@ -302,7 +302,7 @@ public class TranslateToAutomata {
 			boolean handleNotResult = handleNots(g);
 			if (!handleNotResult) {
 				//println ("returned no");
-				if (PathCondition.flagSolved == false) {
+				if (PathCondition.isSolved() == false) {
 					logger.info ("path condition to be solved");
 					logger.info (global_pc.toString());
 					loops++;
@@ -314,7 +314,7 @@ public class TranslateToAutomata {
 					
 					if (int_result) {
 						scg.solve(global_pc);
-						PathCondition.flagSolved = true;
+						PathCondition.setSolved(true);
 						mapAutomaton = null;
 						restart = true;
 					}
@@ -444,7 +444,7 @@ public class TranslateToAutomata {
 				//println ("Number of nots going up");
 				continue;
 			}
-			if (PathCondition.flagSolved == false) {
+			if (PathCondition.isSolved() == false) {
 				/*println ("first path condition not solved");
 				loops++;
 				long starttime = System.currentTimeMillis();
@@ -470,7 +470,7 @@ public class TranslateToAutomata {
 			//println ("Starting while loop...");
 			while (i < numberOfNots && result == 0) {
 				//println ("in while loop");
-				if (PathCondition.flagSolved == false) {
+				if (PathCondition.isSolved() == false) {
 					/*loops++;
 					long starttime = System.currentTimeMillis();
 					boolean temp_result = scg.isSatisfiable(global_pc);
@@ -2036,7 +2036,7 @@ public class TranslateToAutomata {
 	}
 	
 	private static boolean propagateChange (Vertex vertexThatHasChanged, Vertex vertexComingFrom) {
-		if (!PathCondition.flagSolved) {
+		if (!PathCondition.isSolved()) {
 			//println ("[propagateChange] Path condition is need of solving");
 			return false;
 		}

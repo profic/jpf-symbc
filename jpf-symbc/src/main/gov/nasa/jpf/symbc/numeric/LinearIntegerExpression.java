@@ -36,72 +36,68 @@
 //
 
 package gov.nasa.jpf.symbc.numeric;
+
 import static gov.nasa.jpf.symbc.numeric.Operator.*;
 
-abstract class LinearIntegerExpression extends IntegerExpression
-{
+abstract class LinearIntegerExpression extends IntegerExpression {
 
-   public IntegerExpression _minus_reverse (long i)
-   {
-	return new BinaryLinearIntegerExpression(new IntegerConstant(i), MINUS, this);
-   }
+	public IntegerExpression _minus_reverse(long i) {
+		return new BinaryLinearIntegerExpression(new IntegerConstant(i), MINUS, this);
+	}
 
-    public IntegerExpression _minus (long i) {
-		//simplify
-		if (i == 0)
+	public IntegerExpression _minus(long i) {
+		if (i == 0) {
 			return this;
+		} else {
+			return new BinaryLinearIntegerExpression(this, MINUS, new IntegerConstant(i));
+		}
+	}
 
-		return new BinaryLinearIntegerExpression(this, MINUS, new IntegerConstant(i));
-    }
-
-    public IntegerExpression _minus (IntegerExpression e) {
-		//simplify
+	public IntegerExpression _minus(IntegerExpression e) {
+		// simplify
 		if (e instanceof IntegerConstant) {
-			IntegerConstant ic = (IntegerConstant)e;
+			IntegerConstant ic = (IntegerConstant) e;
 			if (ic.getValue() == 0)
 				return this;
 		}
 		if (e == this)
 			return new IntegerConstant(0);
 
-	if (e instanceof LinearIntegerExpression) {
-	    return new BinaryLinearIntegerExpression(this, MINUS, e);
-	} else {
-	    return super._minus(e);
+		if (e instanceof LinearIntegerExpression) {
+			return new BinaryLinearIntegerExpression(this, MINUS, e);
+		} else {
+			return super._minus(e);
+		}
 	}
-    }
 
-    public IntegerExpression _mul (long i) {
-		//simplify
+	public IntegerExpression _mul(long i) {
+		// simplify
 		if (i == 1)
 			return this;
 		if (i == 0)
 			return new IntegerConstant(0);
 
-	return new BinaryLinearIntegerExpression(this, MUL, new IntegerConstant(i));
-    }
+		return new BinaryLinearIntegerExpression(this, MUL, new IntegerConstant(i));
+	}
 
-    public IntegerExpression _mul (IntegerExpression e)
-    {
-		//simplify
+	public IntegerExpression _mul(IntegerExpression e) {
+		// simplify
 		if (e instanceof IntegerConstant) {
-			IntegerConstant ic = (IntegerConstant)e;
+			IntegerConstant ic = (IntegerConstant) e;
 			if (ic.getValue() == 1)
 				return this;
 			if (ic.getValue() == 0)
 				return new IntegerConstant(0);
 		}
 
-	if (e instanceof IntegerConstant)
-	    return new BinaryLinearIntegerExpression(this, MUL, e);
-	else {
-	    return super._mul(e);
+		if (e instanceof IntegerConstant)
+			return new BinaryLinearIntegerExpression(this, MUL, e);
+		else {
+			return super._mul(e);
+		}
 	}
-    }
 
-
-	public IntegerExpression _div (long i)
-	{
+	public IntegerExpression _div(long i) {
 		// simplify
 		assert (i != 0);
 		if (i == 1)
@@ -109,11 +105,10 @@ abstract class LinearIntegerExpression extends IntegerExpression
 		return new BinaryLinearIntegerExpression(this, DIV, new IntegerConstant(i));
 	}
 
-	public IntegerExpression _div (IntegerExpression e)
-	{
-		//simplify
+	public IntegerExpression _div(IntegerExpression e) {
+		// simplify
 		if (e instanceof IntegerConstant) {
-			IntegerConstant ic = (IntegerConstant)e;
+			IntegerConstant ic = (IntegerConstant) e;
 			assert (ic.getValue() != 0);
 			if (ic.getValue() == 1)
 				return this;
@@ -126,162 +121,155 @@ abstract class LinearIntegerExpression extends IntegerExpression
 		return super._div(e);
 	}
 
-	public IntegerExpression _div_reverse (long i)
-	{
+	public IntegerExpression _div_reverse(long i) {
 		if (i == 0)
 			return new IntegerConstant(0);
 		return super._div(i);
 	}
 
-    public IntegerExpression _plus (long i) {
-		//simplify
+	public IntegerExpression _plus(long i) {
+		// simplify
 		if (i == 0)
 			return this;
 
-	return new BinaryLinearIntegerExpression(this, PLUS, new IntegerConstant(i));
-    }
+		return new BinaryLinearIntegerExpression(this, PLUS, new IntegerConstant(i));
+	}
 
-    public IntegerExpression _plus (IntegerExpression e) {
-		//simplify
+	public IntegerExpression _plus(IntegerExpression e) {
+		// simplify
 		if (e instanceof IntegerConstant) {
-			IntegerConstant ic = (IntegerConstant)e;
+			IntegerConstant ic = (IntegerConstant) e;
 			if (ic.getValue() == 0)
 				return this;
 		}
 
-	if (e instanceof LinearIntegerExpression) {
-	    return new BinaryLinearIntegerExpression(this, PLUS, e);
-	} else {
-	    return super._plus(e);
+		if (e instanceof LinearIntegerExpression) {
+			return new BinaryLinearIntegerExpression(this, PLUS, e);
+		} else {
+			return super._plus(e);
+		}
 	}
-    }
 
-    public IntegerExpression _neg()
-    {
-	return new BinaryLinearIntegerExpression(new IntegerConstant(0), MINUS, this);
-    }
+	public IntegerExpression _neg() {
+		return new BinaryLinearIntegerExpression(new IntegerConstant(0), MINUS, this);
+	}
 
-    public IntegerExpression _and(long i) {
-    	if(i == 0) {
-    		return new IntegerConstant(0);
-    	}
-    	return new BinaryLinearIntegerExpression(this, AND, new IntegerConstant(i));
-    }
+	public IntegerExpression _and(long i) {
+		if (i == 0) {
+			return new IntegerConstant(0);
+		}
+		return new BinaryLinearIntegerExpression(this, AND, new IntegerConstant(i));
+	}
 
-    public IntegerExpression _and(IntegerExpression e) {
-    	if(e instanceof IntegerConstant) {
-    		IntegerConstant ic = (IntegerConstant) e;
-    		if(ic.getValue() == 0) {
-    			return new IntegerConstant(0);
-    		}
-    		return new BinaryLinearIntegerExpression(this, AND, e);
-    	}
-    	if(e instanceof LinearIntegerExpression) {
-    		return new BinaryLinearIntegerExpression(this, AND, e);
-    	}
-    	return new BinaryNonLinearIntegerExpression(this, AND, e);
-    }
+	public IntegerExpression _and(IntegerExpression e) {
+		if (e instanceof IntegerConstant) {
+			IntegerConstant ic = (IntegerConstant) e;
+			if (ic.getValue() == 0) {
+				return new IntegerConstant(0);
+			}
+			return new BinaryLinearIntegerExpression(this, AND, e);
+		}
+		if (e instanceof LinearIntegerExpression) {
+			return new BinaryLinearIntegerExpression(this, AND, e);
+		}
+		return new BinaryNonLinearIntegerExpression(this, AND, e);
+	}
 
-    public IntegerExpression _or(long i) {
-    	if(i == 0) {
-    		return this;
-    	}
-    	return new BinaryLinearIntegerExpression(this, OR, new IntegerConstant(i));
-    }
+	public IntegerExpression _or(long i) {
+		if (i == 0) {
+			return this;
+		}
+		return new BinaryLinearIntegerExpression(this, OR, new IntegerConstant(i));
+	}
 
-    public IntegerExpression _or(IntegerExpression e) {
-    	if(e instanceof IntegerConstant) {
-    		IntegerConstant ic = (IntegerConstant) e;
-    		if(ic.getValue() == 0) {
-    			return this;
-    		}
-    		return new BinaryLinearIntegerExpression(this, OR, e);
-    	}
-    	if(e instanceof LinearIntegerExpression) {
-    		return new BinaryLinearIntegerExpression(this, OR, e);
-    	}
-    	return new BinaryNonLinearIntegerExpression(this, OR, e);
-    }
+	public IntegerExpression _or(IntegerExpression e) {
+		if (e instanceof IntegerConstant) {
+			IntegerConstant ic = (IntegerConstant) e;
+			if (ic.getValue() == 0) {
+				return this;
+			}
+			return new BinaryLinearIntegerExpression(this, OR, e);
+		}
+		if (e instanceof LinearIntegerExpression) {
+			return new BinaryLinearIntegerExpression(this, OR, e);
+		}
+		return new BinaryNonLinearIntegerExpression(this, OR, e);
+	}
 
-    public IntegerExpression _xor(long i) {
-    	return new BinaryLinearIntegerExpression(this, XOR, new IntegerConstant(i));
-    }
+	public IntegerExpression _xor(long i) {
+		return new BinaryLinearIntegerExpression(this, XOR, new IntegerConstant(i));
+	}
 
-    public IntegerExpression _xor(IntegerExpression e) {
-    	if(e instanceof IntegerConstant) {
-    		return new BinaryLinearIntegerExpression(this, XOR, e);
-    	}
-    	if(e instanceof LinearIntegerExpression) {
-    		return new BinaryLinearIntegerExpression(this, XOR, e);
-    	}
-    	return new BinaryNonLinearIntegerExpression(this, XOR, e);
-    }
+	public IntegerExpression _xor(IntegerExpression e) {
+		if (e instanceof IntegerConstant) {
+			return new BinaryLinearIntegerExpression(this, XOR, e);
+		}
+		if (e instanceof LinearIntegerExpression) {
+			return new BinaryLinearIntegerExpression(this, XOR, e);
+		}
+		return new BinaryNonLinearIntegerExpression(this, XOR, e);
+	}
 
-    public IntegerExpression _shiftR(long i) {
-    	if(i == 0) {
-    		return this;
-    	}
-    	return new BinaryLinearIntegerExpression(this, SHIFTR, new IntegerConstant(i));
-    }
+	public IntegerExpression _shiftR(long i) {
+		if (i == 0) {
+			return this;
+		}
+		return new BinaryLinearIntegerExpression(this, SHIFTR, new IntegerConstant(i));
+	}
 
-    public IntegerExpression _shiftR(IntegerExpression e) {
-    	if(e instanceof IntegerConstant) {
-    		IntegerConstant ic = (IntegerConstant) e;
-    		if(ic.getValue() == 0) {
-    			return this;
-    		}
-    		return new BinaryLinearIntegerExpression(this, SHIFTR, e);
-    	}
-    	if(e instanceof LinearIntegerExpression) {
-    		return new BinaryLinearIntegerExpression(this, SHIFTR, e);
-    	}
-    	return new BinaryNonLinearIntegerExpression(this, SHIFTR, e);
-    }
+	public IntegerExpression _shiftR(IntegerExpression e) {
+		if (e instanceof IntegerConstant) {
+			IntegerConstant ic = (IntegerConstant) e;
+			if (ic.getValue() == 0) {
+				return this;
+			}
+			return new BinaryLinearIntegerExpression(this, SHIFTR, e);
+		}
+		if (e instanceof LinearIntegerExpression) {
+			return new BinaryLinearIntegerExpression(this, SHIFTR, e);
+		}
+		return new BinaryNonLinearIntegerExpression(this, SHIFTR, e);
+	}
 
-    public IntegerExpression _shiftUR(long i) {
-    	if(i == 0) {
-    		return this;
-    	}
-    	return new BinaryLinearIntegerExpression(this, SHIFTUR, new IntegerConstant(i));
-    }
+	public IntegerExpression _shiftUR(long i) {
+		if (i == 0) {
+			return this;
+		}
+		return new BinaryLinearIntegerExpression(this, SHIFTUR, new IntegerConstant(i));
+	}
 
-    public IntegerExpression _shiftUR(IntegerExpression e) {
-    	if(e instanceof IntegerConstant) {
-    		IntegerConstant ic = (IntegerConstant) e;
-    		if(ic.getValue() == 0) {
-    			return this;
-    		}
-    		return new BinaryLinearIntegerExpression(this, SHIFTUR, e);
-    	}
-    	if(e instanceof LinearIntegerExpression) {
-    		return new BinaryLinearIntegerExpression(this, SHIFTUR, e);
-    	}
-    	return new BinaryNonLinearIntegerExpression(this, SHIFTUR, e);
-    }
+	public IntegerExpression _shiftUR(IntegerExpression e) {
+		if (e instanceof IntegerConstant) {
+			IntegerConstant ic = (IntegerConstant) e;
+			if (ic.getValue() == 0) {
+				return this;
+			}
+			return new BinaryLinearIntegerExpression(this, SHIFTUR, e);
+		}
+		if (e instanceof LinearIntegerExpression) {
+			return new BinaryLinearIntegerExpression(this, SHIFTUR, e);
+		}
+		return new BinaryNonLinearIntegerExpression(this, SHIFTUR, e);
+	}
 
-    public IntegerExpression _shiftL(long i) {
-    	if(i == 0) {
-    		return this;
-    	}
-    	return new BinaryLinearIntegerExpression(this, SHIFTL, new IntegerConstant(i));
-    }
+	public IntegerExpression _shiftL(long i) {
+		if (i == 0) {
+			return this;
+		}
+		return new BinaryLinearIntegerExpression(this, SHIFTL, new IntegerConstant(i));
+	}
 
-    public IntegerExpression _shiftL(IntegerExpression e) {
-    	if(e instanceof IntegerConstant) {
-    		IntegerConstant ic = (IntegerConstant) e;
-    		if(ic.getValue() == 0) {
-    			return this;
-    		}
-    		return new BinaryLinearIntegerExpression(this, SHIFTL, e);
-    	}
-    	if(e instanceof LinearIntegerExpression) {
-    		return new BinaryLinearIntegerExpression(this, SHIFTL, e);
-    	}
-    	return new BinaryNonLinearIntegerExpression(this, SHIFTL, e);
-    }
-    
-    //protected void finalize() throws Throwable {
-    //	System.out.println("Finalized LIE" + this);
-    //}
-    
+	public IntegerExpression _shiftL(IntegerExpression e) {
+		if (e instanceof IntegerConstant) {
+			IntegerConstant ic = (IntegerConstant) e;
+			if (ic.getValue() == 0) {
+				return this;
+			}
+			return new BinaryLinearIntegerExpression(this, SHIFTL, e);
+		}
+		if (e instanceof LinearIntegerExpression) {
+			return new BinaryLinearIntegerExpression(this, SHIFTL, e);
+		}
+		return new BinaryNonLinearIntegerExpression(this, SHIFTL, e);
+	}
 }

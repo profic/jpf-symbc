@@ -195,13 +195,13 @@ public class TranslateToAutomataSpeedUp {
 							result = handle (edge);
 							if (!result) {
 								//Check if path condition has changed
-								if (PathCondition.flagSolved == false) {
+								if (PathCondition.isSolved() == false) {
 									//println ("[isSat] solving path condition: ");
 									//println(global_pc.header.toString());
 									if (scg.isSatisfiable(global_pc)) {
 										scg.solve(global_pc);
 										//println ("[isSat] solved");
-										PathCondition.flagSolved = true;
+										PathCondition.setSolved(true);
 										//println(global_pc.header.toString());
 										result = false;
 										break;
@@ -229,10 +229,10 @@ public class TranslateToAutomataSpeedUp {
 			//Take care of nonequality and concat
 			boolean handleNotResult = handleNots(g);
 			if (!handleNotResult) {
-				if (PathCondition.flagSolved == false) {
+				if (PathCondition.isSolved() == false) {
 					if (scg.isSatisfiable(global_pc)) {
 						scg.solve(global_pc);
-						PathCondition.flagSolved = true;
+						PathCondition.setSolved(true);
 						restart = true;
 					}
 					else {
@@ -637,7 +637,7 @@ public class TranslateToAutomataSpeedUp {
 	}
 	
 	private static boolean propagateChange (Vertex vertexThatHasChanged, Vertex vertexComingFrom) {
-		if (!PathCondition.flagSolved) {
+		if (!PathCondition.isSolved()) {
 			//println ("[propagateChange] Path condition is need of solving");
 			return false;
 		}

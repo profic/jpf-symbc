@@ -901,7 +901,7 @@ public class PCParser {
 		// result = null;
 		tempVars = 0;
 
-		Constraint cRef = pc.header;
+		Constraint cRef = pc.getHeader();
 
 		if (pb instanceof IncrementalSolver) {
 			// If we use an incremental solver, then we push the context
@@ -920,7 +920,7 @@ public class PCParser {
 				if (addConstraint(cRef) == false) {
 					return null;
 				}
-				cRef = cRef.and;
+				cRef = cRef.getNextConstraint();
 			}
 		}
 

@@ -54,8 +54,8 @@ public class LALOAD extends gov.nasa.jpf.jvm.bytecode.LALOAD {
           // Retrieve the array expression if it was previously in the pathcondition
           PCChoiceGenerator temp_cg = (PCChoiceGenerator)ti.getVM().getLastChoiceGeneratorOfType(PCChoiceGenerator.class);
           if (temp_cg != null) {
-              if (temp_cg.getCurrentPC().arrayExpressions.containsKey(ti.getElementInfo(ti.getModifiableTopFrame().peek(1)).toString())) {
-                  ti.getModifiableTopFrame().setOperandAttr(1, temp_cg.getCurrentPC().arrayExpressions.get(ti.getElementInfo(ti.getModifiableTopFrame().peek(1)).toString()));
+              if (temp_cg.getCurrentPC().getArrayExpressions().containsKey(ti.getElementInfo(ti.getModifiableTopFrame().peek(1)).toString())) {
+                  ti.getModifiableTopFrame().setOperandAttr(1, temp_cg.getCurrentPC().getArrayExpressions().get(ti.getElementInfo(ti.getModifiableTopFrame().peek(1)).toString()));
               }
           }
 
@@ -159,7 +159,7 @@ public class LALOAD extends gov.nasa.jpf.jvm.bytecode.LALOAD {
                   frame.setLongOperandAttr(val);
                   // We add the select instruction in the PathCondition
                   pc._addDet(Comparator.EQ, se, val);
-                  pc.arrayExpressions.put(arrayAttr.getRootName(), arrayAttr);
+                  pc.getArrayExpressions().put(arrayAttr.getRootName(), arrayAttr);
 		          return getNext(ti); 
               }
               else {

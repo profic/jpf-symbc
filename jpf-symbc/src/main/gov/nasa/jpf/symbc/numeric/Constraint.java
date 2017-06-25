@@ -41,17 +41,26 @@ import java.util.Map;
 
 public abstract class Constraint implements Comparable<Constraint> {
 	private final Expression left;
-
 	private Comparator comparator;
-
 	private final Expression right;
 
-	public Constraint and;
+	private Constraint nextConstraint;
 
 	public Constraint(Expression left, Comparator comparator, Expression right) {
 		this.left = left;
 		this.comparator = comparator;
 		this.right = right;
+	}
+
+	/**
+	 * Returns the next conjunct.
+	 */
+	public Constraint getNextConstraint() {
+		return nextConstraint;
+	}
+
+	public void setNextConstraint(Constraint nextConstraint) {
+		this.nextConstraint = nextConstraint;
 	}
 
 	/**
@@ -92,15 +101,9 @@ public abstract class Constraint implements Comparable<Constraint> {
 	 */
 	public abstract Constraint not();
 
-	/**
-	 * Returns the next conjunct.
-	 */
-	public Constraint getTail() {
-		return and;
-	}
-
 	public String stringPC() {
-		return left.getStringPathCondition() + comparator.toString() + right.getStringPathCondition() + ((and == null) ? "" : " && " + and.stringPC());
+		return left.getStringPathCondition() + comparator.toString() + right.getStringPathCondition()
+				+ ((getNextConstraint() == null) ? "" : " && " + getNextConstraint().stringPC());
 	}
 
 	public void getVarVals(Map<String, Object> varsVals) {
@@ -110,8 +113,8 @@ public abstract class Constraint implements Comparable<Constraint> {
 		if (right != null) {
 			right.getVarsVals(varsVals);
 		}
-		if (and != null) {
-			and.getVarVals(varsVals);
+		if (getNextConstraint() != null) {
+			getNextConstraint().getVarVals(varsVals);
 		}
 	}
 
@@ -169,13 +172,13 @@ public abstract class Constraint implements Comparable<Constraint> {
 		return left.toString() + comparator.toString() + right.toString()
 		// + ((and == null) ? "" : " && " + and.toString()); -- for
 		// specialization
-				+ ((and == null) ? "" : " &&\n" + and.toString());
+				+ ((getNextConstraint() == null) ? "" : " &&\n" + getNextConstraint().toString());
 	}
 
 	public Constraint last() {
 		Constraint c = this;
-		while (c.and != null) {
-			c = c.and;
+		while (c.getNextConstraint() != null) {
+			c = c.getNextConstraint();
 		}
 		return c;
 	}
@@ -200,8 +203,8 @@ public abstract class Constraint implements Comparable<Constraint> {
 		} else {
 			result = " (" + comparator.toString() + " " + left.prefix_notation() + " " + right.prefix_notation() + ")";
 		}
-		if (and != null)
-			result = "(and " + and.prefix_notation() + " " + result + ")";
+		if (getNextConstraint() != null)
+			result = "(and " + getNextConstraint().prefix_notation() + " " + result + ")";
 		return result;
 	}
 }

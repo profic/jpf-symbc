@@ -181,7 +181,7 @@ public class TranslateToZ3Inc {
 				//println ("Adding: " + resultloic);
 				pc._addDet(resultloic);
 				
-				if (PathCondition.flagSolved == false) {
+				if (PathCondition.isSolved() == false) {
 					//println ("[isSat] Path Condition changed, starting integer solver...");
 					long startTime = System.currentTimeMillis();
 					boolean int_result = scg.isSatisfiable(pc);
@@ -191,7 +191,7 @@ public class TranslateToZ3Inc {
 					if (int_result) {
 						//println ("[isSat] Found to be sat, solving...");
 						scg.solve(pc);
-						PathCondition.flagSolved = true;
+						PathCondition.setSolved(true);
 						//println ("[isSat] solved " + global_pc.header.toString());
 						z3Interface.close(); z3Interface = null;
 						stack1 = new Stack<LogicalORLinearIntegerConstraints>();

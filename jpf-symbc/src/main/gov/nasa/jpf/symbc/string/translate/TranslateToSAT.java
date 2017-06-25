@@ -273,7 +273,7 @@ public class TranslateToSAT {
 								pc._addDet(Comparator.LE, eio.getIndex(), indexOfValue);
 								if (scg.isSatisfiable(pc)) {
 									scg.solve(pc);
-									PathCondition.flagSolved = true; 
+									PathCondition.setSolved(true); 
 								}
 								else {
 									//println ("[isSat] indexOf could not be satisfied");
@@ -352,7 +352,7 @@ public class TranslateToSAT {
 			
 				//Continue finding the solution...
 				scg.solve(pc);
-				PathCondition.flagSolved = true;
+				PathCondition.setSolved(true);
 				LogicalORLinearIntegerConstraints loic = new LogicalORLinearIntegerConstraints();
 				for (Entry<Vertex, Integer> e: map.entrySet()) {
 					loic.addToList(new LinearIntegerConstraint(e.getKey().getSymbolicLength(), Comparator.NE, new IntegerConstant (e.getKey().getLength())));
@@ -374,7 +374,7 @@ public class TranslateToSAT {
 				
 				if (scg.isSatisfiable(pc)) {
 					scg.solve(pc);
-					pc.flagSolved = true;
+					pc.setSolved(true);
 					//println ("[isSat] solved PC: " + pc.header);
 					return isSat (g, pc); //TODO: Prevent infinite looping
 				}

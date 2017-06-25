@@ -109,7 +109,7 @@ public class SolverTranslator {
 			} else {
 				e = new Operation(Operation.Operator.AND, e, tmp);
 			}
-			c = c.and;
+			c = c.getNextConstraint();
 		}
 		Instance greenPC = new Instance(SymbolicInstructionFactory.greenSolver, null, e);
 		return greenPC;
@@ -131,8 +131,8 @@ public class SolverTranslator {
 				if (!s.equals(z)) {
 					return false;
 				}
-				s = s.getTail();
-				z = z.getTail();
+				s = s.getNextConstraint();
+				z = z.getNextConstraint();
 			}
 			return (s == null) && (z == null);
 		}
@@ -143,7 +143,7 @@ public class SolverTranslator {
 			Constraint s = sequence;
 			while (s != null) {
 				h ^= s.hashCode();
-				s = s.getTail();
+				s = s.getNextConstraint();
 			}
 			return h;
 		}

@@ -91,8 +91,8 @@ public abstract class StringExpression extends Expression {
 		if (charAt == null) {
 			charAt = new HashMap<String, SymbolicCharAtInteger>();
 		}
-		quickSwitch = PathCondition.flagSolved;
-		PathCondition.flagSolved = false;
+		quickSwitch = PathCondition.isSolved();
+		PathCondition.setSolved(false);
 		SymbolicCharAtInteger result = charAt.get(ie.toString());
 		if (result == null) {
 			// System.out.println ("[StringExpression] [_charAt] could not find:

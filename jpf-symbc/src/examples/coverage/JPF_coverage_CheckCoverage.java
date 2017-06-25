@@ -64,7 +64,7 @@ public class JPF_coverage_CheckCoverage {
 		
 		if (pc != null) {
 			pc.solve();
-			pc.header.getVarVals(varsVals);
+			pc.getHeader().getVarVals(varsVals);
 		}
 		return varsVals;
 	}

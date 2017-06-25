@@ -1,7 +1,5 @@
 package gov.nasa.jpf.symbc.numeric;
 
-import gov.nasa.jpf.symbc.numeric.RealConstant;
-import gov.nasa.jpf.symbc.numeric.BinaryRealExpression;
 import gov.nasa.jpf.util.test.TestJPF;
 
 import static gov.nasa.jpf.symbc.numeric.Operator.*;

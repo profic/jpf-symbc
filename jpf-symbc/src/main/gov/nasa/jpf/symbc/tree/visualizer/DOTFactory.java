@@ -127,7 +127,7 @@ public class DOTFactory extends NodeFactory<Node> {
   protected String getPathConditionString(PathCondition pc) {
     if(pc != null) {
       StringBuilder pcBuilder = new StringBuilder();
-      String[] pcs = pc.header.stringPC().split("&&");  
+      String[] pcs = pc.getHeader().stringPC().split("&&");  
       for(int i = 0; i < pcs.length; i++) {
         pcBuilder.append(pcs[i]);
         if(i != pcs.length - 1)

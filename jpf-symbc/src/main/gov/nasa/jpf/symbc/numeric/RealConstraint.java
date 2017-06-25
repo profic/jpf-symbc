@@ -38,32 +38,32 @@
 package gov.nasa.jpf.symbc.numeric;
 
 public class RealConstraint extends Constraint {
-    public RealConstraint(RealExpression l, Comparator c, RealExpression r) {
-      super(l, c, r);
-    }
-    
-    public RealConstraint(RealConstraint rc) {
-        super(rc.getLeft(), rc.getComparator(), rc.getRight());
-      }
+	public RealConstraint(RealExpression left, Comparator comparator, RealExpression right) {
+		super(left, comparator, right);
+	}
 
-    public Constraint copy() {
-        return new RealConstraint(this);
-    }
+	public RealConstraint(RealConstraint realConstraint) {
+		super(realConstraint.getLeft(), realConstraint.getComparator(), realConstraint.getRight());
+	}
 
-    public String toString() {
-      return /* "%Real% " + */super.toString();
-    }
-    
-    public RealExpression getLeft() {
-        return (RealExpression) super.getLeft();
-    }
-    
-    public RealExpression getRight() {
-        return (RealExpression) super.getRight();
-    }
-    
-    @Override
-    public RealConstraint not() {
-        return new RealConstraint(getLeft(), getComparator().not(), getRight());
-    }    
+	public Constraint copy() {
+		return new RealConstraint(this);
+	}
+
+	public String toString() {
+		return /* "%Real% " + */super.toString();
+	}
+
+	public RealExpression getLeft() {
+		return (RealExpression) super.getLeft();
+	}
+
+	public RealExpression getRight() {
+		return (RealExpression) super.getRight();
+	}
+
+	@Override
+	public RealConstraint not() {
+		return new RealConstraint(getLeft(), getComparator().not(), getRight());
+	}
 }

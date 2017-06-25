@@ -39,7 +39,7 @@ public class Z3str2SMTTranslator {
 
 	public String translate(StringPathCondition pc) {
 		StringConstraint sc = pc.header;
-		Constraint npc = pc.getNpc().header;
+		Constraint npc = pc.getNpc().getHeader();
 		this.constraintsExpression = stringConstraintToSMTLIB(sc);
 		this.numericExpression = numericConstraintToSMTLIB(npc);
 		this.declarations = symbolicStringDeclarations(stringVariables) + symbolicNumericDeclarations(numericVariables);
@@ -282,7 +282,7 @@ public class Z3str2SMTTranslator {
 				result = npc.getComparator().toString() + "-not-implemented";
 				break;
 			}
-			npc = npc.and;
+			npc = npc.getNextConstraint();
 			finalResult = finalResult + "\n" + "(assert " + result + ")";
 		}
 		return finalResult;

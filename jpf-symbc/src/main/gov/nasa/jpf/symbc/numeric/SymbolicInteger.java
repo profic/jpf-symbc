@@ -73,7 +73,7 @@ public class SymbolicInteger extends LinearIntegerExpression {
 		this.min = lowerBound;
 		this.max = upperBound;
 		this.name = (name != null) ? name : "INT_" + hashCode();
-		PathCondition.flagSolved = false;
+		PathCondition.setSolved(false);
 	}
 
 	public long getMin() {
@@ -93,7 +93,7 @@ public class SymbolicInteger extends LinearIntegerExpression {
 	}
 
 	public String toString() {
-		if (!PathCondition.flagSolved) {
+		if (!PathCondition.isSolved()) {
 			return (name != null) ? name : "INT_" + hashCode();
 
 		} else {
@@ -106,7 +106,7 @@ public class SymbolicInteger extends LinearIntegerExpression {
 	}
 
 	public long solution() {
-		if (PathCondition.flagSolved) {
+		if (PathCondition.isSolved()) {
 			if (solution == UNDEFINED && SymbolicInstructionFactory.concolicMode) {
 				solution = (new Random().nextLong() % (max - min)) + min;
 			}

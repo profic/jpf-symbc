@@ -270,7 +270,7 @@ public class TranslateToZ3 {
 				// println ("[isSat] integer constriant solver found it to be
 				// sat, solving...");
 				scg.solve(pc);
-				pc.flagSolved = true;
+				pc.setSolved(true);
 				// println ("[isSat] solved PC: " + pc.header);
 
 				return isSat(g, pc); // TODO: Prevent infinite looping

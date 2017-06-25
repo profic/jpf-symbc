@@ -104,7 +104,7 @@ public class PreProcessGraph {
 		}
 		if (scg.isSatisfiable(pathCondition)) {
 			scg.solve(pathCondition);
-			PathCondition.flagSolved = true;
+			PathCondition.setSolved(true);
 			//println (pathCondition.toString());
 			return true;
 		} else {
@@ -2134,7 +2134,7 @@ public class PreProcessGraph {
 				//TODO: Remove
 				if (scg.isSatisfiable(pc)) {
 					scg.solve(pc);
-					PathCondition.flagSolved = true;
+					PathCondition.setSolved(true);
 				} else {
 					return false;
 				}

@@ -76,9 +76,9 @@ public class AALOAD extends gov.nasa.jpf.jvm.bytecode.AALOAD {
       PCChoiceGenerator temp_cg = (PCChoiceGenerator)ti.getVM().getLastChoiceGeneratorOfType(PCChoiceGenerator.class);
       if (temp_cg != null) {
           // There was a previous pathcondition
-          if (temp_cg.getCurrentPC().arrayExpressions.containsKey(ti.getElementInfo(ti.getModifiableTopFrame().peek(1)).toString())) {
+          if (temp_cg.getCurrentPC().getArrayExpressions().containsKey(ti.getElementInfo(ti.getModifiableTopFrame().peek(1)).toString())) {
               // The array was previously in the path condition, we retrieve the symbolic element
-              ti.getModifiableTopFrame().setOperandAttr(1, temp_cg.getCurrentPC().arrayExpressions.get(ti.getElementInfo(ti.getModifiableTopFrame().peek(1)).toString()));
+              ti.getModifiableTopFrame().setOperandAttr(1, temp_cg.getCurrentPC().getArrayExpressions().get(ti.getElementInfo(ti.getModifiableTopFrame().peek(1)).toString()));
           }
       }
 	
@@ -212,8 +212,8 @@ public class AALOAD extends gov.nasa.jpf.jvm.bytecode.AALOAD {
       else
           pc = ((PCChoiceGenerator)prev_cg).getCurrentPC();
 
-      if (pc.arrayExpressions.containsKey(arrayAttr.getRootName())) {
-         arrayAttr = (ArrayExpression)pc.arrayExpressions.get(arrayAttr.getRootName());
+      if (pc.getArrayExpressions().containsKey(arrayAttr.getRootName())) {
+         arrayAttr = (ArrayExpression)pc.getArrayExpressions().get(arrayAttr.getRootName());
       }
 
       assert pc != null;
@@ -285,7 +285,7 @@ public class AALOAD extends gov.nasa.jpf.jvm.bytecode.AALOAD {
             se = new SelectExpression(arrayAttr, indexAttr);
             pc._addDet(Comparator.EQ, se, candidateNode.getSymbolic());
             if (pc.simplify()) {
-                pc.arrayExpressions.put(arrayAttr.getRootName(), arrayAttr);
+                pc.getArrayExpressions().put(arrayAttr.getRootName(), arrayAttr);
                 daIndex = candidateNode.getIndex();
                 frame.pop(2); // We pop the array and the index
                 frame.push(daIndex, true); // We have instantiated an object, and added the constraints in the PC
@@ -302,7 +302,7 @@ public class AALOAD extends gov.nasa.jpf.jvm.bytecode.AALOAD {
             se = new SelectExpression(arrayAttr, indexAttr);
             pc._addDet(Comparator.EQ, se, new IntegerConstant(-1));
             if (pc.simplify()) { // satisfiable
-                pc.arrayExpressions.put(arrayAttr.getRootName(), arrayAttr);
+                pc.getArrayExpressions().put(arrayAttr.getRootName(), arrayAttr);
                 daIndex = MJIEnv.NULL;
                 frame.pop(2); // We pop the index and the array;
                 frame.push(daIndex, true);
@@ -324,7 +324,7 @@ public class AALOAD extends gov.nasa.jpf.jvm.bytecode.AALOAD {
                 se = new SelectExpression(arrayAttr, indexAttr);
                 pc._addDet(Comparator.EQ, se, candidateNode.getSymbolic());
               if (pc.simplify()) { // satisfiable
-                pc.arrayExpressions.put(arrayAttr.getRootName(), arrayAttr);
+                pc.getArrayExpressions().put(arrayAttr.getRootName(), arrayAttr);
 
                 frame.pop(2); // We pop the array and the index
                 frame.push(daIndex, true);

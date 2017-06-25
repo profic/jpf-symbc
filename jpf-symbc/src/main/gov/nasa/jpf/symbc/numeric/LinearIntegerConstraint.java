@@ -38,32 +38,35 @@
 package gov.nasa.jpf.symbc.numeric;
 
 public class LinearIntegerConstraint extends Constraint {
-    public LinearIntegerConstraint(IntegerExpression l, Comparator c, IntegerExpression r) {
-      super(l, c, r);
-    }
-    
-    public LinearIntegerConstraint(LinearIntegerConstraint lic) {
-        super(lic.getLeft(), lic.getComparator(), lic.getRight());
-      }
+	public LinearIntegerConstraint(IntegerExpression left, Comparator comparator, IntegerExpression right) {
+		super(left, comparator, right);
+	}
 
-    public Constraint copy() {
-        return new LinearIntegerConstraint(this);
-    }
+	public LinearIntegerConstraint(LinearIntegerConstraint linearIntegerConstraint) {
+		super(linearIntegerConstraint.getLeft(), linearIntegerConstraint.getComparator(),
+				linearIntegerConstraint.getRight());
+	}
 
-    public String toString() {
-      return /* "%LinearInteger% " + */super.toString();
-    }
-    
-    public IntegerExpression getLeft() {
-        return (IntegerExpression) super.getLeft();
-    }
-    
-    public IntegerExpression getRight() {
-        return (IntegerExpression) super.getRight();
-    }
+	public Constraint copy() {
+		return new LinearIntegerConstraint(this);
+	}
 
-    @Override
-    public LinearIntegerConstraint not() {
-        return new LinearIntegerConstraint(getLeft(), getComparator().not(), getRight());
-    }    
+	public String toString() {
+		return /* "%LinearInteger% " + */super.toString();
+	}
+
+	@Override
+	public IntegerExpression getLeft() {
+		return (IntegerExpression) super.getLeft();
+	}
+
+	@Override
+	public IntegerExpression getRight() {
+		return (IntegerExpression) super.getRight();
+	}
+
+	@Override
+	public LinearIntegerConstraint not() {
+		return new LinearIntegerConstraint(getLeft(), getComparator().not(), getRight());
+	}
 }
