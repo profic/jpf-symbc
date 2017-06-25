@@ -36,32 +36,17 @@
 //
 package gov.nasa.jpf.symbc.numeric;
 
+public enum MathFunction {
 
-public enum MathFunction{
+	SIN(" sin "), COS(" cos "), POW(" pow "), ABS(" abs "), SQRT(" sqrt "), EXP(" exp "), ASIN(" asin "), 
+	ACOS(" acos "), ATAN(" atan "), ATAN2(" atan2 "), LOG(" log "), TAN(" tan ");
 
-	// added for Math ops
-	SIN(" sin "),
-	COS(" cos "),
-	POW(" pow "),
-	
-	/* Added for dReal by Nima */
-	ABS(" abs "),
-	 
-	SQRT(" sqrt "),
-	EXP(" exp "),
-	ASIN(" asin "),
-	ACOS(" acos "),
-	ATAN(" atan "),
-	ATAN2(" atan2 "),
-	LOG(" log "),
-	TAN(" tan ");
-	
 	private final String str;
-	
-    MathFunction(final String str){
-		this.str= str;
+
+	MathFunction(final String str) {
+		this.str = str;
 	}
-	
+
 	@Override
 	public String toString() {
 		return str;

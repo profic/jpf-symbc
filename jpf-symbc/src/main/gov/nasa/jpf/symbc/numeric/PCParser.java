@@ -97,9 +97,9 @@ public class PCParser {
 		} else { // bin non lin expr
 			if (pb instanceof ProblemCoral || pb instanceof ProblemZ3 || pb instanceof ProblemZ3BitVector
 					|| pb instanceof ProblemZ3Incremental || pb instanceof ProblemZ3BitVectorIncremental) {
-				opRef = ((BinaryNonLinearIntegerExpression) eRef).op;
-				e_leftRef = ((BinaryNonLinearIntegerExpression) eRef).left;
-				e_rightRef = ((BinaryNonLinearIntegerExpression) eRef).right;
+				opRef = ((BinaryNonLinearIntegerExpression) eRef).getOperator();
+				e_leftRef = ((BinaryNonLinearIntegerExpression) eRef).getLeft();
+				e_rightRef = ((BinaryNonLinearIntegerExpression) eRef).getRight();
 			} else
 				throw new RuntimeException("## Error: Binary Non Linear Expression " + eRef);
 		}
@@ -308,9 +308,9 @@ public class PCParser {
 			RealExpression e_arg1Ref;
 			RealExpression e_arg2Ref;
 
-			funRef = ((MathRealExpression) eRef).op;
-			e_arg1Ref = ((MathRealExpression) eRef).arg1;
-			e_arg2Ref = ((MathRealExpression) eRef).arg2;
+			funRef = ((MathRealExpression) eRef).getFunction();
+			e_arg1Ref = ((MathRealExpression) eRef).getArgument1();
+			e_arg2Ref = ((MathRealExpression) eRef).getArgument2();
 			switch (funRef) {
 			case SIN:
 				return pb.sin(getExpression(e_arg1Ref));

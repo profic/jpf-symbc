@@ -288,9 +288,9 @@ public class PCAnalyzer {
 			RealExpression	e_arg1Ref;
 			RealExpression	e_arg2Ref;
 
-			funRef = ((MathRealExpression)eRef).op;
-			e_arg1Ref = ((MathRealExpression)eRef).arg1;
-			e_arg2Ref = ((MathRealExpression)eRef).arg2;
+			funRef = ((MathRealExpression)eRef).getFunction();
+			e_arg1Ref = ((MathRealExpression)eRef).getArgument1();
+			e_arg2Ref = ((MathRealExpression)eRef).getArgument2();
 
 			switch(funRef){
 			case ABS: // Added for dReal by Nima
@@ -332,8 +332,8 @@ public class PCAnalyzer {
 			IntegerExpression	e_arg1Ref;
 			IntegerExpression	e_arg2Ref;
 
-			e_arg1Ref = ((BinaryNonLinearIntegerExpression)eRef).left;
-			e_arg2Ref = ((BinaryNonLinearIntegerExpression)eRef).right;
+			e_arg1Ref = ((BinaryNonLinearIntegerExpression)eRef).getLeft();
+			e_arg2Ref = ((BinaryNonLinearIntegerExpression)eRef).getRight();
 			final LinearIntegerConstraint c1 = new LinearIntegerConstraint(e_arg1Ref, Comparator.EQ, new IntegerConstant(e_arg1Ref.solution()));
 			final LinearIntegerConstraint c2 = new LinearIntegerConstraint(e_arg2Ref, Comparator.EQ, new IntegerConstant(e_arg2Ref.solution()));
 			c1.setNextConstraint(c2);

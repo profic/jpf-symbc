@@ -44,70 +44,85 @@ import java.util.Map;
  *
  */
 public class BinaryNonLinearIntegerExpression extends NonLinearIntegerExpression {
-	public IntegerExpression left;
 
-	public Operator op;
+	private IntegerExpression left;
+	private Operator operator;
+	private IntegerExpression right;
 
-	public IntegerExpression right;
-
-	public BinaryNonLinearIntegerExpression(IntegerExpression l, Operator o, IntegerExpression r) {
-		left = l;
-		op = o;
-		right = r;
+	public BinaryNonLinearIntegerExpression(IntegerExpression left, Operator operator, IntegerExpression right) {
+		this.left = left;
+		this.operator = operator;
+		this.right = right;
 	}
 
+	public IntegerExpression getLeft() {
+		return left;
+	}
+	
+	public Operator getOperator() {
+		return operator;
+	}
+	
+	public IntegerExpression getRight() {
+		return right;
+	}
+	
 	public long solution() {
-		long l = left.solution();
-		long r = right.solution();
-		switch (op) {
+		long leftSolution = getLeft().solution();
+		long rightSolution = getRight().solution();
+		
+		switch (getOperator()) {
 		case PLUS:
-			return l + r;
+			return leftSolution + rightSolution;
 		case MINUS:
-			return l - r;
+			return leftSolution - rightSolution;
 		case MUL:
-			return l * r;
+			return leftSolution * rightSolution;
 		case DIV:
-			return l / r;
+			return leftSolution / rightSolution;
 		case AND:
-			return l & r;
+			return leftSolution & rightSolution;
 		case OR:
-			return l | r;
+			return leftSolution | rightSolution;
 		case XOR:
-			return l ^ r;
+			return leftSolution ^ rightSolution;
 		case SHIFTL:
-			return l << r;
+			return leftSolution << rightSolution;
 		case SHIFTR:
-			return l >> r;
+			return leftSolution >> rightSolution;
 		case SHIFTUR:
-			return l >>> r;
+			return leftSolution >>> rightSolution;
 		default:
-			throw new RuntimeException("## Error: BinaryNonLinearSolution solution: l " + l + " op " + op + " r " + r);
+			throw new RuntimeException(
+					"## Error: BinaryNonLinearSolution solution: l " + leftSolution + " op " + getOperator() + " r " + rightSolution);
 		}
 	}
 
 	public void getVarsVals(Map<String, Object> varsVals) {
-		left.getVarsVals(varsVals);
-		right.getVarsVals(varsVals);
+		getLeft().getVarsVals(varsVals);
+		getRight().getVarsVals(varsVals);
 	}
 
 	public String getStringPathCondition() {
-		return "(" + left.getStringPathCondition() + op.toString() + right.getStringPathCondition() + ")";
+		return "(" + getLeft().getStringPathCondition() + getOperator().toString() + getRight().getStringPathCondition()
+				+ ")";
 	}
 
 	public String toString() {
-		return "(" + left.toString() + op.toString() + right.toString() + ")";
+		return "(" + getLeft().toString() + getOperator().toString() + getRight().toString() + ")";
 	}
 
 	public String prefix_notation() {
-		return "(" + op.prefix_notation() + " " + left.prefix_notation() + " " + right.prefix_notation() + ")";
+		return "(" + getOperator().prefix_notation() + " " + getLeft().prefix_notation() + " "
+				+ getRight().prefix_notation() + ")";
 	}
 
 	// JacoGeldenhuys
 	@Override
 	public void accept(ConstraintExpressionVisitor visitor) {
 		visitor.preVisit(this);
-		left.accept(visitor);
-		right.accept(visitor);
+		getLeft().accept(visitor);
+		getRight().accept(visitor);
 		visitor.postVisit(this);
 	}
 
@@ -115,13 +130,15 @@ public class BinaryNonLinearIntegerExpression extends NonLinearIntegerExpression
 	public int compareTo(Expression expr) {
 		if (expr instanceof BinaryNonLinearIntegerExpression) {
 			BinaryNonLinearIntegerExpression e = (BinaryNonLinearIntegerExpression) expr;
-			int r = op.compareTo(e.op);
+			int r = getOperator().compareTo(e.getOperator());
+			
 			if (r == 0) {
-				r = left.compareTo(e.left);
+				r = getLeft().compareTo(e.getLeft());
 			}
 			if (r == 0) {
-				r = right.compareTo(e.right);
+				r = getRight().compareTo(e.getRight());
 			}
+			
 			return r;
 		} else {
 			return getClass().getCanonicalName().compareTo(expr.getClass().getCanonicalName());
