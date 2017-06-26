@@ -120,70 +120,63 @@ public class StringPathCondition {
 		isRecentlyAddedConstraintKnown = false;
 	}
 
-	public StringPathCondition make_copy(PathCondition npc) {
-		StringPathCondition pc_new = new StringPathCondition(npc);
-		pc_new.header = this.header;
-		pc_new.count = this.count;
+	public StringPathCondition makeCopy(PathCondition pathCondition) {
+		StringPathCondition newStringPathCondition = new StringPathCondition(pathCondition);
+		newStringPathCondition.header = this.header;
+		newStringPathCondition.count = this.count;
 		// PEND: Does copying these here break anything? Shouldn't. But check.
-		pc_new.isRecentlyAddedConstraintKnown = this.isRecentlyAddedConstraintKnown;
-		pc_new.isRecentlyAddedConstraintString = this.isRecentlyAddedConstraintString;
-		return pc_new;
+		newStringPathCondition.isRecentlyAddedConstraintKnown = this.isRecentlyAddedConstraintKnown;
+		newStringPathCondition.isRecentlyAddedConstraintString = this.isRecentlyAddedConstraintString;
+		return newStringPathCondition;
 	}
 
 	// constraints on strings
-	public void _addDet(StringComparator c, StringExpression l, String r) {
-		setSolved(false); // C
-		_addDet(c, l, new StringConstant(r));
+	public void _addDet(StringComparator comparator, StringExpression left, String right) {
+		setSolved(false); 
+		_addDet(comparator, left, new StringConstant(right));
 	}
 
-	public void _addDet(StringComparator c, String l, StringExpression r) {
-		setSolved(false); // C
-		_addDet(c, new StringConstant(l), r);
+	public void _addDet(StringComparator comparator, String left, StringExpression right) {
+		setSolved(false); 
+		_addDet(comparator, new StringConstant(left), right);
 	}
 
-	public void _addDet(StringComparator c, StringExpression r) {
+	public void _addDet(StringComparator comparator, StringExpression right) {
+		setSolved(false);
 		setRecentlyAddedConstraintString();
-		StringConstraint t;
+		StringConstraint stringConstraint = new StringConstraint(comparator, right);
 
-		setSolved(false); // C
-
-		t = new StringConstraint(c, r);
-
-		if (!hasConstraint(t)) {
-			t.and = header;
-			header = t;
+		if (!hasConstraint(stringConstraint)) {
+			stringConstraint.setNextConstraint(header);
+			header = stringConstraint;
 			count++;
 		}
 	}
 
-	public void _addDet(StringComparator c, StringExpression l, StringExpression r) {
+	public void _addDet(StringComparator comparator, StringExpression left, StringExpression right) {
+		setSolved(false); 
 		setRecentlyAddedConstraintString();
-		StringConstraint t;
+		StringConstraint stringConstraint = new StringConstraint(right, comparator, left);
 
-		setSolved(false); // C
-
-		t = new StringConstraint(r, c, l);
-
-		if (!hasConstraint(t)) {
-			t.and = header;
-			header = t;
+		if (!hasConstraint(stringConstraint)) {
+			stringConstraint.setNextConstraint(header);
+			header = stringConstraint;
 			count++;
 		}
 	}
 
-	public int count() {
+	public int getCount() {
 		return count;
 	}
 
-	public boolean hasConstraint(StringConstraint c) {
-		StringConstraint t = header;
+	public boolean hasConstraint(StringConstraint stringConstraint) {
+		StringConstraint currentConstraint = header;
 
-		while (t != null) {
-			if (c.equals(t)) {
+		while (currentConstraint != null) {
+			if (stringConstraint.equals(currentConstraint)) {
 				return true;
 			}
-
-			t = t.and;
+			currentConstraint = currentConstraint.getNextConstraint();
 		}
 		return false;
 	}

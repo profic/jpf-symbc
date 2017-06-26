@@ -253,7 +253,7 @@ public class IntegerConstant extends LinearIntegerExpression {
 	}
 
 	public String getStringPathCondition() {
-		return this.getValue() + "";
+		return Long.toString(value);
 	}
 
 	public long solution() { // to be fixed

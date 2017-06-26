@@ -81,7 +81,7 @@ public class Z3str2SMTTranslator {
 		if (sc == null) {
 			return "";
 		}
-		StringConstraint and_sc = sc.and();
+		StringConstraint and_sc = sc.getNextConstraint();
 		String result;
 
 		switch (sc.getComparator()) {
@@ -185,7 +185,7 @@ public class Z3str2SMTTranslator {
 		} else if (se instanceof StringSymbolic) {
 			return translateStringSymbolic(se);
 		} else if (se instanceof DerivedStringExpression) {
-			switch (((DerivedStringExpression) se).op) {
+			switch (((DerivedStringExpression) se).getOperator()) {
 			case CONCAT:
 				return translateConcat(se);
 			case SUBSTRING:
@@ -206,7 +206,7 @@ public class Z3str2SMTTranslator {
 				return translateValueOf(se);
 
 			default:
-				return "String-Expression-OP-" + ((DerivedStringExpression) se).op + "-not-yet-implemented";
+				return "String-Expression-OP-" + ((DerivedStringExpression) se).getOperator() + "-not-yet-implemented";
 			}
 		} else {
 			return "String-expression-" + se.toString() + "-not-handled";
@@ -529,13 +529,13 @@ public class Z3str2SMTTranslator {
 
 	private String translateToUpperCase(StringExpression se) {
 		DerivedStringExpression dse = (DerivedStringExpression) se;
-		String arg = stringExpressionToSMTLIB((StringExpression) dse.right);
+		String arg = stringExpressionToSMTLIB((StringExpression) dse.getRight());
 		return "(toUpperCase " + arg + ")";
 	}
 
 	private String translateToLowerCase(StringExpression se) {
 		DerivedStringExpression dse = (DerivedStringExpression) se;
-		String arg = stringExpressionToSMTLIB((StringExpression) dse.right);
+		String arg = stringExpressionToSMTLIB((StringExpression) dse.getRight());
 		return "(toLowerCase " + arg + ")";
 	}
 
@@ -567,7 +567,7 @@ public class Z3str2SMTTranslator {
 
 	private String translateTrim(StringExpression se) {
 		DerivedStringExpression dse = (DerivedStringExpression) se;
-		String arg = stringExpressionToSMTLIB((StringExpression) dse.right);
+		String arg = stringExpressionToSMTLIB((StringExpression) dse.getRight());
 		return "(trim " + arg + ")";
 	}
 
@@ -584,8 +584,8 @@ public class Z3str2SMTTranslator {
 
 	private String translateConcat(StringExpression se) {
 		DerivedStringExpression dse = (DerivedStringExpression) se;
-		String leftArg = stringExpressionToSMTLIB(dse.left);
-		String rightArg = stringExpressionToSMTLIB(dse.right);
+		String leftArg = stringExpressionToSMTLIB(dse.getLeft());
+		String rightArg = stringExpressionToSMTLIB(dse.getRight());
 		return "(Concat " + leftArg + " " + rightArg + ")";
 	}
 

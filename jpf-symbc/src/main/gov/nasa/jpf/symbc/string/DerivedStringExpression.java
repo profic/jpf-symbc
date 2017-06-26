@@ -48,7 +48,6 @@ TERMINATION OF THIS AGREEMENT.
 
 */
 
-
 package gov.nasa.jpf.symbc.string;
 
 import java.util.HashSet;
@@ -57,172 +56,225 @@ import java.util.Set;
 
 import gov.nasa.jpf.symbc.numeric.ConstraintExpressionVisitor;
 import gov.nasa.jpf.symbc.numeric.Expression;
+import gov.nasa.jpf.symbc.numeric.IntegerExpression;
 
 public class DerivedStringExpression extends StringExpression {
 
-  public StringExpression left;
-  public StringOperator op;
-  public StringExpression right;
-  
-  public Expression[] oprlist;
+	private StringExpression left;
+	private StringOperator operator;
+	private StringExpression right;
 
-  public DerivedStringExpression(StringExpression l, StringOperator o, StringExpression r) {
-  oprlist = null;
-    left = l;
-    op = o;
-    right = r;
-//    left.addDependent(this);
-//    right.addDependent(this); 
-  }
-  
-  public DerivedStringExpression(StringOperator o, Expression[] olist) {
-    left = null;
-    right = null;
-    op = o;
-    int i = olist.length;
-    oprlist = new Expression[i];
-    for(int j = 0; j < i; j++){
-      oprlist[j] = olist[j];
-//      if(olist[j] instanceof StringExpression){
-//        ((StringExpression) oprlist[j]).addDependent(this);
-//      }
-    }
-  }
-  
-  public DerivedStringExpression(StringOperator o, StringExpression r) {
-      left = null;
-      op = o;
-      right = r;
-//      right.addDependent(this); 
-    }
-  
-    public DerivedStringExpression clone() {
-    throw new RuntimeException("Operation not implemented");
-  }
+	public Expression[] oprlist;
 
-  public Set<Expression> getOperands() {
-    Set<Expression> operands = new HashSet<Expression>();
-    if (right != null) {
-      operands.add(right);
-    }
-    if (left != null) {
-      operands.add(left);
-    }
-    if (oprlist != null) {
-      for (Expression e : oprlist) {
-        operands.add(e);
-      }
-    }
-    return operands;
-  }
+	public DerivedStringExpression(StringExpression left, StringOperator operator, StringExpression right) {
+		this.oprlist = null;
+		this.left = left;
+		this.operator = operator;
+		this.right = right;
+		// left.addDependent(this);
+		// right.addDependent(this);
+	}
 
-  //TODO: add solution() cases for all supported operators
-  public String solution() {
-    String l;
-    if(left != null) 
-      l = left.solution();
-    else
-      l = new String();
-    String r = right.solution();
-    switch (op) {
-      case CONCAT:
-        return l.concat(r);
-      case TRIM:
-        return right.solution();
-      default:
-        throw new RuntimeException(
-            "## Error: BinaryStringSolution solution: l " + l + " op " + op
-                + " r " + r);
-    }
-  }
+	public DerivedStringExpression(StringOperator operator, Expression[] oprlist) {
+		this.operator = operator;
+		this.oprlist = oprlist.clone();
+		// if(olist[j] instanceof StringExpression){
+		// ((StringExpression) oprlist[j]).addDependent(this);
+		// }
+	}
 
-  public void getVarsVals(Map<String, Object> varsVals) {
-  if(left != null) left.getVarsVals(varsVals);
-    right.getVarsVals(varsVals);
-  }
+	public DerivedStringExpression(StringOperator operator, StringExpression right) {
+		this.operator = operator;
+		this.right = right;
+		// right.addDependent(this);
+	}
 
-  public String getStringPathCondition() {
-  if (left != null)
-        return left.getStringPathCondition() + "." + op.toString() + "(" + right.getStringPathCondition() + ")";
-  else if (right != null)
-    return "." + op.toString() + "(" + right.getStringPathCondition() + ")";
-  else 
-  {
-    StringBuilder s = new StringBuilder();
-       s.append("{");
-    for(int i = 0; i < oprlist.length; i++){  
-      s.append("(");      
-      s.append(oprlist[i].toString());
-      s.append(")");        
-    }
-       s.append("}"); 
-    return "." + op.toString() + s;
-    
-  }
-  }
+	public StringExpression getLeft() {
+		return left;
+	}
 
-  public String toString() {
-    if (left != null)   
-            return left.toString() + "." + op.toString() + "(" + right.toString() + ")";
-    else if (right != null)
-      return "." + op.toString() + "(" + right.toString() + ")";
-    else 
-    {
-      StringBuilder s = new StringBuilder();
-         s.append("[");
-      for(int i = 0; i < oprlist.length; i++){  
-        s.append("(");      
-        s.append(oprlist[i].toString());
-        s.append(")");        
-      }
-          s.append("]");  
-      return "." + op.toString() + s;     
-    }
-        
-  }
-    
-  public String getName() {
-    String name;
-    if (left != null)
-      name = left.getName() + "_" + op.toString() + "__" + right.getName()
-          + "___";
-    else if (right != null)
-      name = "_" + op.toString() + "__" + right.getName() + "___";
-    else {
-      StringBuilder s = new StringBuilder();
-      s.append("__");
-      for (int i = 0; i < oprlist.length; i++) {
-        s.append("__");
-        if (oprlist[i] instanceof StringExpression) {
-          s.append(((StringExpression)oprlist[i]).getName());
-        } else {
-          s.append(oprlist[i].toString());
-        }
-        s.append("___");
-      }
-      s.append("___");
-      name = "_" + op.toString() + s;
-    }
+	public StringOperator getOperator() {
+		return operator;
+	}
 
-    return "STRING_" + name;
-  }
+	public StringExpression getRight() {
+		return right;
+	}
 
-  @Override
-  public void accept(ConstraintExpressionVisitor visitor) {
-    visitor.preVisit(this);
-    if (left != null){
-      left.accept(visitor);
-    }
-    if (right != null){
-      right.accept(visitor);
-    }
-     if (oprlist != null) {
-          for (Expression e : oprlist) {
-            e.accept(visitor);
-          }
-        }
-    visitor.postVisit(this);
-  }
-  
+	public DerivedStringExpression clone() {
+		throw new RuntimeException("Operation not implemented");
+	}
+
+	public Set<Expression> getOperands() {
+		Set<Expression> operands = new HashSet<Expression>();
+		if (getRight() != null) {
+			operands.add(getRight());
+		}
+		if (getLeft() != null) {
+			operands.add(getLeft());
+		}
+		if (oprlist != null) {
+			for (Expression e : oprlist) {
+				operands.add(e);
+			}
+		}
+		return operands;
+	}
+
+	// TODO: add solution() cases for all supported operators
+	/*
+	 * REPLACEALL("replaceall"), TOLOWERCASE("tolowercase"),
+	 * TOUPPERCASE("touppercase"),
+	 */
+	public String solution() {
+		switch (operator) {
+		case CONCAT:
+			return solveConcat();
+		case REPLACE:
+			return solveReplace();
+		case REPLACEFIRST:
+			return solveReplaceFirst();
+		case TRIM:
+			return solveTrim();
+		case SUBSTRING:
+			return solveSubstring();
+		case VALUEOF:
+			return solveValueOf();
+		default:
+			throw new RuntimeException("## Error: BinaryStringSolution solution: l " + left.solution() + " op "
+					+ getOperator() + " r " + right.solution());
+		}
+	}
+
+	public void getVarsVals(Map<String, Object> varsVals) {
+		if (getLeft() != null) {
+			getLeft().getVarsVals(varsVals);
+		}
+		getRight().getVarsVals(varsVals);
+	}
+
+	public String getStringPathCondition() {
+		if (getLeft() != null)
+			return getLeft().getStringPathCondition() + "." + getOperator().toString() + "("
+					+ getRight().getStringPathCondition() + ")";
+		else if (getRight() != null)
+			return "." + getOperator().toString() + "(" + getRight().getStringPathCondition() + ")";
+		else {
+			StringBuilder s = new StringBuilder();
+			s.append("{");
+			for (int i = 0; i < oprlist.length; i++) {
+				s.append("(");
+				s.append(oprlist[i].toString());
+				s.append(")");
+			}
+			s.append("}");
+			return "." + getOperator().toString() + s;
+
+		}
+	}
+
+	public String toString() {
+		if (getLeft() != null)
+			return getLeft().toString() + "." + getOperator().toString() + "(" + getRight().toString() + ")";
+		else if (getRight() != null)
+			return "." + getOperator().toString() + "(" + getRight().toString() + ")";
+		else {
+			StringBuilder s = new StringBuilder();
+			s.append("[");
+			for (int i = 0; i < oprlist.length; i++) {
+				s.append("(");
+				s.append(oprlist[i].toString());
+				s.append(")");
+			}
+			s.append("]");
+			return "." + getOperator().toString() + s;
+		}
+
+	}
+
+	public String getName() {
+		String name;
+		if (getLeft() != null)
+			name = getLeft().getName() + "_" + getOperator().toString() + "__" + getRight().getName() + "___";
+		else if (getRight() != null)
+			name = "_" + getOperator().toString() + "__" + getRight().getName() + "___";
+		else {
+			StringBuilder s = new StringBuilder();
+			s.append("__");
+			for (int i = 0; i < oprlist.length; i++) {
+				s.append("__");
+				if (oprlist[i] instanceof StringExpression) {
+					s.append(((StringExpression) oprlist[i]).getName());
+				} else {
+					s.append(oprlist[i].toString());
+				}
+				s.append("___");
+			}
+			s.append("___");
+			name = "_" + getOperator().toString() + s;
+		}
+
+		return "STRING_" + name;
+	}
+
+	@Override
+	public void accept(ConstraintExpressionVisitor visitor) {
+		visitor.preVisit(this);
+		if (getLeft() != null) {
+			getLeft().accept(visitor);
+		}
+		if (getRight() != null) {
+			getRight().accept(visitor);
+		}
+		if (oprlist != null) {
+			for (Expression e : oprlist) {
+				e.accept(visitor);
+			}
+		}
+		visitor.postVisit(this);
+	}
+
+	private String solveConcat() {
+		String leftString = left != null ? left.solution() : new String();
+		String rightString = right != null ? right.solution() : new String();
+
+		return leftString.concat(rightString);
+	}
+
+	private String solveReplace() {
+		String baseString = ((StringExpression) oprlist[0]).solution();
+		String target = ((StringExpression) oprlist[1]).solution();
+		String replacement = ((StringExpression) oprlist[2]).solution();
+
+		return baseString.replace(target, replacement);
+	}
+
+	private String solveReplaceFirst() {
+		String baseString = ((StringExpression) oprlist[0]).solution();
+		String target = ((StringExpression) oprlist[1]).solution();
+		String replacement = ((StringExpression) oprlist[2]).solution();
+
+		return baseString.replaceFirst(target, replacement);
+	}
+
+	private String solveSubstring() {
+		String baseString = ((StringExpression) oprlist[0]).solution();
+		int beginIndex = (int) ((IntegerExpression) oprlist[1]).solution();
+
+		if (oprlist.length < 3) {
+			return baseString.substring(beginIndex);
+		} else {
+			int endIndex = (int) ((IntegerExpression) oprlist[2]).solution();
+			return baseString.substring(beginIndex, endIndex);
+		}
+	}
+
+	private String solveValueOf() {
+		return String.valueOf(oprlist[0]);
+	}
+
+	private String solveTrim() {
+		String rightString = right != null ? right.solution() : new String();
+		return rightString.trim();
+	}
 }
-

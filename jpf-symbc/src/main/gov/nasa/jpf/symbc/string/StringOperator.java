@@ -50,26 +50,26 @@ TERMINATION OF THIS AGREEMENT.
 
 package gov.nasa.jpf.symbc.string;
 
-
 public enum StringOperator {
-  CONCAT("concat"),
-  REPLACE("replace"),
-  TRIM("trim"),
-  SUBSTRING("substring"),
-  REPLACEFIRST("replacefirst"),
-  REPLACEALL("replaceall"),
-  TOLOWERCASE("tolowercase"),
-  TOUPPERCASE("touppercase"),
-  VALUEOF("valueof");
+	
+	CONCAT("concat"),
+	REPLACE("replace"),
+	TRIM("trim"),
+	SUBSTRING("substring"),
+	REPLACEFIRST("replacefirst"),
+	REPLACEALL("replaceall"),
+	TOLOWERCASE("tolowercase"),
+	TOUPPERCASE("touppercase"),
+	VALUEOF("valueof");
 
-  private final String str;
+	private final String str;
 
-  StringOperator(String str) {
-    this.str = str;
-  }
+	StringOperator(String str) {
+		this.str = str;
+	}
 
-  @Override
-  public String toString() {
-    return str;
-  }
+	@Override
+	public String toString() {
+		return str;
+	}
 }

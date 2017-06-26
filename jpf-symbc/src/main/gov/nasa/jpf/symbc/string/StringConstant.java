@@ -55,9 +55,14 @@ import gov.nasa.jpf.symbc.numeric.ConstraintExpressionVisitor;
 import java.util.Map;
 
 public class StringConstant extends StringExpression {
+
 	private String value;
 	private boolean reg = false; // Added flag to determine if the constant is
 									// used in a regular expression
+	
+	public StringConstant() {
+		this.value = new String();
+	}
 
 	public StringConstant(String str) {
 		this.value = str;
@@ -77,15 +82,15 @@ public class StringConstant extends StringExpression {
 		return new StringConstant(newVal, this.reg);
 	}
 
-	public StringExpression _concat(String s) {
-		return new StringConstant(value.concat(s));
+	public StringExpression _concat(String string) {
+		return new StringConstant(value.concat(string));
 	}
 
-	public StringExpression _concat(StringExpression e) {
-		if (e instanceof StringConstant) {
-			return new StringConstant(value.concat(((StringConstant) e).value));
+	public StringExpression _concat(StringExpression stringExpression) {
+		if (stringExpression instanceof StringConstant) {
+			return new StringConstant(value.concat(((StringConstant) stringExpression).value));
 		} else {
-			return super._concat(e);
+			return super._concat(stringExpression);
 		}
 	}
 
@@ -106,10 +111,6 @@ public class StringConstant extends StringExpression {
 
 	public String getName() {
 		return "STRING_" + toString();
-	}
-
-	public String value() {
-		return value;
 	}
 
 	public String solution() {

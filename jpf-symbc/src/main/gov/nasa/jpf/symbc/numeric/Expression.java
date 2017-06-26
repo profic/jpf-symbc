@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.LinkedList;
 
 public abstract class Expression implements Comparable<Expression> {
+
 	public static LinkedList<String> trackedSymVars = new LinkedList<String>();
 
 	public abstract String getStringPathCondition();
@@ -46,7 +47,7 @@ public abstract class Expression implements Comparable<Expression> {
 	public abstract void getVarsVals(Map<String, Object> varsVals);
 
 	public abstract void accept(ConstraintExpressionVisitor visitor);
-
+	
 	public String prefix_notation() {
 		throw new RuntimeException("error printing");
 	}

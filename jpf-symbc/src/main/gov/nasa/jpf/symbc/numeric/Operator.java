@@ -36,12 +36,11 @@
 //
 package gov.nasa.jpf.symbc.numeric;
 
+public enum Operator {
 
-public enum Operator{
-	
-	DIV(" / "), 
-	MUL(" * "), 
-	MINUS(" - "), 
+	DIV(" / "),
+	MUL(" * "),
+	MINUS(" - "),
 	PLUS(" + "),
 	CMP(" cmp "),
 	AND(" & "),
@@ -51,14 +50,13 @@ public enum Operator{
 	SHIFTR(" >> "),
 	SHIFTUR(" >>> "),
 	REM(" % ");
-	
-	
+
 	private final String str;
-	
-    Operator(String str){
-		this.str= str;
+
+	Operator(String str) {
+		this.str = str;
 	}
-	
+
 	@Override
 	public String toString() {
 		return str;

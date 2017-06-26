@@ -1338,7 +1338,7 @@ public class SymbolicStringHandler {
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
 						((PCChoiceGenerator) cg).setCurrentPC(pc);
-						result = ((StringExpression) sym_v3)._IvalueOf();
+						result = ((StringExpression) sym_v3)._integerValueOf();
 						sf = th.getModifiableTopFrame();
 						int objRef = getNewObjRef(invInst, th); /* dummy Long Object */
 						sf.push(objRef, true);
@@ -1401,7 +1401,7 @@ public class SymbolicStringHandler {
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
 						((PCChoiceGenerator) cg).setCurrentPC(pc);
-						result = ((StringExpression) sym_v3)._IvalueOf();
+						result = ((StringExpression) sym_v3)._integerValueOf();
 						sf = th.getModifiableTopFrame();
 						int objRef = getNewObjRef(invInst, th); /* dummy Boolean Object */
 						sf.push(objRef, true);
@@ -1465,7 +1465,7 @@ public class SymbolicStringHandler {
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
 						((PCChoiceGenerator) cg).setCurrentPC(pc);
-						result = ((StringExpression) sym_v3)._IvalueOf();
+						result = ((StringExpression) sym_v3)._integerValueOf();
 						sf = th.getModifiableTopFrame();
 						int objRef = getNewObjRef(invInst, th); /* dummy Integer Object */
 						sf.push(objRef, true);
@@ -1520,7 +1520,7 @@ public class SymbolicStringHandler {
 					th.getVM().getSystemState().setIgnored(true);
 				} else {
 					((PCChoiceGenerator) cg).setCurrentPC(pc);
-					result = ((StringExpression) sym_v3)._IvalueOf();
+					result = ((StringExpression) sym_v3)._integerValueOf();
 					sf.push(0, false); /* Result is don't care and an int */
 					sf = th.getModifiableTopFrame();
 					sf.setOperandAttr(result);
@@ -1573,7 +1573,7 @@ public class SymbolicStringHandler {
 					th.getVM().getSystemState().setIgnored(true);
 				} else {
 					((PCChoiceGenerator) cg).setCurrentPC(pc);
-					result = ((StringExpression) sym_v3)._RvalueOf();
+					result = ((StringExpression) sym_v3)._realValueOf();
 					sf.push(0, false); /* Result is don't care and a float */
 					sf = th.getModifiableTopFrame();
 					sf.setOperandAttr(result);
@@ -1633,7 +1633,7 @@ public class SymbolicStringHandler {
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
 						((PCChoiceGenerator) cg).setCurrentPC(pc);
-						result = ((StringExpression) sym_v3)._RvalueOf();
+						result = ((StringExpression) sym_v3)._realValueOf();
 						int objRef = getNewObjRef(invInst, th); /* dummy Float Object */
 						sf.push(objRef, true);
 						sf = th.getModifiableTopFrame();
@@ -1696,7 +1696,7 @@ public class SymbolicStringHandler {
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
 						((PCChoiceGenerator) cg).setCurrentPC(pc);
-						result = ((StringExpression) sym_v3)._RvalueOf();
+						result = ((StringExpression) sym_v3)._realValueOf();
 						int objRef = getNewObjRef(invInst, th); /* dummy Double Object */
 						sf.push(objRef, true);
 						sf = th.getModifiableTopFrame();

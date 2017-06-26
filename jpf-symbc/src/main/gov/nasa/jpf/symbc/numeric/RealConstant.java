@@ -140,7 +140,7 @@ public class RealConstant extends RealExpression {
 	}
 
 	public String toString() {
-		return "CONST_" + this.getValue() + "";
+		return Double.toString(value);
 	}
 
 	public String prefix_notation() {

@@ -86,7 +86,7 @@ public class SMTLIBTranslator {
 	
 	private String stringConstraintToSMTLIB(StringConstraint sc){
 		if (sc == null){return "";}
-		StringConstraint and_sc = sc.and();
+		StringConstraint and_sc = sc.getNextConstraint();
 		String result;
 		
 		switch(sc.getComparator()){
@@ -191,7 +191,7 @@ public class SMTLIBTranslator {
 			return translateStringSymbolic(se);
 		}
 		else if (se instanceof DerivedStringExpression) {
-			switch (((DerivedStringExpression) se).op) {
+			switch (((DerivedStringExpression) se).getOperator()) {
 				case CONCAT:
 					return translateConcat(se);
 				case SUBSTRING:
@@ -212,7 +212,7 @@ public class SMTLIBTranslator {
 					return translateValueOf(se);
 						
 				default:
-					return "String-Expression-OP-" + ((DerivedStringExpression) se).op + "-not-yet-implemented";
+					return "String-Expression-OP-" + ((DerivedStringExpression) se).getOperator() + "-not-yet-implemented";
 			}
 		}
 		else{
@@ -474,14 +474,14 @@ public class SMTLIBTranslator {
 
 	private String translateToUpperCase(StringExpression se) {
 		DerivedStringExpression dse = (DerivedStringExpression) se;
-		String arg = stringExpressionToSMTLIB((StringExpression) dse.right);
+		String arg = stringExpressionToSMTLIB((StringExpression) dse.getRight());
 		return "(toUpperCase " + arg + ")";
 	}
 
 
 	private String translateToLowerCase(StringExpression se) {
 		DerivedStringExpression dse = (DerivedStringExpression) se;
-		String arg = stringExpressionToSMTLIB((StringExpression) dse.right);
+		String arg = stringExpressionToSMTLIB((StringExpression) dse.getRight());
 		return "(toLowerCase " + arg + ")";
 	}
 
@@ -512,7 +512,7 @@ public class SMTLIBTranslator {
 	}
 	private String translateTrim(StringExpression se) {
 		DerivedStringExpression dse = (DerivedStringExpression) se;
-		String arg = stringExpressionToSMTLIB((StringExpression) dse.right);
+		String arg = stringExpressionToSMTLIB((StringExpression) dse.getRight());
 		return "(trim " + arg + ")";
 	}
 
@@ -529,8 +529,8 @@ public class SMTLIBTranslator {
 
 	private String translateConcat(StringExpression se) {
 		DerivedStringExpression dse = (DerivedStringExpression) se;
-		String leftArg = stringExpressionToSMTLIB(dse.left);
-		String rightArg = stringExpressionToSMTLIB(dse.right);
+		String leftArg = stringExpressionToSMTLIB(dse.getLeft());
+		String rightArg = stringExpressionToSMTLIB(dse.getRight());
 		return "(concat " + leftArg + " " + rightArg + ")";
 	}
 

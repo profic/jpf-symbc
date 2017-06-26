@@ -36,8 +36,7 @@
 //
 package gov.nasa.jpf.symbc.mixednumstrg;
 
-
-public enum SpecialOperator{
+public enum SpecialOperator {
 
 	VALUEOF("VOF"),
 	LENGTH("LENGTH"),
@@ -45,8 +44,8 @@ public enum SpecialOperator{
 
 	private final String str;
 
-    SpecialOperator(String str){
-		this.str= str;
+	SpecialOperator(String str) {
+		this.str = str;
 	}
 
 	@Override

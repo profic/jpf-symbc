@@ -97,14 +97,14 @@ public class SymbolicStringConstraintsHAMPI {
 		else if (expr instanceof DerivedStringExpression) {
 			DerivedStringExpression dexpr = (DerivedStringExpression) expr;
 			//System.out.println("operator = " + dexpr.op);
-			switch (dexpr.op) {
+			switch (dexpr.getOperator()) {
 			case VALUEOF:
 				result = getStringExpression((StringExpression) dexpr.oprlist[0]); // hack not always StringExpression
 				break;
 			case CONCAT:
 				//System.out.println("Found CONCAT " + expr);
-				Object left = getStringExpression(dexpr.left);
-				Object right = getStringExpression(dexpr.right);
+				Object left = getStringExpression(dexpr.getLeft());
+				Object right = getStringExpression(dexpr.getRight());
 				result = hampi.concatExpr((Expression)left,(Expression)right);
 				break;
 			}
@@ -136,63 +136,65 @@ public class SymbolicStringConstraintsHAMPI {
 
 	List<Constraint> listOfAllConstraints = new LinkedList<Constraint>();
 
-	private boolean evaluateStringConstraint(StringConstraint c) {
+	private boolean evaluateStringConstraint(StringConstraint stringConstraint) {
 		Expression left = null;
 		Expression right = null;
-		switch (c.comp) {
+		switch (stringConstraint.getComparator()) {
 		case EQUALS:
 		case EQ:
-			left = getStringExpression(c.left);
-			right = getStringExpression(c.right);
-			if (!(c.left instanceof StringConstant) && !(c.right instanceof StringConstant)) {
+			left = getStringExpression(stringConstraint.getLeft());
+			right = getStringExpression(stringConstraint.getRight());
+			if (!(stringConstraint.getLeft() instanceof StringConstant) && !(stringConstraint.getRight() instanceof StringConstant)) {
 				logger.severe("EQ: One side must be non symbolic for HAMPI to work!");
 				System.exit(0);
 			}
-			if ((c.left instanceof StringConstant) && (c.right instanceof StringConstant))  {
-				return c.left.solution().equals(c.right.solution());
+			if ((stringConstraint.getLeft() instanceof StringConstant) && (stringConstraint.getRight() instanceof StringConstant))  {
+				return stringConstraint.getLeft().solution().equals(stringConstraint.getRight().solution());
 			}
-			if ((c.left instanceof StringConstant)) {
+			if ((stringConstraint.getLeft() instanceof StringConstant)) {
 				// right is symbolic
-				Regexp regLeft = hampi.constRegexp(c.left.solution());
+				Regexp regLeft = hampi.constRegexp(stringConstraint.getLeft().solution());
 				Constraint c1 = hampi.regexpConstraint(right, true, regLeft);
 				if (findSolution(c1))
 					listOfAllConstraints.add(c1);
 				else
 					return false;
 			}
-			else if ((c.right instanceof StringConstant)) {
+			else if ((stringConstraint.getRight() instanceof StringConstant)) {
 				// left is symbolic
-				Regexp regRight = hampi.constRegexp(c.right.solution());
+				Regexp regRight = hampi.constRegexp(stringConstraint.getRight().solution());
 				Constraint c1 = hampi.regexpConstraint(left, true, regRight);
-				if (findSolution(c1))
+				
+				if (findSolution(c1)) {
 					listOfAllConstraints.add(c1);
-				else
+				} else {
 					return false;
+				}
 			}
 			break;
 		case NOTEQUALS:
 		case NE:
-			left = getStringExpression(c.left);
-			right = getStringExpression(c.right);
-			if (!(c.left instanceof StringConstant) && !(c.right instanceof StringConstant)) {
+			left = getStringExpression(stringConstraint.getLeft());
+			right = getStringExpression(stringConstraint.getRight());
+			if (!(stringConstraint.getLeft() instanceof StringConstant) && !(stringConstraint.getRight() instanceof StringConstant)) {
 				logger.severe("NE: One side must be non symbolic for HAMPI to work!");
 				System.exit(0);
 			}
-			if ((c.left instanceof StringConstant) && (c.right instanceof StringConstant))  {
-				return !c.left.solution().equals(c.right.solution());
+			if ((stringConstraint.getLeft() instanceof StringConstant) && (stringConstraint.getRight() instanceof StringConstant))  {
+				return !stringConstraint.getLeft().solution().equals(stringConstraint.getRight().solution());
 			}
-			if ((c.left instanceof StringConstant)) {
+			if ((stringConstraint.getLeft() instanceof StringConstant)) {
 				// right is symbolic
-				Regexp regLeft = hampi.constRegexp(c.left.solution());
+				Regexp regLeft = hampi.constRegexp(stringConstraint.getLeft().solution());
 				Constraint c1 = hampi.regexpConstraint(right, false, regLeft);
 				if (findSolution(c1))
 					listOfAllConstraints.add(c1);
 				else
 					return false;
 			}
-			else if ((c.right instanceof StringConstant)) {
+			else if ((stringConstraint.getRight() instanceof StringConstant)) {
 				// left is symbolic
-				Regexp regRight = hampi.constRegexp(c.right.solution());
+				Regexp regRight = hampi.constRegexp(stringConstraint.getRight().solution());
 				Constraint c1 = hampi.regexpConstraint(left, false, regRight);
 				if (findSolution(c1))
 					listOfAllConstraints.add(c1);
@@ -214,7 +216,7 @@ public class SymbolicStringConstraintsHAMPI {
 			if (constraintResult == false)
 				return false;
 
-			c = c.and;
+			c = c.getNextConstraint();
 		}
 
 		return true;

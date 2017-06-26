@@ -75,12 +75,12 @@ public class SolverTranslator {
 
 	private static Map<ConstraintSequence, Instance> instanceCache = new HashMap<ConstraintSequence, Instance>();
 
-	public static Instance createStringInstance(StringConstraint c) {
+	public static Instance createStringInstance(StringConstraint stringConstraint) {
 		Expression e = null;
 
-		while (c != null) {
+		while (stringConstraint != null) {
 			Translator translator = new Translator();
-			c.accept(translator);
+			stringConstraint.accept(translator);
 
 			Expression tmp = translator.getExpression();
 
@@ -89,7 +89,7 @@ public class SolverTranslator {
 			} else {
 				e = new Operation(Operation.Operator.AND, e, tmp);
 			}
-			c = c.and;
+			stringConstraint = stringConstraint.getNextConstraint();
 		}
 		Instance greenPC = new Instance(SymbolicInstructionFactory.greenSolver, null, e);
 		return greenPC;
@@ -290,7 +290,7 @@ public class SolverTranslator {
 			Expression l;
 			Expression r;
 			Expression n;
-			switch (expression.op) {
+			switch (expression.getOperator()) {
 			case CONCAT:
 				r = stack.pop();
 				l = stack.pop();
@@ -335,7 +335,7 @@ public class SolverTranslator {
 				break;
 
 			default:
-				System.out.println("SolverTranslator : unsupported operation " + expression.op);
+				System.out.println("SolverTranslator : unsupported operation " + expression.getOperator());
 				throw new RuntimeException();
 			}
 		}

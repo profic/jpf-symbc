@@ -52,27 +52,24 @@ package gov.nasa.jpf.symbc.mixednumstrg;
 
 import java.util.Map;
 
-
 import gov.nasa.jpf.symbc.numeric.ConstraintExpressionVisitor;
 import gov.nasa.jpf.symbc.numeric.Expression;
 import gov.nasa.jpf.symbc.numeric.IntegerExpression;
 import gov.nasa.jpf.symbc.string.StringExpression;
 
-
-
 public class SpecialIntegerExpression extends IntegerExpression {
 
-	SpecialOperator op;
-	public StringExpression opr;
+	private SpecialOperator operator;
+	private StringExpression operand;
 
-  public SpecialIntegerExpression(StringExpression opr1){
-    op = SpecialOperator.VALUEOF;
-    opr = opr1;
-  }
+	public SpecialIntegerExpression(StringExpression operand) {
+		this.operand = operand;
+		this.operator = SpecialOperator.VALUEOF;
+	}
 
-	public SpecialIntegerExpression(StringExpression opr1, SpecialOperator op1){
-		op = op1;
-		opr = opr1;
+	public SpecialIntegerExpression(StringExpression operand, SpecialOperator operator) {
+		this.operand = operand;
+		this.operator = operator;
 	}
 
 	public SpecialIntegerExpression clone() {
@@ -80,35 +77,46 @@ public class SpecialIntegerExpression extends IntegerExpression {
 	}
 
 	public void getVarsVals(Map<String, Object> varsVals) {
-	  }
+	}
 
+	public String getStringPathCondition() {
+		return operator.toString() + "__" + operand.getStringPathCondition() + "__";
+	}
+	
+	public long solution() {
+		switch (operator) {
+		// TODO: implement the rest of used operators
+		case VALUEOF:
+			return Long.valueOf(operand.solution());
+		default:
+			// TODO: make custom exception for the case
+			throw new RuntimeException("SpecialIntegerExpression.solution(): Unknown operator.");
+		}	
+	}
 
-	  public String getStringPathCondition() {
-		    return op.toString() + "__" + opr.getStringPathCondition() + "__";
-		  }
+	public String toString() {
+		return operator.toString() + "__" + operand.toString() + "__";
+	}
 
-	  public String toString() {
-		    return op.toString() + "__" + opr.toString() + "__";
-		  }
 	// JacoGeldenhuys
-		@Override
-		public void accept(ConstraintExpressionVisitor visitor) {
-			visitor.preVisit(this);
-			opr.accept(visitor);
-			visitor.postVisit(this);
-		}
+	@Override
+	public void accept(ConstraintExpressionVisitor visitor) {
+		visitor.preVisit(this);
+		operand.accept(visitor);
+		visitor.postVisit(this);
+	}
 
-		@Override
-		public int compareTo(Expression expr) {
-			if (expr instanceof SpecialIntegerExpression) {
-				SpecialIntegerExpression e = (SpecialIntegerExpression) expr;
-				int r = op.compareTo(e.op);
-				if (r == 0) {
-					r = opr.compareTo(e.opr);
-				}
-				return r;
-			} else {
-				return getClass().getCanonicalName().compareTo(expr.getClass().getCanonicalName());
+	@Override
+	public int compareTo(Expression expr) {
+		if (expr instanceof SpecialIntegerExpression) {
+			SpecialIntegerExpression e = (SpecialIntegerExpression) expr;
+			int result = operator.compareTo(e.operator);
+			if (result == 0) {
+				result = operand.compareTo(e.operand);
 			}
+			return result;
+		} else {
+			return getClass().getCanonicalName().compareTo(expr.getClass().getCanonicalName());
 		}
+	}
 }

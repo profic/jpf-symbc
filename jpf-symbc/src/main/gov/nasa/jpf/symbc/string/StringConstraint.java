@@ -59,145 +59,149 @@ import java.util.Map;
 import java.util.Set;
 
 public class StringConstraint {
-  StringExpression left;
 
-  StringComparator comp;
+	private StringExpression left;
+	private StringComparator comparator;
+	private StringExpression right;
+	private StringConstraint nextConstraint;
 
-  StringExpression right;
+	public StringConstraint(StringExpression left, StringComparator comparator, StringExpression right) {
+		this.left = left;
+		this.comparator = comparator;
+		this.right = right;
+		// left.addRelationship(this);
+		// right.addRelationship(this);
+	}
 
-  public StringConstraint and;
+	public StringConstraint(StringComparator comparator, StringExpression right) {
+		this.left = null;
+		this.comparator = comparator;
+		this.right = right;
+		// right.addRelationship(this);
+	}
 
-  public StringConstraint(StringExpression l, StringComparator c, StringExpression r) {
-    left = l;
-    comp = c;
-    right = r;
-//    left.addRelationship(this);
-//    right.addRelationship(this);
-  }
+	public StringConstraint(StringConstraint original) {
+		left = original.left;
+		comparator = original.comparator;
+		right = original.right;
+		if (original.getNextConstraint() != null) {
+			setNextConstraint(new StringConstraint(original.getNextConstraint()));
+		}
+	}
 
-  public StringConstraint(StringComparator c, StringExpression r) {
-      left = null;
-      comp = c;
-      right = r;
-//      right.addRelationship(this);
-    }
+	public StringExpression getLeft() {
+		return left;
+	}
 
-  public StringConstraint(StringConstraint original) {
-    left = original.left;
-    comp = original.comp;
-    right = original.right;
-    if (original.and!= null){
-      and = new StringConstraint(original.and);
-    }
-  }
-  
-  public Set<StringExpression> getOperands() {
-    Set<StringExpression> operands = new HashSet<StringExpression>();
-    operands.add(right);
-    if (left != null) {
-      operands.add(left);
-    }
-    return operands;
-  }
+	public StringComparator getComparator() {
+		return comparator;
+	}
 
-  public String stringPC() {
-    if(left != null) {
-        return "(" +left.getStringPathCondition() + comp.toString() + right.getStringPathCondition() + ")"
-            + ((and == null) ? "" : " && " + and.stringPC());
-       } else {
-          return "(" +comp.toString() + right.getStringPathCondition() + ")"
-            + ((and == null) ? "" : " && " + and.stringPC());
-       }
-  }
+	public StringExpression getRight() {
+		return right;
+	}
 
-  public void getVarVals(Map<String, Object> varsVals) {
-    if (left != null) {
-      left.getVarsVals(varsVals);
-    }
-    if (right != null) {
-      right.getVarsVals(varsVals);
-    }
-    if (and != null) {
-      and.getVarVals(varsVals);
-    }
-  }
+	public StringConstraint getNextConstraint() {
+		return nextConstraint;
+	}
 
-  public boolean equals(Object o) {
+	public void setNextConstraint(StringConstraint nextConstraint) {
+		this.nextConstraint = nextConstraint;
+	}
 
-    if (!(o instanceof StringConstraint)) {
-      return false;
-    }
+	public Set<StringExpression> getOperands() {
+		Set<StringExpression> operands = new HashSet<StringExpression>();
+		operands.add(right);
+		if (left != null) {
+			operands.add(left);
+		}
+		return operands;
+	}
 
-    boolean a = true;
-    if(left != null) a = left.equals(((StringConstraint) o).left);
+	public String stringPC() {
+		if (left != null) {
+			return "(" + left.getStringPathCondition() + comparator.toString() + right.getStringPathCondition() + ")"
+					+ ((getNextConstraint() == null) ? "" : " && " + getNextConstraint().stringPC());
+		} else {
+			return "(" + comparator.toString() + right.getStringPathCondition() + ")"
+					+ ((getNextConstraint() == null) ? "" : " && " + getNextConstraint().stringPC());
+		}
+	}
 
-    boolean b = true;
-    if(right != null) b = right.equals(((StringConstraint) o).right);
+	public void getVarVals(Map<String, Object> varsVals) {
+		if (left != null) {
+			left.getVarsVals(varsVals);
+		}
+		if (right != null) {
+			right.getVarsVals(varsVals);
+		}
+		if (getNextConstraint() != null) {
+			getNextConstraint().getVarVals(varsVals);
+		}
+	}
 
-    return a && comp.equals(((StringConstraint) o).comp) && b;
-  }
+	public boolean equals(Object o) {
+		if (!(o instanceof StringConstraint)) {
+			return false;
+		}
 
-  public boolean contradicts(StringConstraint o) {
-  if(left != null){
-    return left.equals(o.left)
-        && comp.equals(o.comp.not())
-        && right.equals(o.right);
-  } else {
-       return comp.equals(o.comp.not())
-          && right.equals(o.right);
-  }
-  }
+		boolean a = true;
+		if (left != null) {
+			a = left.equals(((StringConstraint) o).getLeft());
+		}
 
-  public int hashCode() {
-  if (left != null)
-     return left.hashCode() ^ comp.hashCode() ^ right.hashCode();
-  else
-     return comp.hashCode() ^ right.hashCode();
-  }
+		boolean b = true;
+		if (right != null) {
+			b = right.equals(((StringConstraint) o).getRight());
+		}
 
-  public String toString() {
-   if(left != null) {
-    return "(" + left.toString() + comp.toString() + right.toString() + ")"
-        + ((and == null) ? "" : " && " + and.toString());
-   } else {
-      return "(" + comp.toString() + right.toString() + ")"
-        + ((and == null) ? "" : " && " + and.toString());
-   }
-  }
-  
-  public StringComparator getComparator() {
-    return comp;
-  }
-  
-  public StringExpression getLeft () {
-    return left;
-  }
-  
-  public StringExpression getRight () {
-    return right;
-  }
-  
-  public StringConstraint and () {
-    return and;
-  }
-  
-  public StringConstraint not() {
-      return new StringConstraint(getLeft(), getComparator().not(), getRight());
-  }  
-  
-  public void accept(ConstraintExpressionVisitor visitor) {
-    visitor.preVisit(this);
-    left.accept(visitor);
-    right.accept(visitor);
-      //if (and!=null) and.accept(visitor);
-      visitor.postVisit(this);
-  }
+		return a && comparator.equals(((StringConstraint) o).getComparator()) && b;
+	}
 
-  public void accept(CollectVariableVisitor visitor) {
-    visitor.preVisit(this);
-    left.accept(visitor);
-    right.accept(visitor);
-      if (and!=null) and.accept(visitor);
-      visitor.postVisit(this);
-  }
+	public boolean contradicts(StringConstraint o) {
+		if (left != null) {
+			return left.equals(o.left) && comparator.equals(o.comparator.not()) && right.equals(o.right);
+		} else {
+			return comparator.equals(o.comparator.not()) && right.equals(o.right);
+		}
+	}
+
+	public int hashCode() {
+		if (left != null)
+			return left.hashCode() ^ comparator.hashCode() ^ right.hashCode();
+		else
+			return comparator.hashCode() ^ right.hashCode();
+	}
+
+	public String toString() {
+		if (left != null) {
+			return "(" + left.toString() + comparator.toString() + right.toString() + ")"
+					+ ((getNextConstraint() == null) ? "" : " && " + getNextConstraint().toString());
+		} else {
+			return "(" + comparator.toString() + right.toString() + ")"
+					+ ((getNextConstraint() == null) ? "" : " && " + getNextConstraint().toString());
+		}
+	}
+
+	public StringConstraint not() {
+		return new StringConstraint(getLeft(), getComparator().not(), getRight());
+	}
+
+	public void accept(ConstraintExpressionVisitor visitor) {
+		visitor.preVisit(this);
+		left.accept(visitor);
+		right.accept(visitor);
+		// if (and!=null) and.accept(visitor);
+		visitor.postVisit(this);
+	}
+
+	public void accept(CollectVariableVisitor visitor) {
+		visitor.preVisit(this);
+		left.accept(visitor);
+		right.accept(visitor);
+		if (getNextConstraint() != null) {
+			getNextConstraint().accept(visitor);
+		}
+		visitor.postVisit(this);
+	}
 }

@@ -193,10 +193,10 @@ public class SymbolicStringConstraintsGeneral {
 			int a1, a2;
 			Edge e;
 
-			switch (temp.op) {
+			switch (temp.getOperator()) {
 			case TRIM:
-				graphBefore = convertToGraph(temp.right);
-				v1 = createVertex(temp.right);
+				graphBefore = convertToGraph(temp.getRight());
+				v1 = createVertex(temp.getRight());
 				v2 = createVertex(temp);
 				graphBefore.addVertex(v1);
 				graphBefore.addEdge(v1, v2,
@@ -266,16 +266,16 @@ public class SymbolicStringConstraintsGeneral {
 				result = graphBefore;
 				break;
 			case CONCAT:
-				graphLeft = convertToGraph((StringExpression) temp.left);
-				graphRight = convertToGraph((StringExpression) temp.right);
+				graphLeft = convertToGraph((StringExpression) temp.getLeft());
+				graphRight = convertToGraph((StringExpression) temp.getRight());
 				result.mergeIn(graphLeft);
 				result.mergeIn(graphRight);
-				v1 = result.findVertex(((StringExpression) temp.left).getName());
+				v1 = result.findVertex(((StringExpression) temp.getLeft()).getName());
 				if (v1 == null)
-					v1 = result.findVertex("C_" + ((StringExpression) temp.left).getName());
-				v2 = result.findVertex(((StringExpression) temp.right).getName());
+					v1 = result.findVertex("C_" + ((StringExpression) temp.getLeft()).getName());
+				v2 = result.findVertex(((StringExpression) temp.getRight()).getName());
 				if (v2 == null)
-					v2 = result.findVertex("C_" + ((StringExpression) temp.right).getName());
+					v2 = result.findVertex("C_" + ((StringExpression) temp.getRight()).getName());
 				// println ("[convertToAutomaton] [CONCAT] v1: " + v1.getName()
 				// + ", v2: " + v2.getName());
 				v3 = createVertex(se);
@@ -472,10 +472,10 @@ public class SymbolicStringConstraintsGeneral {
 			if (sc != null) {
 
 				boolean result = process(sc);
-				sc = sc.and;
+				sc = sc.getNextConstraint();
 				while (result == true && sc != null) {
 					result = process(sc);
-					sc = sc.and;
+					sc = sc.getNextConstraint();
 				}
 				/* check if there was a timeout */
 				checkTimeOut();
@@ -918,20 +918,20 @@ public class SymbolicStringConstraintsGeneral {
 	/*
 	 * Add the current clause/constraint to the global_graph
 	 */
-	private boolean process(StringConstraint sc) {
-		if (sc == null) {
+	private boolean process(StringConstraint stringConstraint) {
+		if (stringConstraint == null) {
 			return true;
 		}
 		StringGraph leftGraph, rightGraph;
-		StringExpression se_left = sc.left;
-		StringExpression se_right = sc.right;
+		StringExpression se_left = stringConstraint.getLeft();
+		StringExpression se_right = stringConstraint.getRight();
 
 		// println("\nSCL: " + sc.left);
 		// println("\nSCR: " + sc.right);
 		// println("\nSCC: " + sc.comp);
 
 		Vertex v1, v2;
-		switch (sc.comp) {
+		switch (stringConstraint.getComparator()) {
 		case EQUALS:
 			leftGraph = convertToGraph(se_left);
 			rightGraph = convertToGraph(se_right);
@@ -1037,7 +1037,7 @@ public class SymbolicStringConstraintsGeneral {
 					new EdgeNotContains("EdgeNotContains_" + v1.getName() + "=" + v2.getName(), v1, v2));
 			break;
 		default:
-			throw new RuntimeException("Do not understand " + sc.comp);
+			throw new RuntimeException("Do not understand " + stringConstraint.getComparator());
 		}
 
 		return true;

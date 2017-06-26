@@ -252,168 +252,187 @@ public abstract class StringExpression extends Expression {
 	}
 
 	/* trim */
+	
 	public StringExpression _trim() {
 		return new DerivedStringExpression(StringOperator.TRIM, this);
 	}
 
 	/* concat */
-	public StringExpression _concat(String s) {
-		return new DerivedStringExpression(this, StringOperator.CONCAT, new StringConstant(s));
+	
+	public StringExpression _concat(String string) {
+		return new DerivedStringExpression(this, StringOperator.CONCAT, new StringConstant(string));
 	}
 
-	public StringExpression _concat(StringExpression e) {
-		return new DerivedStringExpression(this, StringOperator.CONCAT, e);
+	public StringExpression _concat(StringExpression stringExpression) {
+		return new DerivedStringExpression(this, StringOperator.CONCAT, stringExpression);
 	}
 
-	public StringExpression _concat(IntegerExpression e) {
-		return new DerivedStringExpression(this, StringOperator.CONCAT, _valueOf(e));
+	public StringExpression _concat(IntegerExpression integerExpression) {
+		return new DerivedStringExpression(this, StringOperator.CONCAT, _valueOf(integerExpression));
 	}
 
-	public StringExpression _concat(RealExpression e) {
-		return new DerivedStringExpression(this, StringOperator.CONCAT, _valueOf(e));
+	public StringExpression _concat(RealExpression realExpression) {
+		return new DerivedStringExpression(this, StringOperator.CONCAT, _valueOf(realExpression));
 	}
 
 	/* replace */
 
-	public StringExpression _replace(StringExpression t, StringExpression r) {
-		Expression l[] = new Expression[3];
-		l[0] = this;
-		l[1] = t;
-		l[2] = r;
-		return new DerivedStringExpression(StringOperator.REPLACE, l);
+	public StringExpression _replace(StringExpression targetExpression, StringExpression replacementExpression) {
+		Expression[] operands = new Expression[3];
+		operands[0] = this;
+		operands[1] = targetExpression;
+		operands[2] = replacementExpression;
+		
+		return new DerivedStringExpression(StringOperator.REPLACE, operands);
+	}
+	
+	public StringExpression _replace(StringExpression targetExpression, String replacement) {
+		Expression[] operands = new Expression[3];
+		operands[0] = this;
+		operands[1] = targetExpression;
+		operands[2] = new StringConstant(replacement);
+		
+		return new DerivedStringExpression(StringOperator.REPLACE, operands);
 	}
 
-	public StringExpression _replace(String t, StringExpression r) {
-		Expression l[] = new Expression[3];
-		l[0] = this;
-		l[1] = new StringConstant(t);
-		l[2] = r;
-		return new DerivedStringExpression(StringOperator.REPLACE, l);
+	public StringExpression _replace(String target, StringExpression replacementExpression) {
+		Expression[] operands = new Expression[3];
+		operands[0] = this;
+		operands[1] = new StringConstant(target);
+		operands[2] = replacementExpression;
+		
+		return new DerivedStringExpression(StringOperator.REPLACE, operands);
 	}
 
-	public StringExpression _replace(String t, String r) {
-		Expression l[] = new Expression[3];
-		l[0] = this;
-		l[1] = new StringConstant(t);
-		l[2] = new StringConstant(r);
-		return new DerivedStringExpression(StringOperator.REPLACE, l);
+	public StringExpression _replace(String target, String replacement) {
+		Expression[] operands = new Expression[3];
+		operands[0] = this;
+		operands[1] = new StringConstant(target);
+		operands[2] = new StringConstant(replacement);
+		
+		return new DerivedStringExpression(StringOperator.REPLACE, operands);
+	}
+	
+	/* Replace First */
+
+	public StringExpression _replaceFirst(StringExpression targetExpression, StringExpression replacementExpression) {
+		Expression operands[] = new Expression[3];
+		operands[0] = this;
+		operands[1] = targetExpression;
+		operands[2] = replacementExpression;
+		
+		return new DerivedStringExpression(StringOperator.REPLACEFIRST, operands);
+	}
+	
+	public StringExpression _replaceFirst(StringExpression targetExpression, String replacement) {
+		Expression operands[] = new Expression[3];
+		operands[0] = this;
+		operands[1] = targetExpression;
+		operands[2] = new StringConstant(replacement);
+		
+		return new DerivedStringExpression(StringOperator.REPLACEFIRST, operands);
 	}
 
-	public StringExpression _replace(StringExpression t, String r) {
-		Expression l[] = new Expression[3];
-		l[0] = this;
-		l[1] = t;
-		l[2] = new StringConstant(r);
-		return new DerivedStringExpression(StringOperator.REPLACE, l);
+	public StringExpression _replaceFirst(String target, StringExpression replacementExpression) {
+		Expression operands[] = new Expression[3];
+		operands[0] = this;
+		operands[1] = new StringConstant(target);
+		operands[2] = replacementExpression;
+		
+		return new DerivedStringExpression(StringOperator.REPLACEFIRST, operands);
+	}
+
+	public StringExpression _replaceFirst(String target, String replacement) {
+		Expression operands[] = new Expression[3];
+		operands[0] = this;
+		operands[1] = new StringConstant(target);
+		operands[2] = new StringConstant(replacement);
+		
+		return new DerivedStringExpression(StringOperator.REPLACEFIRST, operands);
 	}
 
 	/* subString */
-
-	public StringExpression _subString(IntegerExpression t, int r) {
-		Expression l[] = new Expression[3];
-		l[0] = this;
-		l[1] = t;
-		l[2] = new IntegerConstant(r);
-		return new DerivedStringExpression(StringOperator.SUBSTRING, l);
+	
+	public StringExpression _subString(IntegerExpression beginIndexExpression) {
+		Expression operands[] = new Expression[2];
+		operands[0] = this;
+		operands[1] = beginIndexExpression;
+		
+		return new DerivedStringExpression(StringOperator.SUBSTRING, operands);
+	}
+	
+	public StringExpression _subString(int beginIndex) {
+		Expression operands[] = new Expression[2];
+		operands[0] = this;
+		operands[1] = new IntegerConstant(beginIndex);
+		
+		return new DerivedStringExpression(StringOperator.SUBSTRING, operands);
+	}
+	
+	public StringExpression _subString(IntegerExpression beginIndexExpression, IntegerExpression endIndexExpression) {
+		Expression operands[] = new Expression[3];
+		operands[0] = this;
+		operands[1] = beginIndexExpression;
+		operands[2] = endIndexExpression;
+		
+		return new DerivedStringExpression(StringOperator.SUBSTRING, operands);
 	}
 
-	public StringExpression _subString(IntegerExpression t, IntegerExpression r) {
-		Expression l[] = new Expression[3];
-		l[0] = this;
-		l[1] = t;
-		l[2] = r;
-		return new DerivedStringExpression(StringOperator.SUBSTRING, l);
+	public StringExpression _subString(IntegerExpression beginIndexExpression, int endIndex) {
+		Expression operands[] = new Expression[3];
+		operands[0] = this;
+		operands[1] = beginIndexExpression;
+		operands[2] = new IntegerConstant(endIndex);
+		
+		return new DerivedStringExpression(StringOperator.SUBSTRING, operands);
 	}
 
-	public StringExpression _subString(Integer t, IntegerExpression r) {
-		Expression l[] = new Expression[3];
-		l[0] = this;
-		l[1] = new IntegerConstant(t);
-		l[2] = r;
-		return new DerivedStringExpression(StringOperator.SUBSTRING, l);
+	public StringExpression _subString(int beginIndex, IntegerExpression endIndexExpression) {
+		Expression operands[] = new Expression[3];
+		operands[0] = this;
+		operands[1] = new IntegerConstant(beginIndex);
+		operands[2] = endIndexExpression;
+		
+		return new DerivedStringExpression(StringOperator.SUBSTRING, operands);
 	}
 
-	public StringExpression _subString(int t, int r) {
-		Expression l[] = new Expression[3];
-		l[0] = this;
-		l[1] = new IntegerConstant(t);
-		l[2] = new IntegerConstant(r);
-		return new DerivedStringExpression(StringOperator.SUBSTRING, l);
-	}
-
-	public StringExpression _subString(int t) {
-		Expression l[] = new Expression[2];
-		l[0] = this;
-		l[1] = new IntegerConstant(t);
-		return new DerivedStringExpression(StringOperator.SUBSTRING, l);
-	}
-
-	public StringExpression _subString(IntegerExpression t) {
-		Expression l[] = new Expression[2];
-		l[0] = this;
-		l[1] = t;
-		return new DerivedStringExpression(StringOperator.SUBSTRING, l);
-	}
-
-	/* Replace First */
-
-	public StringExpression _replaceFirst(StringExpression t, StringExpression r) {
-		Expression l[] = new Expression[3];
-		l[0] = this;
-		l[1] = t;
-		l[2] = r;
-		return new DerivedStringExpression(StringOperator.REPLACEFIRST, l);
-	}
-
-	public StringExpression _replaceFirst(String t, StringExpression r) {
-		Expression l[] = new Expression[3];
-		l[0] = this;
-		l[1] = new StringConstant(t);
-		l[2] = r;
-		return new DerivedStringExpression(StringOperator.REPLACEFIRST, l);
-	}
-
-	public StringExpression _replaceFirst(String t, String r) {
-		Expression l[] = new Expression[3];
-		l[0] = this;
-		l[1] = new StringConstant(t);
-		l[2] = new StringConstant(r);
-		return new DerivedStringExpression(StringOperator.REPLACEFIRST, l);
-	}
-
-	public StringExpression _replaceFirst(StringExpression t, String r) {
-		Expression l[] = new Expression[3];
-		l[0] = this;
-		l[1] = t;
-		l[2] = new StringConstant(r);
-		return new DerivedStringExpression(StringOperator.REPLACEFIRST, l);
+	public StringExpression _subString(int beginIndex, int endIndex) {
+		Expression operands[] = new Expression[3];
+		operands[0] = this;
+		operands[1] = new IntegerConstant(beginIndex);
+		operands[2] = new IntegerConstant(endIndex);
+		
+		return new DerivedStringExpression(StringOperator.SUBSTRING, operands);
 	}
 
 	/* valueOf */
 
-	public static StringExpression _valueOf(IntegerExpression t) {
-		Expression l[] = new Expression[1];
-		l[0] = t;
-		return new DerivedStringExpression(StringOperator.VALUEOF, l);
+	public static StringExpression _valueOf(IntegerExpression integerExpression) {
+		Expression operands[] = new Expression[1];
+		operands[0] = integerExpression;
+		
+		return new DerivedStringExpression(StringOperator.VALUEOF, operands);
 	}
 
-	public static StringExpression _valueOf(RealExpression t) {
-		Expression l[] = new Expression[1];
-		l[0] = t;
-		return new DerivedStringExpression(StringOperator.VALUEOF, l);
+	public static StringExpression _valueOf(RealExpression realExpression) {
+		Expression operands[] = new Expression[1];
+		operands[0] = realExpression;
+		
+		return new DerivedStringExpression(StringOperator.VALUEOF, operands);
 	}
 
-	public static StringExpression _valueOf(StringExpression t) {
-		Expression l[] = new Expression[1];
-		l[0] = t;
-		return new DerivedStringExpression(StringOperator.VALUEOF, l);
+	public static StringExpression _valueOf(StringExpression stringExpression) {
+		Expression operands[] = new Expression[1];
+		operands[0] = stringExpression;
+		
+		return new DerivedStringExpression(StringOperator.VALUEOF, operands);
 	}
 
-	public IntegerExpression _IvalueOf() {
+	public IntegerExpression _integerValueOf() {
 		return new SpecialIntegerExpression(this);
 	}
 
-	public RealExpression _RvalueOf() {
+	public RealExpression _realValueOf() {
 		return new SpecialRealExpression(this);
 	}
 

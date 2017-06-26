@@ -38,8 +38,18 @@ package gov.nasa.jpf.symbc.numeric;
 
 public enum MathFunction {
 
-	SIN(" sin "), COS(" cos "), POW(" pow "), ABS(" abs "), SQRT(" sqrt "), EXP(" exp "), ASIN(" asin "), 
-	ACOS(" acos "), ATAN(" atan "), ATAN2(" atan2 "), LOG(" log "), TAN(" tan ");
+	SIN(" sin "),
+	COS(" cos "),
+	POW(" pow "),
+	ABS(" abs "),
+	SQRT(" sqrt "),
+	EXP(" exp "),
+	ASIN(" asin "),
+	ACOS(" acos "),
+	ATAN(" atan "),
+	ATAN2(" atan2 "),
+	LOG(" log "),
+	TAN(" tan ");
 
 	private final String str;
 

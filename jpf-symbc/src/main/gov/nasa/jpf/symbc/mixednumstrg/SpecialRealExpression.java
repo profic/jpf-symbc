@@ -52,67 +52,61 @@ package gov.nasa.jpf.symbc.mixednumstrg;
 
 import java.util.Map;
 
-
 import gov.nasa.jpf.symbc.numeric.ConstraintExpressionVisitor;
 import gov.nasa.jpf.symbc.numeric.RealExpression;
 import gov.nasa.jpf.symbc.numeric.IntegerExpression;
 import gov.nasa.jpf.symbc.numeric.Expression;
 import gov.nasa.jpf.symbc.string.StringExpression;
 
-
-
 public class SpecialRealExpression extends RealExpression {
 
-	public SpecialOperator op;
-	public Expression opr;
+	private SpecialOperator operator;
+	private StringExpression operand;
 
-	public SpecialRealExpression(StringExpression opr1){
-		op = SpecialOperator.VALUEOF;
-		opr = opr1;
+	public SpecialRealExpression(StringExpression operand) {
+		this.operator = SpecialOperator.VALUEOF;
+		this.operand = operand;
 	}
 
 	public SpecialRealExpression clone() {
 		throw new RuntimeException("Operation not implemented");
 	}
 
-	public SpecialRealExpression(IntegerExpression opr1){
-		op = SpecialOperator.VALUEOF;
-		opr = opr1;
+	public void getVarsVals(Map<String, Object> varsVals) {
 	}
 
-	public void getVarsVals(Map<String, Object> varsVals) {
-	  }
-
-
-	  public String getStringPathCondition() {
-//		    return "." + op.toString() + "[" + opr.stringPC() + "]";
-        return op.toString() + "__" + opr.getStringPathCondition() + "__";
-		  }
-
-	  public String toString() {
-//		    return "." + op.toString() + "[" + opr.toString() + "]";
-      return op.toString() + "__" + opr.toString() + "__";
-		  }
-	  
+	public String getStringPathCondition() {
+		// return "." + op.toString() + "[" + opr.stringPC() + "]";
+		return operator.toString() + "__" + operand.getStringPathCondition() + "__";
+	}
 	
-		@Override
-		public void accept(ConstraintExpressionVisitor visitor) {
-			visitor.preVisit(this);
-			opr.accept(visitor);
-			visitor.postVisit(this);
-		}
+	public double solution() {
+		return Double.valueOf(operand.solution());
+	}
 
-		@Override
-		public int compareTo(Expression expr) {
-			if (expr instanceof SpecialRealExpression) {
-				SpecialRealExpression e = (SpecialRealExpression) expr;
-				int r = op.compareTo(e.op);
-				if (r == 0) {
-					r = opr.compareTo(e.opr);
-				}
-				return r;
-			} else {
-				return getClass().getCanonicalName().compareTo(expr.getClass().getCanonicalName());
+	public String toString() {
+		// return "." + op.toString() + "[" + opr.toString() + "]";
+		return operator.toString() + "__" + operand.toString() + "__";
+	}
+
+	@Override
+	public void accept(ConstraintExpressionVisitor visitor) {
+		visitor.preVisit(this);
+		operand.accept(visitor);
+		visitor.postVisit(this);
+	}
+
+	@Override
+	public int compareTo(Expression expr) {
+		if (expr instanceof SpecialRealExpression) {
+			SpecialRealExpression e = (SpecialRealExpression) expr;
+			int r = operator.compareTo(e.operator);
+			if (r == 0) {
+				r = operand.compareTo(e.operand);
 			}
+			return r;
+		} else {
+			return getClass().getCanonicalName().compareTo(expr.getClass().getCanonicalName());
 		}
+	}
 }

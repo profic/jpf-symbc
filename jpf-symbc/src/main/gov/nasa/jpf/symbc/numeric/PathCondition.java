@@ -132,7 +132,7 @@ public class PathCondition implements Comparable<PathCondition> {
 		PathCondition newPathCondition = new PathCondition();
 		newPathCondition.setHeader(this.getHeader());
 		newPathCondition.setCount(this.getCount());
-		newPathCondition.setStringPathCondition(this.getStringPathCondition().make_copy(newPathCondition)); // TODO:
+		newPathCondition.setStringPathCondition(this.getStringPathCondition().makeCopy(newPathCondition)); // TODO:
 		// to
 		// review
 		newPathCondition.solverCalls = this.solverCalls;
