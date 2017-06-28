@@ -17,33 +17,29 @@
  */
 package gov.nasa.jpf.symbc.bytecode;
 
-
-
 import gov.nasa.jpf.symbc.numeric.*;
 import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.StackFrame;
 import gov.nasa.jpf.vm.ThreadInfo;
 
-
 /**
- * Convert double to float
- * ..., value => ..., result
+ * Convert double to float ..., value => ..., result
  */
 public class D2F extends gov.nasa.jpf.jvm.bytecode.D2F {
- 
-  @Override
-  public Instruction execute (ThreadInfo th) {
-	  StackFrame sf = th.getModifiableTopFrame();
-	  Expression sym_val = (Expression) sf.getLongOperandAttr();
-		
-	  if(sym_val == null) {
-		  return super.execute(th); 
-	  }
-	  else {//symbolic
-		  Instruction result = super.execute(th);
-		  sf.setOperandAttr(sym_val);
-		  return result;
-	  }
-  }
+
+	@Override
+	public Instruction execute(ThreadInfo threadInfo) {
+		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
+		Expression symVal = (Expression) stackFrame.getLongOperandAttr();
+
+		if (symVal == null) {
+			return super.execute(threadInfo);
+		} else {  // symbolic
+			Instruction result = super.execute(threadInfo);
+			stackFrame.setOperandAttr(symVal);
+			
+			return result;
+		}
+	}
 
 }

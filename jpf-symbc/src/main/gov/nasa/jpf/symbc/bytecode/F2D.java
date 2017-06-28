@@ -22,26 +22,24 @@ import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.StackFrame;
 import gov.nasa.jpf.vm.ThreadInfo;
 
-
 /**
- * Convert double to float
- * ..., value => ..., result
+ * Convert double to float ..., value => ..., result
  */
 public class F2D extends gov.nasa.jpf.jvm.bytecode.F2D {
- 
-  @Override
-  public Instruction execute (ThreadInfo th) {
-	  StackFrame sf = th.getModifiableTopFrame();
-	  Expression sym_val = (Expression) sf.getOperandAttr();
-		
-	  if(sym_val == null) {
-		  return super.execute(th); 
-	  }
-	  else {//symbolic
-		  Instruction result = super.execute(th);
-		  sf.setLongOperandAttr(sym_val);
-		  return result;
-	  }
-  }
+
+	@Override
+	public Instruction execute(ThreadInfo threadInfo) {
+		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
+		Expression symValue = (Expression) stackFrame.getOperandAttr();
+
+		if (symValue == null) {
+			return super.execute(threadInfo);
+		} else {    // symbolic
+			Instruction result = super.execute(threadInfo);
+			stackFrame.setLongOperandAttr(symValue);
+			
+			return result;
+		}
+	}
 
 }

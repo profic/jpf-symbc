@@ -38,86 +38,86 @@ import gov.nasa.jpf.vm.ThreadInfo;
 public class BALOAD extends gov.nasa.jpf.jvm.bytecode.BALOAD {
 
 	@Override
-	public Instruction execute(ThreadInfo ti) {
-
-		if (peekIndexAttr(ti) == null || !(peekIndexAttr(ti) instanceof IntegerExpression))
-			return super.execute(ti);
-		StackFrame frame = ti.getModifiableTopFrame();
+	public Instruction execute(ThreadInfo threadInfo) {
+		if (peekIndexAttr(threadInfo) == null || !(peekIndexAttr(threadInfo) instanceof IntegerExpression)) {
+			return super.execute(threadInfo);
+		}
+		StackFrame frame = threadInfo.getModifiableTopFrame();
 		arrayRef = frame.peek(1); // ..,arrayRef,idx
 		if (arrayRef == MJIEnv.NULL) {
-			return ti.createAndThrowException("java.lang.NullPointerException");
+			return threadInfo.createAndThrowException("java.lang.NullPointerException");
 		}
 
-		ElementInfo eiArray = ti.getElementInfo(arrayRef);
-		int len = (eiArray.getArrayFields()).arrayLength(); // assumed concrete
-		if (!ti.isFirstStepInsn()) {
-			PCChoiceGenerator arrayCG = new PCChoiceGenerator(0, len + 1); // add
-																			// 2
-																			// error
-																			// cases:
-																			// <0,
-																			// >=len
-			ti.getVM().getSystemState().setNextChoiceGenerator(arrayCG);
+		ElementInfo arrayElementInfo = threadInfo.getElementInfo(arrayRef);
+		int len = (arrayElementInfo.getArrayFields()).arrayLength(); // assumed
+																		// concrete
+		if (!threadInfo.isFirstStepInsn()) {
+			PCChoiceGenerator arrayChoiceGenerator = new PCChoiceGenerator(0, len + 1); // add
+																						// 2
+																						// error
+																						// cases:
+																						// <0,
+																						// >=len
+			threadInfo.getVM().getSystemState().setNextChoiceGenerator(arrayChoiceGenerator);
 
-			if (SymbolicInstructionFactory.debugMode)
-				System.out.println("# array cg registered: " + arrayCG);
+			if (SymbolicInstructionFactory.debugMode) {
+				System.out.println("# array cg registered: " + arrayChoiceGenerator);
+			}
+
 			return this;
-
 		} else { // this is what really returns results
-
 			// index = frame.peek();
-			PCChoiceGenerator lastCG = ti.getVM().getSystemState()
+			PCChoiceGenerator lastChoiceGenerator = threadInfo.getVM().getSystemState()
 					.getLastChoiceGeneratorOfType(PCChoiceGenerator.class);
-			assert (lastCG != null);
-			PCChoiceGenerator prevCG = lastCG.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
+			assert (lastChoiceGenerator != null);
+			PCChoiceGenerator prevChoiceGenerator = lastChoiceGenerator
+					.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
 
-			index = lastCG.getNextChoice();
+			index = lastChoiceGenerator.getNextChoice();
 			// System.out.println("array index "+index);
-			IntegerExpression sym_index = (IntegerExpression) peekIndexAttr(ti);
+			IntegerExpression symIndex = (IntegerExpression) peekIndexAttr(threadInfo);
 			// check the constraint
 
-			PathCondition pc;
+			PathCondition pathCondition;
 
-			if (prevCG == null)
-				pc = new PathCondition();
-			else
-				pc = ((PCChoiceGenerator) prevCG).getCurrentPC();
-
-			assert pc != null;
+			if (prevChoiceGenerator == null) {
+				pathCondition = new PathCondition();
+			} else {
+				pathCondition = ((PCChoiceGenerator) prevChoiceGenerator).getCurrentPC();
+			}
+			assert pathCondition != null;
 
 			if (index < len) {
-				pc._addDet(Comparator.EQ, index, sym_index);
-				if (pc.simplify()) { // satisfiable
-					((PCChoiceGenerator) lastCG).setCurrentPC(pc);
+				pathCondition._addDet(Comparator.EQ, index, symIndex);
+				if (pathCondition.simplify()) { // satisfiable
+					((PCChoiceGenerator) lastChoiceGenerator).setCurrentPC(pathCondition);
 				} else {
-					ti.getVM().getSystemState().setIgnored(true);// backtrack
-					return getNext(ti);
+					threadInfo.getVM().getSystemState().setIgnored(true);// backtrack
+					return getNext(threadInfo);
 				}
-			}
-			// now check for out of bounds exceptions
-			else if (index == len) {
-				pc._addDet(Comparator.LT, sym_index, 0);
-				if (pc.simplify()) { // satisfiable
-					((PCChoiceGenerator) lastCG).setCurrentPC(pc);
-					return ti.createAndThrowException("java.lang.ArrayIndexOutOfBoundsException");
+			} else if (index == len) { // now check for out of bounds exceptions
+				pathCondition._addDet(Comparator.LT, symIndex, 0);
+				if (pathCondition.simplify()) { // satisfiable
+					((PCChoiceGenerator) lastChoiceGenerator).setCurrentPC(pathCondition);
+					return threadInfo.createAndThrowException("java.lang.ArrayIndexOutOfBoundsException");
 				} else {
-					ti.getVM().getSystemState().setIgnored(true);// backtrack
-					return getNext(ti);
+					threadInfo.getVM().getSystemState().setIgnored(true);// backtrack
+					return getNext(threadInfo);
 				}
 			} else if (index == len + 1) {
-				pc._addDet(Comparator.GE, sym_index, len);
-				if (pc.simplify()) { // satisfiable
-					((PCChoiceGenerator) lastCG).setCurrentPC(pc);
-					return ti.createAndThrowException("java.lang.ArrayIndexOutOfBoundsException");
+				pathCondition._addDet(Comparator.GE, symIndex, len);
+				if (pathCondition.simplify()) { // satisfiable
+					((PCChoiceGenerator) lastChoiceGenerator).setCurrentPC(pathCondition);
+					return threadInfo.createAndThrowException("java.lang.ArrayIndexOutOfBoundsException");
 				} else {
-					ti.getVM().getSystemState().setIgnored(true);// backtrack
-					return getNext(ti);
+					threadInfo.getVM().getSystemState().setIgnored(true);// backtrack
+					return getNext(threadInfo);
 				}
 			}
 
 			// original code for concrete execution
-			arrayOperandAttr = peekArrayAttr(ti);
-			indexOperandAttr = peekIndexAttr(ti);
+			arrayOperandAttr = peekArrayAttr(threadInfo);
+			indexOperandAttr = peekIndexAttr(threadInfo);
 
 			// corina: Ignore POR for now
 			/*
@@ -133,9 +133,9 @@ public class BALOAD extends gov.nasa.jpf.jvm.bytecode.BALOAD {
 			// assign to index any value between 0 and array length
 
 			try {
-				push(frame, eiArray, index);
+				push(frame, arrayElementInfo, index);
 
-				Object elementAttr = eiArray.getElementAttr(index);
+				Object elementAttr = arrayElementInfo.getElementAttr(index);
 				if (elementAttr != null) {
 					if (getElementSize() == 1) {
 						frame.setOperandAttr(elementAttr);
@@ -144,12 +144,11 @@ public class BALOAD extends gov.nasa.jpf.jvm.bytecode.BALOAD {
 					}
 				}
 
-				return getNext(ti);
+				return getNext(threadInfo);
 
-			} catch (ArrayIndexOutOfBoundsExecutiveException ex) {
-				return ex.getInstruction();
+			} catch (ArrayIndexOutOfBoundsExecutiveException e) {
+				return e.getInstruction();
 			}
 		}
 	}
-
 }

@@ -17,8 +17,6 @@
  */
 package gov.nasa.jpf.symbc.bytecode;
 
-
-
 import gov.nasa.jpf.symbc.numeric.*;
 import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.StackFrame;
@@ -28,38 +26,37 @@ import gov.nasa.jpf.vm.Types;
 public class DADD extends gov.nasa.jpf.jvm.bytecode.DADD {
 
 	@Override
-	public Instruction execute(ThreadInfo th) {
-		StackFrame sf = th.getModifiableTopFrame();
+	public Instruction execute(ThreadInfo threadInfo) {
+		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
 
-		RealExpression sym_v1 = (RealExpression) sf.getLongOperandAttr();
-		double v1 = Types.longToDouble(sf.popLong());
+		RealExpression symValue1 = (RealExpression) stackFrame.getLongOperandAttr();
+		double doubleValue1 = Types.longToDouble(stackFrame.popLong());
 
-		RealExpression sym_v2 = (RealExpression) sf.getLongOperandAttr();
-		double v2 = Types.longToDouble(sf.popLong());
+		RealExpression symValue2 = (RealExpression) stackFrame.getLongOperandAttr();
+		double doubleValue2 = Types.longToDouble(stackFrame.popLong());
 
-		double r = v1 + v2;
+		double doubleResult = doubleValue1 + doubleValue2;
 
-		if (sym_v1 == null && sym_v2 == null)
-			sf.pushLong(Types.doubleToLong(r));
-		else
-			sf.pushLong(0);
+		if (symValue1 == null && symValue2 == null) {
+			stackFrame.pushLong(Types.doubleToLong(doubleResult));
+		} else {
+			stackFrame.pushLong(0);
+		}
 
-		RealExpression result = null;
-		if (sym_v1 != null) {
-			if (sym_v2 != null)
-				result = sym_v2._plus(sym_v1);
-			else
+		RealExpression symResult = null;
+		if (symValue1 != null) {
+			if (symValue2 != null) {
+				symResult = symValue2._plus(symValue1);
+			} else {
 				// v2 is concrete
-				result = sym_v1._plus(v2);
-		} else if (sym_v2 != null)
-			result = sym_v2._plus(v1);
+				symResult = symValue1._plus(doubleValue2);
+			}
+		} else if (symValue2 != null) {
+			symResult = symValue2._plus(doubleValue1);
+		}
 
-		sf.setLongOperandAttr(result);
+		stackFrame.setLongOperandAttr(symResult);
 
-		//System.out.println("Execute DADD: " + sf.getLongOperandAttr());
-
-		return getNext(th);
-
+		return getNext(threadInfo);
 	}
-
 }

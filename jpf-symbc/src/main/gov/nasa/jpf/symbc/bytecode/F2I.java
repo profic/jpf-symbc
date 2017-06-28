@@ -17,7 +17,6 @@
  */
 package gov.nasa.jpf.symbc.bytecode;
 
-
 import gov.nasa.jpf.symbc.numeric.*;
 import gov.nasa.jpf.vm.ChoiceGenerator;
 import gov.nasa.jpf.vm.Instruction;
@@ -25,57 +24,61 @@ import gov.nasa.jpf.vm.StackFrame;
 import gov.nasa.jpf.vm.ThreadInfo;
 
 /**
- * Convert float to int
- * ..., value => ..., result
+ * Convert float to int ..., value => ..., result
  */
 public class F2I extends gov.nasa.jpf.jvm.bytecode.F2I {
-	
-  @Override
-  public Instruction execute (ThreadInfo th) {
-	RealExpression sym_fval = (RealExpression) th.getModifiableTopFrame().getOperandAttr(); 
-	
-	if(sym_fval == null) {
-		  return super.execute(th); 
-	  }
-	else {
-		 
 
-		    ChoiceGenerator<?> cg; 
-			if (!th.isFirstStepInsn()) { // first time around
-				cg = new PCChoiceGenerator(1); // only one choice 
-				th.getVM().getSystemState().setNextChoiceGenerator(cg);
-				return this;  	      
-			} else {  // this is what really returns results
-				cg = th.getVM().getSystemState().getChoiceGenerator();
-				assert (cg instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got: " + cg;
-			}	
-			
-			// get the path condition from the 
-			// previous choice generator of the same type 
+	@Override
+	public Instruction execute(ThreadInfo threadInfo) {
+		RealExpression symFloatValue = (RealExpression) threadInfo.getModifiableTopFrame().getOperandAttr();
 
-		    PathCondition pc;
-			ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
-			if (prev_cg == null)
-				pc = new PathCondition(); // TODO: handling of preconditions needs to be changed
-			else 
-				pc = ((PCChoiceGenerator)prev_cg).getCurrentPC();
-			assert pc != null;
-			
-			StackFrame sf = th.getModifiableTopFrame();
-			sf.pop();
-			sf.push(0,false); // for symbolic expressions, the concrete value does not matter
-			SymbolicInteger sym_ival = new SymbolicInteger();
-			sf.setOperandAttr(sym_ival);
-			
-			pc._addDet(Comparator.EQ, sym_fval, sym_ival);
-			
-			if(!pc.simplify())  { // not satisfiable
-				th.getVM().getSystemState().setIgnored(true);
-			} else {
-				((PCChoiceGenerator) cg).setCurrentPC(pc);
+		if (symFloatValue == null) {
+			return super.execute(threadInfo);
+		} else {
+			ChoiceGenerator<?> choiceGenerator;
+			if (!threadInfo.isFirstStepInsn()) { // first time around
+				choiceGenerator = new PCChoiceGenerator(1); // only one choice
+				threadInfo.getVM().getSystemState().setNextChoiceGenerator(choiceGenerator);
+
+				return this;
+			} else { // this is what really returns results
+				choiceGenerator = threadInfo.getVM().getSystemState().getChoiceGenerator();
+				assert (choiceGenerator instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got: "
+						+ choiceGenerator;
 			}
-			return getNext(th);
-	  }
-  }
-  
+
+			// get the path condition from the
+			// previous choice generator of the same type
+
+			PathCondition pathCondition;
+			ChoiceGenerator<?> prevChoiceGenerator = choiceGenerator
+					.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
+			if (prevChoiceGenerator == null) {
+				pathCondition = new PathCondition(); // TODO: handling of
+														// preconditions needs
+														// to be changed
+			} else {
+				pathCondition = ((PCChoiceGenerator) prevChoiceGenerator).getCurrentPC();
+			}
+			assert pathCondition != null;
+
+			StackFrame stackFrame = threadInfo.getModifiableTopFrame();
+			stackFrame.pop();
+			stackFrame.push(0, false); // for symbolic expressions, the concrete
+										// value
+										// does not matter
+			SymbolicInteger symIntValue = new SymbolicInteger();
+			stackFrame.setOperandAttr(symIntValue);
+
+			pathCondition._addDet(Comparator.EQ, symFloatValue, symIntValue);
+
+			if (!pathCondition.simplify()) { // not satisfiable
+				threadInfo.getVM().getSystemState().setIgnored(true);
+			} else {
+				((PCChoiceGenerator) choiceGenerator).setCurrentPC(pathCondition);
+			}
+
+			return getNext(threadInfo);
+		}
+	}
 }

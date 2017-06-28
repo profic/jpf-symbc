@@ -36,7 +36,6 @@
 //
 package gov.nasa.jpf.symbc.bytecode;
 
-
 import gov.nasa.jpf.symbc.numeric.RealExpression;
 import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.StackFrame;
@@ -44,41 +43,39 @@ import gov.nasa.jpf.vm.ThreadInfo;
 import gov.nasa.jpf.vm.Types;
 
 /**
- * Multiply double
- * ..., value1, value2 => ..., result
+ * Multiply double ..., value1, value2 => ..., result
  */
 public class DMUL extends gov.nasa.jpf.jvm.bytecode.DMUL {
-  @Override
-  public Instruction execute (ThreadInfo th) {
-	StackFrame sf = th.getModifiableTopFrame();
+	@Override
+	public Instruction execute(ThreadInfo threadInfo) {
+		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
 
-	RealExpression sym_v1 = (RealExpression) sf.getLongOperandAttr(); 
-    double v1 = Types.longToDouble(sf.popLong());
-    RealExpression sym_v2 = (RealExpression) sf.getLongOperandAttr();
-    double v2 = Types.longToDouble(sf.popLong());
-    
-    double r = v1 * v2;
-    
-    if(sym_v1==null && sym_v2==null)
-    	sf.pushLong(Types.doubleToLong(r)); 
-    else
-    	sf.pushLong(0); 
-    
-    RealExpression result = null;
-	if(sym_v2!=null) {
-		if (sym_v1!=null)
-			result = sym_v2._mul(sym_v1);
-		else // v1 is concrete
-			result = sym_v2._mul(v1);
+		RealExpression symValue1 = (RealExpression) stackFrame.getLongOperandAttr();
+		double doubleValue1 = Types.longToDouble(stackFrame.popLong());
+		RealExpression symValue2 = (RealExpression) stackFrame.getLongOperandAttr();
+		double doubleValue2 = Types.longToDouble(stackFrame.popLong());
+
+		double doubleResult = doubleValue1 * doubleValue2;
+
+		if (symValue1 == null && symValue2 == null) {
+			stackFrame.pushLong(Types.doubleToLong(doubleResult));
+		} else {
+			stackFrame.pushLong(0);
+		}
+		
+		RealExpression symResult = null;
+		if (symValue2 != null) {
+			if (symValue1 != null) {
+				symResult = symValue2._mul(symValue1);
+			} else { // v1 is concrete
+				symResult = symValue2._mul(doubleValue1);
+			}
+		} else if (symValue1 != null) {
+			symResult = symValue1._mul(doubleValue2);
+		}
+
+		stackFrame.setLongOperandAttr(symResult);
+
+		return getNext(threadInfo);
 	}
-	else if (sym_v1!=null)
-		result = sym_v1._mul(v2);
-	
-	sf.setLongOperandAttr(result);
-	
-	//System.out.println("Execute DMUL: "+ sf.getLongOperandAttr());
-
-    return getNext(th);
-  }
-
 }

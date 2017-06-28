@@ -25,38 +25,35 @@ import gov.nasa.jpf.vm.Types;
 
 public class FADD extends gov.nasa.jpf.jvm.bytecode.FADD {
 
-  @Override
-  public Instruction execute (ThreadInfo th) {
-	StackFrame sf = th.getModifiableTopFrame();
+	@Override
+	public Instruction execute(ThreadInfo threadInfo) {
+		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
 
-	RealExpression sym_v1 = (RealExpression) sf.getOperandAttr(); 
-	float v1 = Types.intToFloat(sf.pop());
+		RealExpression symValue1 = (RealExpression) stackFrame.getOperandAttr();
+		float floatValue1 = Types.intToFloat(stackFrame.pop());
+
+		RealExpression symValue2 = (RealExpression) stackFrame.getOperandAttr();
+		float floatValue2 = Types.intToFloat(stackFrame.pop());
+
+		float floatResult = floatValue1 + floatValue2;
+
+		if (symValue1 == null && symValue2 == null) {
+			stackFrame.push(Types.floatToInt(floatResult), false);
+		} else {
+			stackFrame.push(0, false);
+		}
 		
-	RealExpression sym_v2 = (RealExpression) sf.getOperandAttr();
-	float v2 = Types.intToFloat(sf.pop());
-	
-    float r = v1 + v2;
-    
-    if(sym_v1==null && sym_v2==null)
-    	sf.push(Types.floatToInt(r), false); 
-    else
-    	sf.push(0, false); 
-    
-    RealExpression result = null;
-	if(sym_v1!=null) {
-		if (sym_v2!=null)
-			result = sym_v2._plus(sym_v1);
-		else // v2 is concrete
-			result = sym_v1._plus(v2);
-	}else if (sym_v2!=null)
-		result = sym_v2._plus(v1);
-	
-	sf.setOperandAttr(result);
-	
-	return getNext(th);
-    
-    
-    
-  }
+		RealExpression symResult = null;
+		if (symValue1 != null) {
+			if (symValue2 != null)
+				symResult = symValue2._plus(symValue1);
+			else // v2 is concrete
+				symResult = symValue1._plus(floatValue2);
+		} else if (symValue2 != null)
+			symResult = symValue2._plus(floatValue1);
 
+		stackFrame.setOperandAttr(symResult);
+
+		return getNext(threadInfo);
+	}
 }

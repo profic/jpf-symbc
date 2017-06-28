@@ -36,7 +36,6 @@
 //
 package gov.nasa.jpf.symbc.bytecode;
 
-
 import gov.nasa.jpf.symbc.numeric.Comparator;
 import gov.nasa.jpf.symbc.numeric.PCChoiceGenerator;
 import gov.nasa.jpf.symbc.numeric.PathCondition;
@@ -48,114 +47,110 @@ import gov.nasa.jpf.vm.ThreadInfo;
 import gov.nasa.jpf.vm.Types;
 
 /**
- * Divide 2 doubles
- * ..., value1, value2 => ..., value2/value1
+ * Divide 2 doubles ..., value1, value2 => ..., value2/value1
  */
-public class DDIV extends gov.nasa.jpf.jvm.bytecode.DDIV  {
+public class DDIV extends gov.nasa.jpf.jvm.bytecode.DDIV {
 
 	@Override
-	public Instruction execute (ThreadInfo th) {
-		StackFrame sf = th.getModifiableTopFrame();
+	public Instruction execute(ThreadInfo threadInfo) {
+		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
 
-		RealExpression sym_v1 = (RealExpression) sf.getOperandAttr(1);
-	    double v1;
-	    RealExpression sym_v2 = (RealExpression) sf.getOperandAttr(3);
-	    double v2;
+		RealExpression symValue1 = (RealExpression) stackFrame.getOperandAttr(1);
+		double doubleValue1;
+		RealExpression symValue2 = (RealExpression) stackFrame.getOperandAttr(3);
+		double doubleValue2;
 
+		if (symValue1 == null && symValue2 == null) {
+			doubleValue1 = Types.longToDouble(stackFrame.popLong());
+			doubleValue2 = Types.longToDouble(stackFrame.popLong());
+			if (doubleValue1 == 0) {
+				return threadInfo.createAndThrowException("java.lang.ArithmeticException", "division by 0");
+			}
+			double doubleResult = doubleValue2 / doubleValue1;
+			stackFrame.pushLong(Types.doubleToLong(doubleResult));
 
-	    if(sym_v1==null && sym_v2==null) {
-	    	v1 = Types.longToDouble(sf.popLong());
-	    	v2 = Types.longToDouble(sf.popLong());
-	    	if(v1==0)
-	    		return th.createAndThrowException("java.lang.ArithmeticException","division by 0");
-	    	double r = v2 / v1;
-	    	sf.pushLong(Types.doubleToLong(r));
-	    	return getNext(th);
-	    }
+			return getNext(threadInfo);
+		}
 
-	    // result is symbolic expression
-	    if(sym_v1==null && sym_v2!=null) {
-	    	v1 = Types.longToDouble(sf.popLong());
-	    	v2 = Types.longToDouble(sf.popLong());
-	    	if(v1==0)
-				return th.createAndThrowException("java.lang.ArithmeticException","div by 0");
-	    	sf.pushLong(0);
-	    	RealExpression result = sym_v2._div(v1);
-			sf.setLongOperandAttr(result);
-		    return getNext(th);
-	    }
+		// result is symbolic expression
+		if (symValue1 == null && symValue2 != null) {
+			doubleValue1 = Types.longToDouble(stackFrame.popLong());
+			doubleValue2 = Types.longToDouble(stackFrame.popLong());
+			if (doubleValue1 == 0)
+				return threadInfo.createAndThrowException("java.lang.ArithmeticException", "div by 0");
+			stackFrame.pushLong(0);
+			RealExpression symResult = symValue2._div(doubleValue1);
+			stackFrame.setLongOperandAttr(symResult);
 
-	    // div by zero check affects path condition
-	    // sym_v1 is non-null and should be checked against zero
+			return getNext(threadInfo);
+		}
 
-	    ChoiceGenerator<?> cg;
-	    boolean condition;
+		// div by zero check affects path condition
+		// sym_v1 is non-null and should be checked against zero
 
-		if (!th.isFirstStepInsn()) { // first time around
-			cg = new PCChoiceGenerator(2);
-			((PCChoiceGenerator)cg).setOffset(this.position);
-			((PCChoiceGenerator)cg).setMethodName(this.getMethodInfo().getFullName());
-			th.getVM().getSystemState().setNextChoiceGenerator(cg);
+		ChoiceGenerator<?> choiceGenerator;
+		boolean condition;
+
+		if (!threadInfo.isFirstStepInsn()) { // first time around
+			choiceGenerator = new PCChoiceGenerator(2);
+			((PCChoiceGenerator) choiceGenerator).setOffset(this.position);
+			((PCChoiceGenerator) choiceGenerator).setMethodName(this.getMethodInfo().getFullName());
+			threadInfo.getVM().getSystemState().setNextChoiceGenerator(choiceGenerator);
 			return this;
-		} else {  // this is what really returns results
-			cg = th.getVM().getSystemState().getChoiceGenerator();
-			assert (cg instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got: " + cg;
-			condition = (Integer)cg.getNextChoice()==0 ? false: true;
+		} else { // this is what really returns results
+			choiceGenerator = threadInfo.getVM().getSystemState().getChoiceGenerator();
+			assert (choiceGenerator instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got: "
+					+ choiceGenerator;
+			condition = (Integer) choiceGenerator.getNextChoice() == 0 ? false : true;
 		}
 
-		v1 = Types.longToDouble(sf.popLong());
-    	v2 = Types.longToDouble(sf.popLong());
-		sf.pushLong(0);
+		doubleValue1 = Types.longToDouble(stackFrame.popLong());
+		doubleValue2 = Types.longToDouble(stackFrame.popLong());
+		stackFrame.pushLong(0);
 
-		PathCondition pc;
-		ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
+		PathCondition pathCondition;
+		ChoiceGenerator<?> prevChoiceGenerator = choiceGenerator
+				.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
 
-		
-		if (prev_cg == null)
-			pc = new PathCondition();
-		else
-			pc = ((PCChoiceGenerator)prev_cg).getCurrentPC();
-
-		assert pc != null;
-
-		if(condition) { // check div by zero
-			pc._addDet(Comparator.EQ, sym_v1, 0);
-			if(pc.simplify())  { // satisfiable
-				((PCChoiceGenerator) cg).setCurrentPC(pc);
-
-				return th.createAndThrowException("java.lang.ArithmeticException","div by 0");
-			}
-			else {
-				th.getVM().getSystemState().setIgnored(true);
-				return getNext(th);
-			}
+		if (prevChoiceGenerator == null) {
+			pathCondition = new PathCondition();
+		} else {
+			pathCondition = ((PCChoiceGenerator) prevChoiceGenerator).getCurrentPC();
 		}
-		else {
-			pc._addDet(Comparator.NE, sym_v1, 0);
-			if(pc.simplify())  { // satisfiable
-				((PCChoiceGenerator) cg).setCurrentPC(pc);
+		assert pathCondition != null;
 
-				// set the result
+		if (condition) { // check div by zero
+			pathCondition._addDet(Comparator.EQ, symValue1, 0);
+			if (pathCondition.simplify()) { // satisfiable
+				((PCChoiceGenerator) choiceGenerator).setCurrentPC(pathCondition);
+				
+				return threadInfo.createAndThrowException("java.lang.ArithmeticException", "div by 0");
+			} else {
+				threadInfo.getVM().getSystemState().setIgnored(true);
+				
+				return getNext(threadInfo);
+			}
+		} else {
+			pathCondition._addDet(Comparator.NE, symValue1, 0);
+			if (pathCondition.simplify()) { // satisfiable
+				((PCChoiceGenerator) choiceGenerator).setCurrentPC(pathCondition);
+				
 				RealExpression result;
-				if(sym_v2!=null)
-					result = sym_v2._div(sym_v1);
-				else
-					result = sym_v1._div_reverse(v2);
-
-				sf = th.getModifiableTopFrame();
-				sf.setLongOperandAttr(result);
-			    return getNext(th);
-
-			}
-			else {
-				th.getVM().getSystemState().setIgnored(true);
-				return getNext(th);
+				if (symValue2 != null) {
+					result = symValue2._div(symValue1);
+				} else {
+					result = symValue1._div_reverse(doubleValue2);
+				}
+				
+				stackFrame = threadInfo.getModifiableTopFrame();
+				stackFrame.setLongOperandAttr(result);
+				
+				return getNext(threadInfo);
+			} else {
+				threadInfo.getVM().getSystemState().setIgnored(true);
+				
+				return getNext(threadInfo);
 			}
 		}
-
-
-
 	}
-
 }
-

@@ -49,133 +49,135 @@ import gov.nasa.jpf.vm.ThreadInfo;
 public class ALOAD extends gov.nasa.jpf.jvm.bytecode.ALOAD {
 
 	public ALOAD(int localVarIndex) {
-	    super(localVarIndex);
+		super(localVarIndex);
 	}
 
-	
-    //private int numNewRefs = 0; // # of new reference objects to account for polymorphism -- work of Neha Rungta -- needs to be updated
-      boolean abstractClass = false;
+	// private int numNewRefs = 0; // # of new reference objects to account for
+	// polymorphism -- work of Neha Rungta -- needs to be updated
+	boolean abstractClass = false;
 
-    @Override
-	public Instruction execute (ThreadInfo th) {
-		HeapNode[] prevSymRefs = null; // previously initialized objects of same type: candidates for lazy init
-        int numSymRefs = 0; // # of prev. initialized objects
-        ChoiceGenerator<?> prevHeapCG = null;
+	@Override
+	public Instruction execute(ThreadInfo threadInfo) {
+		HeapNode[] prevSymRefs = null; // previously initialized objects of same
+										// type: candidates for lazy init
+		int numSymRefs = 0; // # of prev. initialized objects
+		ChoiceGenerator<?> prevHeapChoiceGenerator = null;
 
-		Config conf = th.getVM().getConfig();
+		Config conf = threadInfo.getVM().getConfig();
 		String[] lazy = conf.getStringArray("symbolic.lazy");
 		if (lazy == null || !lazy[0].equalsIgnoreCase("true"))
-			return super.execute(th);
+			return super.execute(threadInfo);
 
 		// TODO: fix handle polymorphism
-		
 
-		StackFrame sf = th.getModifiableTopFrame();
-		int objRef = sf.peek();
-		ElementInfo ei = th.getElementInfo(objRef);
-		Object attr = sf.getLocalAttr(index);
+		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
+		int objRef = stackFrame.peek();
+		ElementInfo elementInfo = threadInfo.getElementInfo(objRef);
+		Object attr = stackFrame.getLocalAttr(index);
 		String typeOfLocalVar = super.getLocalVariableType();
 
-
-		if(attr == null || typeOfLocalVar.equals("?") || attr instanceof SymbolicStringBuilder || attr instanceof StringExpression || attr instanceof ArrayExpression) {
-			return super.execute(th);
+		if (attr == null || typeOfLocalVar.equals("?") || attr instanceof SymbolicStringBuilder
+				|| attr instanceof StringExpression || attr instanceof ArrayExpression) {
+			return super.execute(threadInfo);
 		}
-		
+
 		ClassInfo typeClassInfo = ClassLoaderInfo.getCurrentResolvedClassInfo(typeOfLocalVar);
 
 		int currentChoice;
-		ChoiceGenerator<?> thisHeapCG;
-		
-		if(!th.isFirstStepInsn()) {
-			//System.out.println("the first time");
+		ChoiceGenerator<?> thisHeapChoiceGenerator;
+
+		if (!threadInfo.isFirstStepInsn()) {
+			// System.out.println("the first time");
 
 			prevSymRefs = null;
 			numSymRefs = 0;
-			prevHeapCG = null;
+			prevHeapChoiceGenerator = null;
 
-			prevHeapCG = th.getVM().getLastChoiceGeneratorOfType(HeapChoiceGenerator.class);
+			prevHeapChoiceGenerator = threadInfo.getVM().getLastChoiceGeneratorOfType(HeapChoiceGenerator.class);
 
-			if (prevHeapCG != null) {
+			if (prevHeapChoiceGenerator != null) {
 				// determine # of candidates for lazy initialization
-				SymbolicInputHeap symInputHeap =
-					((HeapChoiceGenerator)prevHeapCG).getCurrentSymInputHeap();
+				SymbolicInputHeap symInputHeap = ((HeapChoiceGenerator) prevHeapChoiceGenerator)
+						.getCurrentSymInputHeap();
 
 				prevSymRefs = symInputHeap.getNodesOfType(typeClassInfo);
-                numSymRefs = prevSymRefs.length;
+				numSymRefs = prevSymRefs.length;
 
 			}
 			int increment = 2;
-			if(typeClassInfo.isAbstract() || (((IntegerExpression)attr).toString()).contains("this")) {
-				 abstractClass = true;
-				 increment = 1; // only null for abstract, non null for this
+			if (typeClassInfo.isAbstract() || (((IntegerExpression) attr).toString()).contains("this")) {
+				abstractClass = true;
+				increment = 1; // only null for abstract, non null for this
 			}
-			
+
 			// TODO fix: subtypes
 
-				thisHeapCG = new HeapChoiceGenerator(numSymRefs+increment);  //+null,new
+			thisHeapChoiceGenerator = new HeapChoiceGenerator(numSymRefs + increment); // +null,new
+			threadInfo.getVM().setNextChoiceGenerator(thisHeapChoiceGenerator);
 			
-			th.getVM().setNextChoiceGenerator(thisHeapCG);
 			return this;
-		} else { 
-			//this is what returns the results
-			thisHeapCG = th.getVM().getChoiceGenerator();
-			assert(thisHeapCG instanceof HeapChoiceGenerator) :
-				"expected HeapChoiceGenerator, got:" + thisHeapCG;
-			currentChoice = ((HeapChoiceGenerator) thisHeapCG).getNextChoice();
+		} else {
+			// this is what returns the results
+			thisHeapChoiceGenerator = threadInfo.getVM().getChoiceGenerator();
+			assert (thisHeapChoiceGenerator instanceof HeapChoiceGenerator) : "expected HeapChoiceGenerator, got:"
+					+ thisHeapChoiceGenerator;
+			currentChoice = ((HeapChoiceGenerator) thisHeapChoiceGenerator).getNextChoice();
 		}
 
-		PathCondition pcHeap;
+		PathCondition pathConditionHeap;
 		SymbolicInputHeap symInputHeap;
 
-        prevHeapCG = thisHeapCG.getPreviousChoiceGeneratorOfType(HeapChoiceGenerator.class);
+		prevHeapChoiceGenerator = thisHeapChoiceGenerator.getPreviousChoiceGeneratorOfType(HeapChoiceGenerator.class);
 
-		
-		if(prevHeapCG == null) {
-			pcHeap = new PathCondition();
+		if (prevHeapChoiceGenerator == null) {
+			pathConditionHeap = new PathCondition();
 			symInputHeap = new SymbolicInputHeap();
 		} else {
-			pcHeap =  ((HeapChoiceGenerator) prevHeapCG).getCurrentPCheap();
-			symInputHeap = ((HeapChoiceGenerator) prevHeapCG).getCurrentSymInputHeap();
+			pathConditionHeap = ((HeapChoiceGenerator) prevHeapChoiceGenerator).getCurrentPCheap();
+			symInputHeap = ((HeapChoiceGenerator) prevHeapChoiceGenerator).getCurrentSymInputHeap();
 		}
 
-		assert pcHeap != null;
+		assert pathConditionHeap != null;
 		assert symInputHeap != null;
-		
+
 		prevSymRefs = symInputHeap.getNodesOfType(typeClassInfo);
-        numSymRefs = prevSymRefs.length;
+		numSymRefs = prevSymRefs.length;
 
-		int daIndex = 0; //index into JPF's dynamic area
+		int dynamicAreaIndex = 0; // index into JPF's dynamic area
 
-		if (currentChoice < numSymRefs) { // lazy initialization using a previously lazily initialized object
+		if (currentChoice < numSymRefs) { // lazy initialization using a
+											// previously lazily initialized
+											// object
 			HeapNode candidateNode = prevSymRefs[currentChoice];
-			// here we should update pcHeap with the constraint attr == candidateNode.sym_v
-			pcHeap._addDet(Comparator.EQ, (SymbolicInteger) attr, candidateNode.getSymbolic());
-			daIndex = candidateNode.getIndex();
-		}
-		else if (currentChoice == numSymRefs && !(((IntegerExpression)attr).toString()).contains("this")){ //null object
-			pcHeap._addDet(Comparator.EQ, (SymbolicInteger) attr, new IntegerConstant(-1));
-			daIndex = MJIEnv.NULL;
-		}
-		else if ((currentChoice == (numSymRefs + 1) && !abstractClass) | (currentChoice == numSymRefs && (((IntegerExpression)attr).toString()).contains("this"))) {
-			//creates a new object with all fields symbolic
-			boolean shared = (ei == null? false: ei.isShared());
-			daIndex = Helper.addNewHeapNode(typeClassInfo, th, attr, pcHeap,
-							symInputHeap, numSymRefs, prevSymRefs, shared);
+			// here we should update pcHeap with the constraint attr ==
+			// candidateNode.sym_v
+			pathConditionHeap._addDet(Comparator.EQ, (SymbolicInteger) attr, candidateNode.getSymbolic());
+			dynamicAreaIndex = candidateNode.getIndex();
+		} else if (currentChoice == numSymRefs && !(((IntegerExpression) attr).toString()).contains("this")) { // null
+																												// object
+			pathConditionHeap._addDet(Comparator.EQ, (SymbolicInteger) attr, new IntegerConstant(-1));
+			dynamicAreaIndex = MJIEnv.NULL;
+		} else if ((currentChoice == (numSymRefs + 1) && !abstractClass)
+				| (currentChoice == numSymRefs && (((IntegerExpression) attr).toString()).contains("this"))) {
+			// creates a new object with all fields symbolic
+			boolean shared = (elementInfo == null ? false : elementInfo.isShared());
+			dynamicAreaIndex = Helper.addNewHeapNode(typeClassInfo, threadInfo, attr, pathConditionHeap, symInputHeap,
+					numSymRefs, prevSymRefs, shared);
 		} else {
-			//TODO: fix subtypes
+			// TODO: fix subtypes
 			System.err.println("subtypes not handled");
 		}
 
+		stackFrame.setLocalVariable(index, dynamicAreaIndex, true);
+		stackFrame.setLocalAttr(index, null);
+		stackFrame.push(dynamicAreaIndex, true);
 
-		sf.setLocalVariable(index, daIndex, true);
-		sf.setLocalAttr(index, null);
-		sf.push(daIndex, true);
+		((HeapChoiceGenerator) thisHeapChoiceGenerator).setCurrentPCheap(pathConditionHeap);
+		((HeapChoiceGenerator) thisHeapChoiceGenerator).setCurrentSymInputHeap(symInputHeap);
+		if (SymbolicInstructionFactory.debugMode) {
+			System.out.println("ALOAD pcHeap: " + pathConditionHeap);
+		}
 
-		((HeapChoiceGenerator)thisHeapCG).setCurrentPCheap(pcHeap);
-		((HeapChoiceGenerator)thisHeapCG).setCurrentSymInputHeap(symInputHeap);
-		if (SymbolicInstructionFactory.debugMode)
-			System.out.println("ALOAD pcHeap: " + pcHeap);
-		return getNext(th);
+		return getNext(threadInfo);
 	}
-
 }

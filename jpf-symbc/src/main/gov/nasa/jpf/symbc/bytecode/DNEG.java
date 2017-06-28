@@ -36,7 +36,6 @@
 //
 package gov.nasa.jpf.symbc.bytecode;
 
-
 import gov.nasa.jpf.symbc.numeric.RealExpression;
 import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.StackFrame;
@@ -47,24 +46,21 @@ import gov.nasa.jpf.vm.Types;
  * Negate double ..., value => ..., result
  */
 public class DNEG extends gov.nasa.jpf.jvm.bytecode.DNEG {
-	
+
 	@Override
-	public Instruction execute(ThreadInfo th) {
+	public Instruction execute(ThreadInfo threadInfo) {
+		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
+		RealExpression symValue = (RealExpression) stackFrame.getLongOperandAttr();
+		double doubleValue = Types.longToDouble(stackFrame.popLong());
 
-		StackFrame sf = th.getModifiableTopFrame();
-		RealExpression sym_v1 = (RealExpression) sf.getLongOperandAttr();
-		double v1 = Types.longToDouble(sf.popLong());
-
-		if (sym_v1 == null)
-			sf.pushLong(Types.doubleToLong(-v1));
-		else {
-			sf.pushLong(0);
-			RealExpression result = sym_v1._neg();
-			sf.setLongOperandAttr(result);
+		if (symValue == null) {
+			stackFrame.pushLong(Types.doubleToLong(-doubleValue));
+		} else {
+			stackFrame.pushLong(0);
+			RealExpression symResult = symValue._neg();
+			stackFrame.setLongOperandAttr(symResult);
 		}
-		//System.out.println("Execute DNEG: " + sf.getLongOperandAttr());
 
-		return getNext(th);
+		return getNext(threadInfo);
 	}
-
 }

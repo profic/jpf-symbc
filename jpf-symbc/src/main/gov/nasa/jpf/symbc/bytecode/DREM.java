@@ -36,7 +36,6 @@
 //
 package gov.nasa.jpf.symbc.bytecode;
 
-
 import gov.nasa.jpf.symbc.numeric.RealExpression;
 import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.StackFrame;
@@ -44,32 +43,30 @@ import gov.nasa.jpf.vm.ThreadInfo;
 import gov.nasa.jpf.vm.Types;
 
 /**
- * Remainder double
- * ..., value1, value2 => ..., result
+ * Remainder double ..., value1, value2 => ..., result
  */
-public class DREM extends gov.nasa.jpf.jvm.bytecode.DREM  {
+public class DREM extends gov.nasa.jpf.jvm.bytecode.DREM {
 
-  @Override
-  public Instruction execute (ThreadInfo th) {
-   
-    StackFrame sf = th.getModifiableTopFrame();
+	@Override
+	public Instruction execute(ThreadInfo threadInfo) {
+		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
 
-	RealExpression sym_v1 = (RealExpression) sf.getLongOperandAttr(); 
-	double v1 = Types.longToDouble(sf.popLong());
+		RealExpression symValue1 = (RealExpression) stackFrame.getLongOperandAttr();
+		double doubleValue1 = Types.longToDouble(stackFrame.popLong());
+
+		RealExpression symValue2 = (RealExpression) stackFrame.getLongOperandAttr();
+		double doubleValue2 = Types.longToDouble(stackFrame.popLong());
+
+		if (symValue1 == null && symValue2 == null) {
+			if (doubleValue1 == 0) {
+				return threadInfo.createAndThrowException("java.lang.ArithmeticException", "division by zero");
+			}
+			stackFrame.pushLong(Types.doubleToLong(doubleValue2 % doubleValue1));
+		} else {
+			stackFrame.pushLong(0);
+			throw new RuntimeException("## Error: SYMBOLIC DREM not supported");
+		}
 		
-	RealExpression sym_v2 = (RealExpression) sf.getLongOperandAttr();
-	double v2 = Types.longToDouble(sf.popLong());
-	    
-    if(sym_v1==null && sym_v2==null){
-        if (v1 == 0){
-            return th.createAndThrowException("java.lang.ArithmeticException","division by zero");
-        } 
-        sf.pushLong(Types.doubleToLong(v2 % v1));
-    }else {
-    	sf.pushLong(0);
-        throw new RuntimeException("## Error: SYMBOLIC DREM not supported");
-    }
-    return getNext(th);
-  }
-
+		return getNext(threadInfo);
+	}
 }
