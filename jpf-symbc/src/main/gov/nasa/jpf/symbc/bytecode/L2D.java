@@ -35,8 +35,8 @@ import gov.nasa.jpf.vm.ThreadInfo;
 public class L2D extends gov.nasa.jpf.jvm.bytecode.L2D {
 	@Override
   public Instruction execute (ThreadInfo th) {
-	  IntegerExpression sym_lval = (IntegerExpression) th.getModifiableTopFrame().getLongOperandAttr();
-	  if(sym_lval == null) {
+	  IntegerExpression symLongValue = (IntegerExpression) th.getModifiableTopFrame().getLongOperandAttr();
+	  if(symLongValue == null) {
 		  return super.execute(th); 
 	  }
 	  else {
@@ -59,15 +59,15 @@ public class L2D extends gov.nasa.jpf.jvm.bytecode.L2D {
 				// previous choice generator of the same type 
 
 			    PathCondition pc;
-				ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGenerator();
-				while (!((prev_cg == null) || (prev_cg instanceof PCChoiceGenerator))) {
-					prev_cg = prev_cg.getPreviousChoiceGenerator();
+				ChoiceGenerator<?> prevChoiceGenerator = cg.getPreviousChoiceGenerator();
+				while (!((prevChoiceGenerator == null) || (prevChoiceGenerator instanceof PCChoiceGenerator))) {
+					prevChoiceGenerator = prevChoiceGenerator.getPreviousChoiceGenerator();
 				}
 
-				if (prev_cg == null)
+				if (prevChoiceGenerator == null)
 					pc = new PathCondition(); // TODO: handling of preconditions needs to be changed
 				else 
-					pc = ((PCChoiceGenerator)prev_cg).getCurrentPC();
+					pc = ((PCChoiceGenerator)prevChoiceGenerator).getCurrentPC();
 				assert pc != null;
 				StackFrame sf = th.getModifiableTopFrame();
 				sf.popLong();
@@ -75,7 +75,7 @@ public class L2D extends gov.nasa.jpf.jvm.bytecode.L2D {
 				SymbolicReal sym_dval = new SymbolicReal();
 				sf.setLongOperandAttr(sym_dval);
 				
-				pc._addDet(Comparator.EQ, sym_dval, sym_lval);
+				pc._addDet(Comparator.EQ, sym_dval, symLongValue);
 				
 				if(!pc.simplify())  { // not satisfiable
 					th.getVM().getSystemState().setIgnored(true);

@@ -27,7 +27,6 @@ import gov.nasa.jpf.vm.ThreadInfo;
 import gov.nasa.jpf.vm.StackFrame;
 import gov.nasa.jpf.symbc.string.SymbolicStringBuilder;
 
-
 // Corina's comment: probably this is not necessary here
 
 // TODO: to review
@@ -35,65 +34,63 @@ import gov.nasa.jpf.symbc.string.SymbolicStringBuilder;
 import gov.nasa.jpf.vm.Instruction;
 
 /**
- * Create new object
- * ... => ..., objectref
+ * Create new object ... => ..., objectref
  */
 public class NEW extends gov.nasa.jpf.jvm.bytecode.NEW {
-	public NEW (String clsName) {
-	    super(clsName);
-	  }
-  @Override
-  public Instruction execute (ThreadInfo ti) {
-	  Heap heap = ti.getHeap();
-	    ClassInfo ci;
+	public NEW(String clsName) {
+		super(clsName);
+	}
 
-	    // resolve the referenced class
-	    ClassInfo cls = ti.getTopFrameMethodInfo().getClassInfo();
-	    try {
-	      ci = cls.resolveReferencedClass(cname);
-	    } catch(LoadOnJPFRequired lre) {
-	      return ti.getPC();
-	    }
+	@Override
+	public Instruction execute(ThreadInfo threadInfo) {
+		Heap heap = threadInfo.getHeap();
+		ClassInfo classInfo;
 
-	    String className = ci.getName();
-	      if(!(className.equals("java.lang.StringBuilder") || className.equals("java.lang.StringBuffer")))
-	    	  return super.execute(ti);
-	    
-	    if (!ci.isRegistered()){
-	      ci.registerClass(ti);
-	    }
+		// resolve the referenced class
+		ClassInfo topFrameClassInfo = threadInfo.getTopFrameMethodInfo().getClassInfo();
+		try {
+			classInfo = topFrameClassInfo.resolveReferencedClass(cname);
+		} catch (LoadOnJPFRequired lre) {
+			return threadInfo.getPC();
+		}
 
-	    // since this is a NEW, we also have to pushClinit
-	    if (!ci.isInitialized()) {
-	      if (ci.initializeClass(ti)) {
-	        return ti.getPC();  // reexecute this instruction once we return from the clinits
-	      }
-	    }
+		String className = classInfo.getName();
+		if (!(className.equals("java.lang.StringBuilder") || className.equals("java.lang.StringBuffer"))) {
+			return super.execute(threadInfo);
+		}
 
-	    if (heap.isOutOfMemory()) { // simulate OutOfMemoryError
-	      return ti.createAndThrowException("java.lang.OutOfMemoryError",
-	                                        "trying to allocate new " + cname);
-	    }
+		if (!classInfo.isRegistered()) {
+			classInfo.registerClass(threadInfo);
+		}
 
-	    ElementInfo ei = heap.newObject(ci, ti);
-	    int objRef = ei.getObjectRef();
-	    newObjRef = objRef;
+		// since this is a NEW, we also have to pushClinit
+		if (!classInfo.isInitialized()) {
+			if (classInfo.initializeClass(threadInfo)) {
+				return threadInfo.getPC(); // reexecute this instruction once we return from the clinits
+			}
+		}
 
-	    // pushes the return value onto the stack
-	    StackFrame frame = ti.getModifiableTopFrame();
-	    frame.pushRef( objRef);
+		if (heap.isOutOfMemory()) { // simulate OutOfMemoryError
+			return threadInfo.createAndThrowException("java.lang.OutOfMemoryError", "trying to allocate new " + cname);
+		}
 
-	 // TODO: to review
-	    //insert dummy expressions for StringBuilder and StringBuffer
-	    //String className = ci.getName();
-	    if(className.equals("java.lang.StringBuilder") || className.equals("java.lang.StringBuffer")){
-	    	SymbolicStringBuilder t = new SymbolicStringBuilder();
-	    	StackFrame sf = ti.getModifiableTopFrame();
-	    	sf.setOperandAttr(t);
-	    }
-	    
-	    return getNext(ti);
+		ElementInfo elementInfo = heap.newObject(classInfo, threadInfo);
+		int objRef = elementInfo.getObjectRef();
+		newObjRef = objRef;
 
-  }
+		// pushes the return value onto the stack
+		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
+		stackFrame.pushRef(objRef);
 
+		// TODO: to review
+		// insert dummy expressions for StringBuilder and StringBuffer
+		// String className = ci.getName();
+		if (className.equals("java.lang.StringBuilder") || className.equals("java.lang.StringBuffer")) {
+			SymbolicStringBuilder symStringBuilder = new SymbolicStringBuilder();
+			StackFrame sf = threadInfo.getModifiableTopFrame();
+			sf.setOperandAttr(symStringBuilder);
+		}
+
+		return getNext(threadInfo);
+	}
 }

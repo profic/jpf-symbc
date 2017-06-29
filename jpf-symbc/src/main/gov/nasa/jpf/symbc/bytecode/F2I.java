@@ -54,9 +54,7 @@ public class F2I extends gov.nasa.jpf.jvm.bytecode.F2I {
 			ChoiceGenerator<?> prevChoiceGenerator = choiceGenerator
 					.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
 			if (prevChoiceGenerator == null) {
-				pathCondition = new PathCondition(); // TODO: handling of
-														// preconditions needs
-														// to be changed
+				pathCondition = new PathCondition(); // TODO: handling of preconditions needs to be changed
 			} else {
 				pathCondition = ((PCChoiceGenerator) prevChoiceGenerator).getCurrentPC();
 			}
@@ -64,9 +62,8 @@ public class F2I extends gov.nasa.jpf.jvm.bytecode.F2I {
 
 			StackFrame stackFrame = threadInfo.getModifiableTopFrame();
 			stackFrame.pop();
-			stackFrame.push(0, false); // for symbolic expressions, the concrete
-										// value
-										// does not matter
+			stackFrame.push(0, false); // for symbolic expressions, the concrete value does not matter
+			
 			SymbolicInteger symIntValue = new SymbolicInteger();
 			stackFrame.setOperandAttr(symIntValue);
 

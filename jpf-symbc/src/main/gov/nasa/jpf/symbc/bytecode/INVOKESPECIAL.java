@@ -23,8 +23,6 @@ import gov.nasa.jpf.vm.ThreadInfo;
 
 // need to fix names
 
-
-
 /**
  * Invoke instance method; special handling for superclass, private,
  * and instance initialization method invocations
@@ -32,21 +30,22 @@ import gov.nasa.jpf.vm.ThreadInfo;
  */
 public class INVOKESPECIAL extends gov.nasa.jpf.jvm.bytecode.INVOKESPECIAL {
 	public INVOKESPECIAL(String clsName, String methodName, String methodSignature) {
-	    super(clsName, methodName, methodSignature);
-	  }
+		super(clsName, methodName, methodSignature);
+	}
+
 	@Override
 	public Instruction execute(ThreadInfo th) {
 		MethodInfo mi = getInvokedMethod(th);
 
-	    if (mi == null){
-	      return th.createAndThrowException("java.lang.NoSuchMethodException!*", "Calling " + cname + '.' + mname);
-	    }
-	    
+		if (mi == null) {
+			return th.createAndThrowException("java.lang.NoSuchMethodException!*", "Calling " + cname + '.' + mname);
+		}
+
 		BytecodeUtils.InstructionOrSuper nextInstr = BytecodeUtils.execute(this, th);
-        if (nextInstr.callSuper) {
-            return super.execute(th);
-        } else {
-            return nextInstr.inst;
-        }
-    }
+		if (nextInstr.callSuper) {
+			return super.execute(th);
+		} else {
+			return nextInstr.inst;
+		}
+	}
 }

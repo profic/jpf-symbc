@@ -24,29 +24,27 @@ import gov.nasa.jpf.vm.ThreadInfo;
 
 // need to fix names
 
-
-
 public class INVOKESTATIC extends gov.nasa.jpf.jvm.bytecode.INVOKESTATIC {
 	public INVOKESTATIC(String clsName, String methodName, String methodSignature) {
-	    super(clsName, methodName, methodSignature);
-	  }
-	@Override
-	public Instruction execute( ThreadInfo th) {
-		ClassInfo clsInfo = getClassInfo();
-	    if (clsInfo == null){
-	      return th.createAndThrowException("java.lang.NoClassDefFoundError", cname);
-	    }
+		super(clsName, methodName, methodSignature);
+	}
 
-	    MethodInfo callee = getInvokedMethod(th);
-	    if (callee == null) {
-	      return th.createAndThrowException("java.lang.NoSuchMethodException!!",
-	                                   cname + '.' + mname);
-	    }
-        BytecodeUtils.InstructionOrSuper nextInstr = BytecodeUtils.execute(this, th);
-        if (nextInstr.callSuper) {
-            return super.execute( th);
-        } else {
-            return nextInstr.inst;
-        }
-    }
+	@Override
+	public Instruction execute(ThreadInfo th) {
+		ClassInfo clsInfo = getClassInfo();
+		if (clsInfo == null) {
+			return th.createAndThrowException("java.lang.NoClassDefFoundError", cname);
+		}
+
+		MethodInfo callee = getInvokedMethod(th);
+		if (callee == null) {
+			return th.createAndThrowException("java.lang.NoSuchMethodException!!", cname + '.' + mname);
+		}
+		BytecodeUtils.InstructionOrSuper nextInstr = BytecodeUtils.execute(this, th);
+		if (nextInstr.callSuper) {
+			return super.execute(th);
+		} else {
+			return nextInstr.inst;
+		}
+	}
 }

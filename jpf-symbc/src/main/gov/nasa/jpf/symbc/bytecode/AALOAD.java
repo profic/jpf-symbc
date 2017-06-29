@@ -42,8 +42,8 @@ public class AALOAD extends gov.nasa.jpf.jvm.bytecode.AALOAD {
 		if (peekIndexAttr(threadInfo) == null || !(peekIndexAttr(threadInfo) instanceof IntegerExpression)) {
 			return super.execute(threadInfo);
 		}
-		StackFrame frame = threadInfo.getModifiableTopFrame();
-		arrayRef = frame.peek(1); // ..,arrayRef,idx
+		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
+		arrayRef = stackFrame.peek(1); // ..,arrayRef,idx
 		if (arrayRef == MJIEnv.NULL) {
 			return threadInfo.createAndThrowException("java.lang.NullPointerException");
 		}
@@ -66,7 +66,7 @@ public class AALOAD extends gov.nasa.jpf.jvm.bytecode.AALOAD {
 			}
 
 			return this;
-		} else { // this is what really returns results
+		} else {  // this is what really returns results
 
 			// index = frame.peek();
 			PCChoiceGenerator lastChoiceGenerator = threadInfo.getVM().getSystemState()
@@ -96,7 +96,7 @@ public class AALOAD extends gov.nasa.jpf.jvm.bytecode.AALOAD {
 					threadInfo.getVM().getSystemState().setIgnored(true);// backtrack
 					return getNext(threadInfo);
 				}
-			} else if (index == len) {	// check for out of bounds exceptions
+			} else if (index == len) {	// now check for out of bounds exceptions
 				pathCondition._addDet(Comparator.LT, symIndex, 0);
 				if (pathCondition.simplify()) { // satisfiable
 					((PCChoiceGenerator) lastChoiceGenerator).setCurrentPC(pathCondition);
@@ -123,25 +123,25 @@ public class AALOAD extends gov.nasa.jpf.jvm.bytecode.AALOAD {
 			// corina: Ignore POR for now
 			/*
 			 * Scheduler scheduler = ti.getScheduler(); if
-			 * (scheduler.canHaveSharedArrayCG( ti, this, eiArray, index)){ //
+			 * (scheduler.canHaveSharedarrayChoiceGenerator( ti, this, eiArray, index)){ //
 			 * don't modify the frame before this eiArray =
 			 * scheduler.updateArraySharedness(ti, eiArray, index); if
-			 * (scheduler.setsSharedArrayCG( ti, this, eiArray, index)){ return
+			 * (scheduler.setsSharedarrayChoiceGenerator( ti, this, eiArray, index)){ return
 			 * this; } }
 			 */
 
-			frame.pop(2); // now we can pop index and array reference
+			stackFrame.pop(2); // now we can pop index and array reference
 			// assign to index any value between 0 and array length
 
 			try {
-				push(frame, arrayElementInfo, index);
+				push(stackFrame, arrayElementInfo, index);
 
 				Object elementAttr = arrayElementInfo.getElementAttr(index);
 				if (elementAttr != null) {
 					if (getElementSize() == 1) {
-						frame.setOperandAttr(elementAttr);
+						stackFrame.setOperandAttr(elementAttr);
 					} else {
-						frame.setLongOperandAttr(elementAttr);
+						stackFrame.setLongOperandAttr(elementAttr);
 					}
 				}
 

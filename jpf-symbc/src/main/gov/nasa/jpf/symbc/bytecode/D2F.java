@@ -30,16 +30,15 @@ public class D2F extends gov.nasa.jpf.jvm.bytecode.D2F {
 	@Override
 	public Instruction execute(ThreadInfo threadInfo) {
 		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
-		Expression symVal = (Expression) stackFrame.getLongOperandAttr();
+		Expression symValue = (Expression) stackFrame.getLongOperandAttr();
 
-		if (symVal == null) {
+		if (symValue == null) {
 			return super.execute(threadInfo);
 		} else {  // symbolic
 			Instruction result = super.execute(threadInfo);
-			stackFrame.setOperandAttr(symVal);
+			stackFrame.setOperandAttr(symValue);
 			
 			return result;
 		}
 	}
-
 }

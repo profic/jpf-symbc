@@ -846,15 +846,15 @@ public class SymbolicStringHandler {
 			// get the path condition from the
 			// previous choice generator of the same type
 
-			ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGenerator();
-			while (!((prev_cg == null) || (prev_cg instanceof PCChoiceGenerator))) {
-				prev_cg = prev_cg.getPreviousChoiceGenerator();
+			ChoiceGenerator<?> prevChoiceGenerator = cg.getPreviousChoiceGenerator();
+			while (!((prevChoiceGenerator == null) || (prevChoiceGenerator instanceof PCChoiceGenerator))) {
+				prevChoiceGenerator = prevChoiceGenerator.getPreviousChoiceGenerator();
 			}
 
-			if (prev_cg == null) {
+			if (prevChoiceGenerator == null) {
 				pc = new PathCondition();
 			} else {
-				pc = ((PCChoiceGenerator) prev_cg).getCurrentPC();
+				pc = ((PCChoiceGenerator) prevChoiceGenerator).getCurrentPC();
 			}
 
 			assert pc != null;
@@ -1320,15 +1320,15 @@ public class SymbolicStringHandler {
 				sf.pop();
 				PathCondition pc;
 
-				ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGenerator();
-				while (!((prev_cg == null) || (prev_cg instanceof PCChoiceGenerator))) {
-					prev_cg = prev_cg.getPreviousChoiceGenerator();
+				ChoiceGenerator<?> prevChoiceGenerator = cg.getPreviousChoiceGenerator();
+				while (!((prevChoiceGenerator == null) || (prevChoiceGenerator instanceof PCChoiceGenerator))) {
+					prevChoiceGenerator = prevChoiceGenerator.getPreviousChoiceGenerator();
 				}
 
-				if (prev_cg == null)
+				if (prevChoiceGenerator == null)
 					pc = new PathCondition();
 				else
-					pc = ((PCChoiceGenerator) prev_cg).getCurrentPC();
+					pc = ((PCChoiceGenerator) prevChoiceGenerator).getCurrentPC();
 
 				assert pc != null;
 
@@ -1383,15 +1383,15 @@ public class SymbolicStringHandler {
 				sf.pop();
 				PathCondition pc;
 
-				ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGenerator();
-				while (!((prev_cg == null) || (prev_cg instanceof PCChoiceGenerator))) {
-					prev_cg = prev_cg.getPreviousChoiceGenerator();
+				ChoiceGenerator<?> prevChoiceGenerator = cg.getPreviousChoiceGenerator();
+				while (!((prevChoiceGenerator == null) || (prevChoiceGenerator instanceof PCChoiceGenerator))) {
+					prevChoiceGenerator = prevChoiceGenerator.getPreviousChoiceGenerator();
 				}
 
-				if (prev_cg == null)
+				if (prevChoiceGenerator == null)
 					pc = new PathCondition();
 				else
-					pc = ((PCChoiceGenerator) prev_cg).getCurrentPC();
+					pc = ((PCChoiceGenerator) prevChoiceGenerator).getCurrentPC();
 
 				assert pc != null;
 
@@ -1447,15 +1447,15 @@ public class SymbolicStringHandler {
 				sf.pop();
 				PathCondition pc;
 
-				ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGenerator();
-				while (!((prev_cg == null) || (prev_cg instanceof PCChoiceGenerator))) {
-					prev_cg = prev_cg.getPreviousChoiceGenerator();
+				ChoiceGenerator<?> prevChoiceGenerator = cg.getPreviousChoiceGenerator();
+				while (!((prevChoiceGenerator == null) || (prevChoiceGenerator instanceof PCChoiceGenerator))) {
+					prevChoiceGenerator = prevChoiceGenerator.getPreviousChoiceGenerator();
 				}
 
-				if (prev_cg == null)
+				if (prevChoiceGenerator == null)
 					pc = new PathCondition();
 				else
-					pc = ((PCChoiceGenerator) prev_cg).getCurrentPC();
+					pc = ((PCChoiceGenerator) prevChoiceGenerator).getCurrentPC();
 
 				assert pc != null;
 
@@ -1502,15 +1502,15 @@ public class SymbolicStringHandler {
 
 			sf.pop();
 			PathCondition pc;
-			ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGenerator();
-			while (!((prev_cg == null) || (prev_cg instanceof PCChoiceGenerator))) {
-				prev_cg = prev_cg.getPreviousChoiceGenerator();
+			ChoiceGenerator<?> prevChoiceGenerator = cg.getPreviousChoiceGenerator();
+			while (!((prevChoiceGenerator == null) || (prevChoiceGenerator instanceof PCChoiceGenerator))) {
+				prevChoiceGenerator = prevChoiceGenerator.getPreviousChoiceGenerator();
 			}
 
-			if (prev_cg == null)
+			if (prevChoiceGenerator == null)
 				pc = new PathCondition();
 			else
-				pc = ((PCChoiceGenerator) prev_cg).getCurrentPC();
+				pc = ((PCChoiceGenerator) prevChoiceGenerator).getCurrentPC();
 
 			assert pc != null;
 
@@ -1556,15 +1556,15 @@ public class SymbolicStringHandler {
 
 			sf.pop();
 			PathCondition pc;
-			ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGenerator();
-			while (!((prev_cg == null) || (prev_cg instanceof PCChoiceGenerator))) {
-				prev_cg = prev_cg.getPreviousChoiceGenerator();
+			ChoiceGenerator<?> prevChoiceGenerator = cg.getPreviousChoiceGenerator();
+			while (!((prevChoiceGenerator == null) || (prevChoiceGenerator instanceof PCChoiceGenerator))) {
+				prevChoiceGenerator = prevChoiceGenerator.getPreviousChoiceGenerator();
 			}
 
-			if (prev_cg == null)
+			if (prevChoiceGenerator == null)
 				pc = new PathCondition();
 			else
-				pc = ((PCChoiceGenerator) prev_cg).getCurrentPC();
+				pc = ((PCChoiceGenerator) prevChoiceGenerator).getCurrentPC();
 
 			assert pc != null;
 			if (conditionValue) {
@@ -1616,15 +1616,15 @@ public class SymbolicStringHandler {
 
 				sf.pop();
 				PathCondition pc;
-				ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGenerator();
-				while (!((prev_cg == null) || (prev_cg instanceof PCChoiceGenerator))) {
-					prev_cg = prev_cg.getPreviousChoiceGenerator();
+				ChoiceGenerator<?> prevChoiceGenerator = cg.getPreviousChoiceGenerator();
+				while (!((prevChoiceGenerator == null) || (prevChoiceGenerator instanceof PCChoiceGenerator))) {
+					prevChoiceGenerator = prevChoiceGenerator.getPreviousChoiceGenerator();
 				}
 
-				if (prev_cg == null)
+				if (prevChoiceGenerator == null)
 					pc = new PathCondition();
 				else
-					pc = ((PCChoiceGenerator) prev_cg).getCurrentPC();
+					pc = ((PCChoiceGenerator) prevChoiceGenerator).getCurrentPC();
 
 				assert pc != null;
 				if (conditionValue) {
@@ -1678,15 +1678,15 @@ public class SymbolicStringHandler {
 
 				sf.pop();
 				PathCondition pc;
-				ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGenerator();
-				while (!((prev_cg == null) || (prev_cg instanceof PCChoiceGenerator))) {
-					prev_cg = prev_cg.getPreviousChoiceGenerator();
+				ChoiceGenerator<?> prevChoiceGenerator = cg.getPreviousChoiceGenerator();
+				while (!((prevChoiceGenerator == null) || (prevChoiceGenerator instanceof PCChoiceGenerator))) {
+					prevChoiceGenerator = prevChoiceGenerator.getPreviousChoiceGenerator();
 				}
 
-				if (prev_cg == null)
+				if (prevChoiceGenerator == null)
 					pc = new PathCondition();
 				else
-					pc = ((PCChoiceGenerator) prev_cg).getCurrentPC();
+					pc = ((PCChoiceGenerator) prevChoiceGenerator).getCurrentPC();
 
 				assert pc != null;
 
@@ -1737,15 +1737,15 @@ public class SymbolicStringHandler {
 				sf.pop();
 				PathCondition pc;
 
-				ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGenerator();
-				while (!((prev_cg == null) || (prev_cg instanceof PCChoiceGenerator))) {
-					prev_cg = prev_cg.getPreviousChoiceGenerator();
+				ChoiceGenerator<?> prevChoiceGenerator = cg.getPreviousChoiceGenerator();
+				while (!((prevChoiceGenerator == null) || (prevChoiceGenerator instanceof PCChoiceGenerator))) {
+					prevChoiceGenerator = prevChoiceGenerator.getPreviousChoiceGenerator();
 				}
 
-				if (prev_cg == null)
+				if (prevChoiceGenerator == null)
 					pc = new PathCondition();
 				else
-					pc = ((PCChoiceGenerator) prev_cg).getCurrentPC();
+					pc = ((PCChoiceGenerator) prevChoiceGenerator).getCurrentPC();
 
 				assert pc != null;
 
@@ -1793,15 +1793,15 @@ public class SymbolicStringHandler {
 				sf.pop();
 				PathCondition pc;
 
-				ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGenerator();
-				while (!((prev_cg == null) || (prev_cg instanceof PCChoiceGenerator))) {
-					prev_cg = prev_cg.getPreviousChoiceGenerator();
+				ChoiceGenerator<?> prevChoiceGenerator = cg.getPreviousChoiceGenerator();
+				while (!((prevChoiceGenerator == null) || (prevChoiceGenerator instanceof PCChoiceGenerator))) {
+					prevChoiceGenerator = prevChoiceGenerator.getPreviousChoiceGenerator();
 				}
 
-				if (prev_cg == null)
+				if (prevChoiceGenerator == null)
 					pc = new PathCondition();
 				else
-					pc = ((PCChoiceGenerator) prev_cg).getCurrentPC();
+					pc = ((PCChoiceGenerator) prevChoiceGenerator).getCurrentPC();
 
 				assert pc != null;
 
@@ -1845,15 +1845,15 @@ public class SymbolicStringHandler {
 			sf.pop();
 			PathCondition pc;
 
-			ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGenerator();
-			while (!((prev_cg == null) || (prev_cg instanceof PCChoiceGenerator))) {
-				prev_cg = prev_cg.getPreviousChoiceGenerator();
+			ChoiceGenerator<?> prevChoiceGenerator = cg.getPreviousChoiceGenerator();
+			while (!((prevChoiceGenerator == null) || (prevChoiceGenerator instanceof PCChoiceGenerator))) {
+				prevChoiceGenerator = prevChoiceGenerator.getPreviousChoiceGenerator();
 			}
 
-			if (prev_cg == null)
+			if (prevChoiceGenerator == null)
 				pc = new PathCondition();
 			else
-				pc = ((PCChoiceGenerator) prev_cg).getCurrentPC();
+				pc = ((PCChoiceGenerator) prevChoiceGenerator).getCurrentPC();
 
 			assert pc != null;
 

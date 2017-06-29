@@ -88,12 +88,12 @@ public class FALOAD extends gov.nasa.jpf.jvm.bytecode.FALOAD {
           }
 
           PathCondition pc;
-          ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
+          ChoiceGenerator<?> prevChoiceGenerator = cg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
 
-          if (prev_cg == null)
+          if (prevChoiceGenerator == null)
               pc = new PathCondition();
           else
-              pc = ((PCChoiceGenerator)prev_cg).getCurrentPC();
+              pc = ((PCChoiceGenerator)prevChoiceGenerator).getCurrentPC();
 
           assert pc != null;
 

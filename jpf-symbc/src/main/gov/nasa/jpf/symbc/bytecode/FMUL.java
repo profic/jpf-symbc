@@ -17,51 +17,47 @@
  */
 package gov.nasa.jpf.symbc.bytecode;
 
-
 import gov.nasa.jpf.symbc.numeric.RealExpression;
 import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.StackFrame;
 import gov.nasa.jpf.vm.ThreadInfo;
 import gov.nasa.jpf.vm.Types;
 
-
 /**
- * Multiply float
- * ..., value1, value2 => ..., result
+ * Multiply float ..., value1, value2 => ..., result
  */
 public class FMUL extends gov.nasa.jpf.jvm.bytecode.FMUL {
 
-  @Override
-  public Instruction execute (ThreadInfo th) {
-	StackFrame sf = th.getModifiableTopFrame();
+	@Override
+	public Instruction execute(ThreadInfo threadInfo) {
+		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
 
-	RealExpression sym_v1 = (RealExpression) sf.getOperandAttr(); 
-    float v1 = Types.intToFloat(sf.pop());
-    RealExpression sym_v2 = (RealExpression) sf.getOperandAttr();
-    float v2 = Types.intToFloat(sf.pop());
-    
-    float r = v1 * v2;
-    
-    if(sym_v1==null && sym_v2==null)
-    	sf.push(Types.floatToInt(r), false); 
-    else
-    	sf.push(0, false); 
-    
-    RealExpression result = null;
-	if(sym_v2!=null) {
-		if (sym_v1!=null)
-			result = sym_v2._mul(sym_v1);
-		else // v1 is concrete
-			result = sym_v2._mul(v1);
+		RealExpression symFloatValue1 = (RealExpression) stackFrame.getOperandAttr();
+		RealExpression symFloatValue2 = (RealExpression) stackFrame.getOperandAttr();
+		
+		float floatValue1 = Types.intToFloat(stackFrame.pop());
+		float floatValue2 = Types.intToFloat(stackFrame.pop());
+
+		float floatResult = floatValue1 * floatValue2;
+
+		if (symFloatValue1 == null && symFloatValue2 == null) {
+			stackFrame.push(Types.floatToInt(floatResult), false);
+		} else {
+			stackFrame.push(0, false);
+		}
+
+		RealExpression symResult = null;
+		if (symFloatValue2 != null) {
+			if (symFloatValue1 != null) {
+				symResult = symFloatValue2._mul(symFloatValue1);
+			} else { // v1 is concrete
+				symResult = symFloatValue2._mul(floatValue1);
+			}
+		} else if (symFloatValue1 != null) {
+			symResult = symFloatValue1._mul(floatValue2);
+		}
+		stackFrame.setOperandAttr(symResult);
+
+		return getNext(threadInfo);
 	}
-	else if (sym_v1!=null)
-		result = sym_v1._mul(v2);
-	
-	sf.setOperandAttr(result);
-	
-	//System.out.println("Execute FMUL: "+ result);
-
-    return getNext(th);
-  }
-
 }

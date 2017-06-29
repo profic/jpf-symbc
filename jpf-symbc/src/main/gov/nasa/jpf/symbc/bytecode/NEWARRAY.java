@@ -18,9 +18,6 @@
 
 package gov.nasa.jpf.symbc.bytecode;
 
-
-
-
 import gov.nasa.jpf.symbc.numeric.IntegerExpression;
 import gov.nasa.jpf.symbc.numeric.PathCondition;
 import gov.nasa.jpf.symbc.string.SymbolicLengthInteger;
@@ -37,106 +34,98 @@ import gov.nasa.jpf.vm.ThreadInfo;
  * detect if a symbolic variable is being used as the size of the new array, and
  * treat it accordingly.
  * 
- * Someone with more experience should review this :)
- * TODO: to review; Corina: this code does not make too much sense: for now I will comment it out 
- * who wrote it?
+ * Someone with more experience should review this :) TODO: to review; Corina:
+ * this code does not make too much sense: for now I will comment it out who
+ * wrote it?
  * 
  */
 
 public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
 
 	public NEWARRAY(int typeCode) {
-    	super(typeCode);
-    }
-	
+		super(typeCode);
+	}
+
 	@Override
-	public Instruction execute( ThreadInfo ti) {
+	public Instruction execute(ThreadInfo threadInfo) {
 		/*
-		StackFrame frame = ti.getModifiableTopFrame();
-
-	    arrayLength = frame.pop();
-	    Heap heap = ti.getHeap();
-
-	    if (arrayLength < 0){
-	      return ti.createAndThrowException("java.lang.NegativeArraySizeException");
-	    }
-
-	    // there is no clinit for array classes, but we still have  to create a class object
-	    // since its a builtin class, we also don't have to bother with NoClassDefFoundErrors
-	    String clsName = "[" + type;
-	    ClassInfo ci = ClassLoaderInfo.getCurrentResolvedClassInfo(clsName);
-
-	    if (!ci.isRegistered()) {
-	      ci.registerClass(ti);
-	      ci.setInitialized();
-	    }
-	   
-	    if (heap.isOutOfMemory()) { // simulate OutOfMemoryError
-	      return ti.createAndThrowException("java.lang.OutOfMemoryError",
-	                                        "trying to allocate new " +
-	                                          getTypeName() +
-	                                        "[" + arrayLength + "]");
-	    }
-	    
-	    ElementInfo eiArray = heap.newArray(type, arrayLength, ti);
-	    int arrayRef = eiArray.getObjectRef();
-	    
-	    frame.pushRef(arrayRef);
-
-	    return getNext(ti);
-		*/
+		 * StackFrame frame = ti.getModifiableTopFrame();
+		 * 
+		 * arrayLength = frame.pop(); Heap heap = ti.getHeap();
+		 * 
+		 * if (arrayLength < 0){ return
+		 * ti.createAndThrowException("java.lang.NegativeArraySizeException"); }
+		 * 
+		 * // there is no clinit for array classes, but we still have to create
+		 * a class object // since its a builtin class, we also don't have to
+		 * bother with NoClassDefFoundErrors String clsName = "[" + type;
+		 * ClassInfo ci = ClassLoaderInfo.getCurrentResolvedClassInfo(clsName);
+		 * 
+		 * if (!ci.isRegistered()) { ci.registerClass(ti); ci.setInitialized();
+		 * }
+		 * 
+		 * if (heap.isOutOfMemory()) { // simulate OutOfMemoryError return
+		 * ti.createAndThrowException("java.lang.OutOfMemoryError",
+		 * "trying to allocate new " + getTypeName() + "[" + arrayLength + "]");
+		 * }
+		 * 
+		 * ElementInfo eiArray = heap.newArray(type, arrayLength, ti); int
+		 * arrayRef = eiArray.getObjectRef();
+		 * 
+		 * frame.pushRef(arrayRef);
+		 * 
+		 * return getNext(ti);
+		 */
 		// old code
-	    // Corina: incorrect
-	    
-		StackFrame sf = ti.getModifiableTopFrame();
-		Object attr = sf.getOperandAttr();
-		
-		if(attr instanceof SymbolicLengthInteger) {
-			long l = ((SymbolicLengthInteger) attr).solution;
-			assert(l>=0 && l<=Integer.MAX_VALUE) : "Array length must be positive integer";
-			arrayLength = (int) l;
-			sf.pop();
-		} else 	if(attr instanceof IntegerExpression) {
+		// Corina: incorrect
+
+		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
+		Object attr = stackFrame.getOperandAttr();
+
+		if (attr instanceof SymbolicLengthInteger) {
+			long length = ((SymbolicLengthInteger) attr).solution;
+			assert (length >= 0 && length <= Integer.MAX_VALUE) : "Array length must be positive integer";
+			arrayLength = (int) length;
+			stackFrame.pop();
+		} else if (attr instanceof IntegerExpression) {
 			throw new RuntimeException("NEWARRAY: symbolic array length");
-			
+
 		} else {
-			arrayLength = sf.pop();
+			arrayLength = stackFrame.pop();
 		}
 
-		//the remainder of the code is identical to the parent class
-		
-	    Heap heap = ti.getHeap();
+		// the remainder of the code is identical to the parent class
 
-	    if (arrayLength < 0){
-	      return ti.createAndThrowException("java.lang.NegativeArraySizeException");
-	    }
+		Heap heap = threadInfo.getHeap();
 
-	    // there is no clinit for array classes, but we still have  to create a class object
-	    // since its a builtin class, we also don't have to bother with NoClassDefFoundErrors
-	    String clsName = "[" + type;
-	    
-	    ClassInfo ci = ClassLoaderInfo.getCurrentResolvedClassInfo(clsName);
-	    if (!ci.isRegistered()) {
-	      ci.registerClass(ti);
-	      ci.setInitialized();
-	    }
-	   
-	    if (heap.isOutOfMemory()) { // simulate OutOfMemoryError
-	      return ti.createAndThrowException("java.lang.OutOfMemoryError",
-	                                        "trying to allocate new " +
-	                                          getTypeName() +
-	                                        "[" + arrayLength + "]");
-	    }
-	    
-	    ElementInfo eiArray = heap.newArray(type, arrayLength, ti);
-	    int arrayRef = eiArray.getObjectRef();
-	    
-	    sf.pushRef(arrayRef);
-	    
+		if (arrayLength < 0) {
+			return threadInfo.createAndThrowException("java.lang.NegativeArraySizeException");
+		}
 
-	    ti.getVM().getSystemState().checkGC(); // has to happen after we push the new object ref
-	    
-	    return getNext(ti);
-	    
+		// there is no clinit for array classes, but we still have to create a
+		// class object
+		// since its a builtin class, we also don't have to bother with
+		// NoClassDefFoundErrors
+		String className = "[" + type;
+
+		ClassInfo classInfo = ClassLoaderInfo.getCurrentResolvedClassInfo(className);
+		if (!classInfo.isRegistered()) {
+			classInfo.registerClass(threadInfo);
+			classInfo.setInitialized();
+		}
+
+		if (heap.isOutOfMemory()) { // simulate OutOfMemoryError
+			return threadInfo.createAndThrowException("java.lang.OutOfMemoryError",
+					"trying to allocate new " + getTypeName() + "[" + arrayLength + "]");
+		}
+
+		ElementInfo eiArray = heap.newArray(type, arrayLength, threadInfo);
+		int arrayRef = eiArray.getObjectRef();
+
+		stackFrame.pushRef(arrayRef);
+
+		threadInfo.getVM().getSystemState().checkGC(); // has to happen after we push the new object ref
+
+		return getNext(threadInfo);
 	}
 }

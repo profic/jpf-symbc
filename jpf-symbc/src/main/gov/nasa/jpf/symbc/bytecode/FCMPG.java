@@ -32,88 +32,97 @@ import gov.nasa.jpf.vm.Types;
  */
 public class FCMPG extends gov.nasa.jpf.jvm.bytecode.FCMPG {
 
-    @Override
-	public Instruction execute(ThreadInfo th) {
-		StackFrame sf = th.getModifiableTopFrame();
+	@Override
+	public Instruction execute(ThreadInfo threadInfo) {
+		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
 
-		RealExpression sym_v1 = (RealExpression) sf.getOperandAttr(0);
-		RealExpression sym_v2 = (RealExpression) sf.getOperandAttr(1);
+		RealExpression symValue1 = (RealExpression) stackFrame.getOperandAttr(0);
+		RealExpression symValue2 = (RealExpression) stackFrame.getOperandAttr(1);
 
-		if (sym_v1 == null && sym_v2 == null) { // both conditions are concrete
-			return super.execute( th);
+		if (symValue1 == null && symValue2 == null) { // both conditions are
+														// concrete
+			return super.execute(threadInfo);
 		} else { // at least one condition is symbolic
-			ChoiceGenerator<?> cg;
+			ChoiceGenerator<?> choiceGenerator;
 			int conditionValue;
 
-			if (!th.isFirstStepInsn()) { // first time around
-				cg = new PCChoiceGenerator(3);
-				((PCChoiceGenerator)cg).setOffset(this.position);
-				((PCChoiceGenerator)cg).setMethodName(this.getMethodInfo().getFullName());
-				th.getVM().getSystemState().setNextChoiceGenerator(cg);
+			if (!threadInfo.isFirstStepInsn()) { // first time around
+				choiceGenerator = new PCChoiceGenerator(3);
+				((PCChoiceGenerator) choiceGenerator).setOffset(this.position);
+				((PCChoiceGenerator) choiceGenerator).setMethodName(this.getMethodInfo().getFullName());
+				threadInfo.getVM().getSystemState().setNextChoiceGenerator(choiceGenerator);
+				
 				return this;
 			} else { // this is what really returns results
-				cg = th.getVM().getSystemState().getChoiceGenerator();
-				assert (cg instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got: " + cg;
-				conditionValue = ((PCChoiceGenerator) cg).getNextChoice() - 1;
+				choiceGenerator = threadInfo.getVM().getSystemState().getChoiceGenerator();
+				assert (choiceGenerator instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got: "
+						+ choiceGenerator;
+				conditionValue = ((PCChoiceGenerator) choiceGenerator).getNextChoice() - 1;
 			}
 
-			float v1 = Types.intToFloat(sf.pop());
-			float v2 = Types.intToFloat(sf.pop());
+			float floatValue1 = Types.intToFloat(stackFrame.pop());
+			float floatValue2 = Types.intToFloat(stackFrame.pop());
+			PathCondition pathCondition;
+			ChoiceGenerator<?> prevChoiceGenerator = choiceGenerator
+					.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
 
-			PathCondition pc;
-
-			ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
-
-			if (prev_cg == null)
-				pc = new PathCondition();
-			else
-				pc = ((PCChoiceGenerator) prev_cg).getCurrentPC();
-			assert pc != null;
+			if (prevChoiceGenerator == null) {
+				pathCondition = new PathCondition();
+			} else {
+				pathCondition = ((PCChoiceGenerator) prevChoiceGenerator).getCurrentPC();
+			}
+			assert pathCondition != null;
 
 			if (conditionValue == -1) {
-				if (sym_v1 != null) {
-					if (sym_v2 != null) { // both are symbolic values
-						pc._addDet(Comparator.LT, sym_v2, sym_v1);
-					} else
-						pc._addDet(Comparator.LT, v2, sym_v1);
-				} else
-					pc._addDet(Comparator.LT, sym_v2, v1);
-
-				if (!pc.simplify()) {// not satisfiable
-					th.getVM().getSystemState().setIgnored(true);
+				if (symValue1 != null) {
+					if (symValue2 != null) {  // both are symbolic values
+						pathCondition._addDet(Comparator.LT, symValue2, symValue1);
+					} else {
+						pathCondition._addDet(Comparator.LT, floatValue2, symValue1);
+					}
 				} else {
-					((PCChoiceGenerator) cg).setCurrentPC(pc);
+					pathCondition._addDet(Comparator.LT, symValue2, floatValue1);
+				}
+
+				if (!pathCondition.simplify()) {  // not satisfiable
+					threadInfo.getVM().getSystemState().setIgnored(true);
+				} else {
+					((PCChoiceGenerator) choiceGenerator).setCurrentPC(pathCondition);
 				}
 			} else if (conditionValue == 0) {
-				if (sym_v1 != null) {
-					if (sym_v2 != null) { // both are symbolic values
-						pc._addDet(Comparator.EQ, sym_v1, sym_v2);
-					} else
-						pc._addDet(Comparator.EQ, sym_v1, v2);
-				} else
-					pc._addDet(Comparator.EQ, v1, sym_v2);
-				if (!pc.simplify()) {// not satisfiable
-					th.getVM().getSystemState().setIgnored(true);
+				if (symValue1 != null) {
+					if (symValue2 != null) {  // both are symbolic values
+						pathCondition._addDet(Comparator.EQ, symValue1, symValue2);
+					} else {
+						pathCondition._addDet(Comparator.EQ, symValue1, floatValue2);
+					}
 				} else {
-					((PCChoiceGenerator) cg).setCurrentPC(pc);
+					pathCondition._addDet(Comparator.EQ, floatValue1, symValue2);
 				}
-			} else { // 1
-				if (sym_v1 != null) {
-					if (sym_v2 != null) { // both are symbolic values
-						pc._addDet(Comparator.GT, sym_v2, sym_v1);
-					} else
-						pc._addDet(Comparator.GT, v2, sym_v1);
-				} else
-					pc._addDet(Comparator.GT, sym_v2, v1);
-				if (!pc.simplify()) {// not satisfiable
-					th.getVM().getSystemState().setIgnored(true);
+				if (!pathCondition.simplify()) {  // not satisfiable
+					threadInfo.getVM().getSystemState().setIgnored(true);
 				} else {
-					((PCChoiceGenerator) cg).setCurrentPC(pc);
+					((PCChoiceGenerator) choiceGenerator).setCurrentPC(pathCondition);
+				}
+			} else {  // 1
+				if (symValue1 != null) {
+					if (symValue2 != null) {  // both are symbolic values
+						pathCondition._addDet(Comparator.GT, symValue2, symValue1);
+					} else {
+						pathCondition._addDet(Comparator.GT, floatValue2, symValue1);
+					}
+				} else {
+					pathCondition._addDet(Comparator.GT, symValue2, floatValue1);
+				}
+				if (!pathCondition.simplify()) {  // not satisfiable
+					threadInfo.getVM().getSystemState().setIgnored(true);
+				} else {
+					((PCChoiceGenerator) choiceGenerator).setCurrentPC(pathCondition);
 				}
 			}
 
-			sf.push(conditionValue, false);
-			return getNext(th);
+			stackFrame.push(conditionValue, false);
+			return getNext(threadInfo);
 		}
 	}
 }

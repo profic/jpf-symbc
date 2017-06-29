@@ -51,28 +51,29 @@ public class DSUB extends gov.nasa.jpf.jvm.bytecode.DSUB {
 	public Instruction execute(ThreadInfo threadInfo) {
 		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
 
-		RealExpression symValue1 = (RealExpression) stackFrame.getLongOperandAttr();
+		RealExpression symDoubleValue1 = (RealExpression) stackFrame.getLongOperandAttr();
+		RealExpression symDoubleValue2 = (RealExpression) stackFrame.getLongOperandAttr();
+		
 		double doubleValue1 = Types.longToDouble(stackFrame.popLong());
-		RealExpression symValue2 = (RealExpression) stackFrame.getLongOperandAttr();
 		double doubleValue2 = Types.longToDouble(stackFrame.popLong());
 
 		double doubleResult = doubleValue2 - doubleValue1;
-		if (symValue1 == null && symValue2 == null) {
+		if (symDoubleValue1 == null && symDoubleValue2 == null) {
 			stackFrame.pushLong(Types.doubleToLong(doubleResult));
 		} else {
 			stackFrame.pushLong(0);
 		}
 
 		RealExpression symResult = null;
-		if (symValue2 != null) {
-			if (symValue1 != null) {
-				symResult = symValue2._minus(symValue1);
+		if (symDoubleValue2 != null) {
+			if (symDoubleValue1 != null) {
+				symResult = symDoubleValue2._minus(symDoubleValue1);
 			} else {
 				// v1 is concrete
-				symResult = symValue2._minus(doubleValue1);
+				symResult = symDoubleValue2._minus(doubleValue1);
 			}
-		} else if (symValue1 != null) {
-			symResult = symValue1._minus_reverse(doubleValue2);
+		} else if (symDoubleValue1 != null) {
+			symResult = symDoubleValue1._minus_reverse(doubleValue2);
 		}
 
 		stackFrame.setLongOperandAttr(symResult);

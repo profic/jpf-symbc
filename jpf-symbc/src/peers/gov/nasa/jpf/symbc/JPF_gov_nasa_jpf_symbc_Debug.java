@@ -61,11 +61,11 @@ public class JPF_gov_nasa_jpf_symbc_Debug extends NativePeer {
 		PathCondition pc = null;
 
 		if (!(cg instanceof PCChoiceGenerator)) {
-			ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGenerator();
-			while (!((prev_cg == null) || (prev_cg instanceof PCChoiceGenerator))) {
-				prev_cg = prev_cg.getPreviousChoiceGenerator();
+			ChoiceGenerator<?> prevChoiceGenerator = cg.getPreviousChoiceGenerator();
+			while (!((prevChoiceGenerator == null) || (prevChoiceGenerator instanceof PCChoiceGenerator))) {
+				prevChoiceGenerator = prevChoiceGenerator.getPreviousChoiceGenerator();
 			}
-			cg = prev_cg;
+			cg = prevChoiceGenerator;
 		}
 
 		if ((cg instanceof PCChoiceGenerator) && cg != null) {
@@ -494,11 +494,11 @@ public class JPF_gov_nasa_jpf_symbc_Debug extends NativePeer {
 		PathCondition pc = null;
 
 		if (!(cg instanceof HeapChoiceGenerator)) {
-			ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGenerator();
-			while (!((prev_cg == null) || (prev_cg instanceof HeapChoiceGenerator))) {
-				prev_cg = prev_cg.getPreviousChoiceGenerator();
+			ChoiceGenerator<?> prevChoiceGenerator = cg.getPreviousChoiceGenerator();
+			while (!((prevChoiceGenerator == null) || (prevChoiceGenerator instanceof HeapChoiceGenerator))) {
+				prevChoiceGenerator = prevChoiceGenerator.getPreviousChoiceGenerator();
 			}
-			cg = prev_cg;
+			cg = prevChoiceGenerator;
 		}
 
 		if ((cg instanceof HeapChoiceGenerator) && cg != null)

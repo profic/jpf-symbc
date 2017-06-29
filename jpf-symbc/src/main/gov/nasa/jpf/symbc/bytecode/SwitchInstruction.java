@@ -37,8 +37,6 @@
 
 package gov.nasa.jpf.symbc.bytecode;
 
-
-
 import gov.nasa.jpf.symbc.numeric.Comparator;
 import gov.nasa.jpf.symbc.numeric.IntegerExpression;
 import gov.nasa.jpf.symbc.numeric.PCChoiceGenerator;
@@ -60,73 +58,74 @@ public abstract class SwitchInstruction extends gov.nasa.jpf.jvm.bytecode.Switch
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public Instruction execute ( ThreadInfo ti) {
-		StackFrame sf = ti.getModifiableTopFrame();
-		IntegerExpression sym_v = (IntegerExpression) sf.getOperandAttr();
-		
-		if(sym_v == null) { // the condition is concrete
-			return super.execute( ti);
-		}
-		else { // the condition is symbolic
-			ChoiceGenerator<?> cg;
+	public Instruction execute(ThreadInfo threadInfo) {
+		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
+		IntegerExpression symIntegerValue = (IntegerExpression) stackFrame.getOperandAttr();
 
-			if (!ti.isFirstStepInsn()) { // first time around
-				cg = new PCChoiceGenerator(matches.length+1);
-				((PCChoiceGenerator)cg).setOffset(this.position);
-				((PCChoiceGenerator)cg).setMethodName(this.getMethodInfo().getCompleteName());
-				ti.getVM().getSystemState().setNextChoiceGenerator(cg);
+		if (symIntegerValue == null) {
+			return super.execute(threadInfo);
+		} else {
+			ChoiceGenerator<?> choiceGenerator;
+
+			if (!threadInfo.isFirstStepInsn()) {
+				choiceGenerator = new PCChoiceGenerator(matches.length + 1);
+				((PCChoiceGenerator) choiceGenerator).setOffset(this.position);
+				((PCChoiceGenerator) choiceGenerator).setMethodName(this.getMethodInfo().getCompleteName());
+				threadInfo.getVM().getSystemState().setNextChoiceGenerator(choiceGenerator);
+
 				return this;
-			} else {  // this is what really returns results
-				cg = ti.getVM().getSystemState().getChoiceGenerator();
-				assert (cg instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got: " + cg;
+			} else { // this is what really returns results
+				choiceGenerator = threadInfo.getVM().getSystemState().getChoiceGenerator();
+				assert (choiceGenerator instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got: "
+						+ choiceGenerator;
 			}
-			sym_v = (IntegerExpression) sf.getOperandAttr();
-			sf.pop();
-			PathCondition pc;
-			//pc is updated with the pc stored in the choice generator above
-			//get the path condition from the
-			//previous choice generator of the same type
+			symIntegerValue = (IntegerExpression) stackFrame.getOperandAttr();
+			stackFrame.pop();
+			PathCondition pathCondition;
+			// pc is updated with the pc stored in the choice generator above
+			// get the path condition from the
+			// previous choice generator of the same type
 
-			//TODO: could be optimized to not do this for each choice
-			ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
+			// TODO: could be optimized to not do this for each choice
+			ChoiceGenerator<?> prevChoiceGenerator = choiceGenerator
+					.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
 
-			if (prev_cg == null)
-				pc = new PathCondition();
-			else
-				pc = ((PCChoiceGenerator)prev_cg).getCurrentPC();
-
-			assert pc != null;
-			int idx = (Integer)cg.getNextChoice();
-			if (idx == matches.length){ // default branch
+			if (prevChoiceGenerator == null) {
+				pathCondition = new PathCondition();
+			} else {
+				pathCondition = ((PCChoiceGenerator) prevChoiceGenerator).getCurrentPC();
+			}
+			assert pathCondition != null;
+			int idx = (Integer) choiceGenerator.getNextChoice();
+			if (idx == matches.length) { // default branch
 				lastIdx = DEFAULT;
-				for(int i = 0; i< matches.length; i++)
-					pc._addDet(Comparator.NE, sym_v, matches[i]);
-				if(!pc.simplify())  {// not satisfiable
-					ti.getVM().getSystemState().setIgnored(true);
+				for (int i = 0; i < matches.length; i++)
+					pathCondition._addDet(Comparator.NE, symIntegerValue, matches[i]);
+				if (!pathCondition.simplify()) { // not satisfiable
+					threadInfo.getVM().getSystemState().setIgnored(true);
 				} else {
-					//pc.solve();
-					((PCChoiceGenerator) cg).setCurrentPC(pc);
-					//System.out.println(((PCChoiceGenerator) cg).getCurrentPC());
+					// pc.solve();
+					((PCChoiceGenerator) choiceGenerator).setCurrentPC(pathCondition);
+					// System.out.println(((PCChoiceGenerator)
+					// cg).getCurrentPC());
 				}
 				return mi.getInstructionAt(target);
 			} else {
 				lastIdx = idx;
-				//System.out.println("index "+idx);
-				pc._addDet(Comparator.EQ, sym_v, matches[idx]);
-				//System.out.println(sym_v + "eq"+ matches[idx]);
-				//System.out.println("pc after "+pc);
-				if(!pc.simplify())  {// not satisfiable
-					ti.getVM().getSystemState().setIgnored(true);
+				// System.out.println("index "+idx);
+				pathCondition._addDet(Comparator.EQ, symIntegerValue, matches[idx]);
+				// System.out.println(sym_v + "eq"+ matches[idx]);
+				// System.out.println("pc after "+pc);
+				if (!pathCondition.simplify()) {// not satisfiable
+					threadInfo.getVM().getSystemState().setIgnored(true);
 				} else {
-					//pc.solve();
-					((PCChoiceGenerator) cg).setCurrentPC(pc);
-					//System.out.println(((PCChoiceGenerator) cg).getCurrentPC());
+					// pc.solve();
+					((PCChoiceGenerator) choiceGenerator).setCurrentPC(pathCondition);
+					// System.out.println(((PCChoiceGenerator)
+					// cg).getCurrentPC());
 				}
 				return mi.getInstructionAt(targets[idx]);
 			}
 		}
 	}
-
-
 }
-

@@ -23,43 +23,41 @@ import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.StackFrame;
 import gov.nasa.jpf.vm.ThreadInfo;
 
-
 /**
  * Shift left
  * ..., value1, value2  =>..., result
  */
 public class LSHL extends gov.nasa.jpf.jvm.bytecode.LSHL {
 	@Override
-  public Instruction execute (ThreadInfo th) {
-	  StackFrame sf = th.getModifiableTopFrame();
+	public Instruction execute(ThreadInfo threadInfo) {
+		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
 
-		IntegerExpression sym_v1 = (IntegerExpression) sf.getOperandAttr(0);
-		IntegerExpression sym_v2 = (IntegerExpression) sf.getOperandAttr(2);
+		IntegerExpression symLongValue1 = (IntegerExpression) stackFrame.getOperandAttr(0);
+		IntegerExpression symLongValue2 = (IntegerExpression) stackFrame.getOperandAttr(2);
 
-	    if(sym_v1==null && sym_v2==null)
-	        return super.execute(th);// we'll still do the concrete execution
-	    else {
-	    	int v1 = sf.pop();
-	    	long v2 = sf.popLong();
-	    	sf.pushLong(0); // for symbolic expressions, the concrete value does not matter
+		if (symLongValue1 == null && symLongValue2 == null) {
+			return super.execute(threadInfo);
+		} else {
+			int intValue1 = stackFrame.pop();
+			long intValue2 = stackFrame.popLong();
+			stackFrame.pushLong(0); // for symbolic expressions, the concrete value does not matter
 
-	    	IntegerExpression result = null;
-	    	if (sym_v1 != null) {
-	    		if (sym_v2 != null) {
+			IntegerExpression symResult = null;
+			if (symLongValue1 != null) {
+				if (symLongValue2 != null) {
 					//result = sym_v1._shiftL(sym_v2);
-					result = sym_v2._shiftL(sym_v1);
-				}
-	    		else { // v2 is concrete
+					symResult = symLongValue2._shiftL(symLongValue1);
+				} else {
 					//result = sym_v1._shiftL(v2);
-					result = (new IntegerConstant((int) v2))._shiftL(sym_v1);
+					symResult = (new IntegerConstant((int) intValue2))._shiftL(symLongValue1);
 				}
-	    	}
-	    	else if (sym_v2 != null) {
-	    		result = sym_v2._shiftL(v1);
-	    	}
+			} else if (symLongValue2 != null) {
+				symResult = symLongValue2._shiftL(intValue1);
+			}
 
-	    	sf.setLongOperandAttr(result);
-	    	return getNext(th);
-	    }
-  }
+			stackFrame.setLongOperandAttr(symResult);
+
+			return getNext(threadInfo);
+		}
+	}
 }

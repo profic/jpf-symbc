@@ -29,29 +29,31 @@ public class FADD extends gov.nasa.jpf.jvm.bytecode.FADD {
 	public Instruction execute(ThreadInfo threadInfo) {
 		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
 
-		RealExpression symValue1 = (RealExpression) stackFrame.getOperandAttr();
+		RealExpression symFloatValue1 = (RealExpression) stackFrame.getOperandAttr();
+		RealExpression symFloatValue2 = (RealExpression) stackFrame.getOperandAttr();
+		
 		float floatValue1 = Types.intToFloat(stackFrame.pop());
-
-		RealExpression symValue2 = (RealExpression) stackFrame.getOperandAttr();
 		float floatValue2 = Types.intToFloat(stackFrame.pop());
 
 		float floatResult = floatValue1 + floatValue2;
 
-		if (symValue1 == null && symValue2 == null) {
+		if (symFloatValue1 == null && symFloatValue2 == null) {
 			stackFrame.push(Types.floatToInt(floatResult), false);
 		} else {
 			stackFrame.push(0, false);
 		}
 		
 		RealExpression symResult = null;
-		if (symValue1 != null) {
-			if (symValue2 != null)
-				symResult = symValue2._plus(symValue1);
-			else // v2 is concrete
-				symResult = symValue1._plus(floatValue2);
-		} else if (symValue2 != null)
-			symResult = symValue2._plus(floatValue1);
-
+		if (symFloatValue1 != null) {
+			if (symFloatValue2 != null) {
+				symResult = symFloatValue2._plus(symFloatValue1);
+			} else { // v2 is concrete
+				symResult = symFloatValue1._plus(floatValue2);
+			}
+		} else if (symFloatValue2 != null) {
+			symResult = symFloatValue2._plus(floatValue1);
+		}
+		
 		stackFrame.setOperandAttr(symResult);
 
 		return getNext(threadInfo);

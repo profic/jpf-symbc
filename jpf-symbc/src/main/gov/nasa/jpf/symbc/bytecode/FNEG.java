@@ -23,29 +23,25 @@ import gov.nasa.jpf.vm.StackFrame;
 import gov.nasa.jpf.vm.ThreadInfo;
 import gov.nasa.jpf.vm.Types;
 
-
 /**
- * Negate float
- * ..., value  => ..., result
+ * Negate float ..., value => ..., result
  */
-public class FNEG extends gov.nasa.jpf.jvm.bytecode.FNEG  {
+public class FNEG extends gov.nasa.jpf.jvm.bytecode.FNEG {
 
-  @Override
-  public Instruction execute (ThreadInfo th) {
-	  
-	  StackFrame sf = th.getModifiableTopFrame();
-	  RealExpression sym_v1 = (RealExpression) sf.getOperandAttr(); 
-	  float v1 = Types.intToFloat(sf.pop());
-	  
-	  if (sym_v1 == null)
-		  sf.push(Types.floatToInt(-v1), false);
-	  else {
-		  sf.push(0, false);
-		  RealExpression result = sym_v1._neg();
-		  sf.setOperandAttr(result);
-	  }
-	  //	System.out.println("Execute FNEG: "+ result);
-    return getNext(th);
-  }
+	@Override
+	public Instruction execute(ThreadInfo threadInfo) {
+		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
+		RealExpression symValue1 = (RealExpression) stackFrame.getOperandAttr();
+		float floatValue1 = Types.intToFloat(stackFrame.pop());
 
+		if (symValue1 == null) {
+			stackFrame.push(Types.floatToInt(-floatValue1), false);
+		} else {
+			stackFrame.push(0, false);
+			RealExpression result = symValue1._neg();
+			stackFrame.setOperandAttr(result);
+		}
+
+		return getNext(threadInfo);
+	}
 }

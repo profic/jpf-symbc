@@ -17,12 +17,10 @@
  */
 package gov.nasa.jpf.symbc.bytecode;
 
-
 import gov.nasa.jpf.symbc.numeric.IntegerExpression;
 import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.StackFrame;
 import gov.nasa.jpf.vm.ThreadInfo;
-
 
 /**
  * Subtract long
@@ -30,35 +28,34 @@ import gov.nasa.jpf.vm.ThreadInfo;
  */
 public class LSUB extends gov.nasa.jpf.jvm.bytecode.LSUB {
 
-  @Override
-  public Instruction execute (ThreadInfo th) {
-	  	StackFrame sf = th.getModifiableTopFrame();
-	  
-		IntegerExpression sym_v1 = (IntegerExpression) sf.getOperandAttr(1);
-		IntegerExpression sym_v2 = (IntegerExpression) sf.getOperandAttr(3);
-	    
-	    if(sym_v1==null && sym_v2==null)
-	        return super.execute(th);// we'll still do the concrete execution
-	    else {
-	    	long v1 = sf.popLong();
-	    	long v2 = sf.popLong();
-	    	sf.pushLong(0); // for symbolic expressions, the concrete value does not matter
+	@Override
+	public Instruction execute(ThreadInfo threadInfo) {
+		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
 
-	    	IntegerExpression result = null;
-	    	if(sym_v2!=null) {
-	    		if (sym_v1!=null)
-	    			result = sym_v2._minus(sym_v1);
-	    		else // v1 is concrete
-	    			result = sym_v2._minus(v1);
-	    	}
-	    	else if (sym_v1!=null)
-	    		result = sym_v1._minus_reverse(v2);
+		IntegerExpression symValue1 = (IntegerExpression) stackFrame.getOperandAttr(1);
+		IntegerExpression symValue2 = (IntegerExpression) stackFrame.getOperandAttr(3);
 
-	    	sf.setLongOperandAttr(result);
+		if (symValue1 == null && symValue2 == null) {
+			return super.execute(threadInfo);
+		} else {
+			long longValue1 = stackFrame.popLong();
+			long longValue2 = stackFrame.popLong();
+			stackFrame.pushLong(0); 
 
-	    	//System.out.println("Execute LSUB: "+result);
+			IntegerExpression result = null;
+			if (symValue2 != null) {
+				if (symValue1 != null) {
+					result = symValue2._minus(symValue1);
+				} else {
+					result = symValue2._minus(longValue1);
+				}
+			} else if (symValue1 != null) {
+				result = symValue1._minus_reverse(longValue2);
+			}
 
-	    	return getNext(th);
-	    }
-  }
+			stackFrame.setLongOperandAttr(result);
+
+			return getNext(threadInfo);
+		}
+	}
 }

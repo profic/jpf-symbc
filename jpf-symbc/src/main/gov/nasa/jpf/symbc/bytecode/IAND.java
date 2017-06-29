@@ -34,7 +34,6 @@
 //DOCUMENTATION, IF PROVIDED, WILL CONFORM TO THE SUBJECT SOFTWARE.
 package gov.nasa.jpf.symbc.bytecode;
 
-
 import gov.nasa.jpf.symbc.numeric.*;
 import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.StackFrame;
@@ -43,36 +42,31 @@ import gov.nasa.jpf.vm.ThreadInfo;
 public class IAND extends gov.nasa.jpf.jvm.bytecode.IAND {
 
 	@Override
-	public Instruction execute (ThreadInfo th) {
-		StackFrame sf = th.getModifiableTopFrame();
-		IntegerExpression sym_v1 = (IntegerExpression) sf.getOperandAttr(0); 
-		IntegerExpression sym_v2 = (IntegerExpression) sf.getOperandAttr(1);
+	public Instruction execute(ThreadInfo threadInfo) {
+		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
+		IntegerExpression symIntegerValue1 = (IntegerExpression) stackFrame.getOperandAttr(0);
+		IntegerExpression symIntegerValue2 = (IntegerExpression) stackFrame.getOperandAttr(1);
 
-		if (sym_v1 == null && sym_v2 == null) {
-			return super.execute(th); // we'll still do the concrete execution
-		}
-		else {
-			int v1 = sf.pop();
-			int v2 = sf.pop();
-			sf.push(0, false); // for symbolic expressions, the concrete value does not matter
-		
-			IntegerExpression result = null;
-			if (sym_v1 != null) {
-				if (sym_v2 != null) {
-					//result = sym_v1._and(sym_v2);
-					result = sym_v2._and(sym_v1);
+		if (symIntegerValue1 == null && symIntegerValue2 == null) {
+			return super.execute(threadInfo); // we'll still do the concrete execution
+		} else {
+			int integerValue1 = stackFrame.pop();
+			int integerValue2 = stackFrame.pop(); 
+			stackFrame.push(0, false); // for symbolic expressions, the concrete value does not matter
+
+			IntegerExpression symResult = null;
+			if (symIntegerValue1 != null) {
+				if (symIntegerValue2 != null) {
+					symResult = symIntegerValue2._and(symIntegerValue1);
+				} else {
+					symResult = (new IntegerConstant((int) integerValue2))._and(symIntegerValue1);
 				}
-				else { // v2 is concrete
-					//result = sym_v1._and(v2);
-					result = (new IntegerConstant((int) v2))._and(sym_v1);
-				}
-			}
-			else if (sym_v2 != null) {
-				result = sym_v2._and(v1);
+			} else if (symIntegerValue2 != null) {
+				symResult = symIntegerValue2._and(integerValue1);
 			}
 
-			sf.setOperandAttr(result);
-			return getNext(th);
+			stackFrame.setOperandAttr(symResult);
+			return getNext(threadInfo);
 		}
-	}	
+	}
 }

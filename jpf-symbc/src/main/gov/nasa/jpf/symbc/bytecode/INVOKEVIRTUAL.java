@@ -25,34 +25,34 @@ import gov.nasa.jpf.vm.ThreadInfo;
 
 // need to fix names
 
-
-
 public class INVOKEVIRTUAL extends gov.nasa.jpf.jvm.bytecode.INVOKEVIRTUAL {
 	public INVOKEVIRTUAL(String clsName, String methodName, String methodSignature) {
-	    super(clsName, methodName, methodSignature);
-	  }
+		super(clsName, methodName, methodSignature);
+	}
+
 	@Override
-	public Instruction execute( ThreadInfo th) {
+	public Instruction execute(ThreadInfo th) {
 		int objRef = th.getCalleeThis(getArgSize());
 
-	    if (objRef == MJIEnv.NULL) {
-	      lastObj = -1;
-	      return th.createAndThrowException("java.lang.NullPointerException", "Calling '" + mname + "' on null object");
-	    }
+		if (objRef == MJIEnv.NULL) {
+			lastObj = -1;
+			return th.createAndThrowException("java.lang.NullPointerException",
+					"Calling '" + mname + "' on null object");
+		}
 
-	    MethodInfo mi = getInvokedMethod(th, objRef);
+		MethodInfo mi = getInvokedMethod(th, objRef);
 
-	    if (mi == null) {
-	      ClassInfo ci = th.getClassInfo(objRef);
-	      String clsName = (ci != null) ? ci.getName() : "?UNKNOWN?";
-	      return th.createAndThrowException("java.lang.NoSuchMethodError", clsName + '.' + mname);
-	    }
-	    
-		BytecodeUtils.InstructionOrSuper nextInstr = BytecodeUtils.execute(this,  th);
-        if (nextInstr.callSuper) {
-            return super.execute(th);
-        } else {
-            return nextInstr.inst;
-        }
-    }
+		if (mi == null) {
+			ClassInfo ci = th.getClassInfo(objRef);
+			String clsName = (ci != null) ? ci.getName() : "?UNKNOWN?";
+			return th.createAndThrowException("java.lang.NoSuchMethodError", clsName + '.' + mname);
+		}
+
+		BytecodeUtils.InstructionOrSuper nextInstr = BytecodeUtils.execute(this, th);
+		if (nextInstr.callSuper) {
+			return super.execute(th);
+		} else {
+			return nextInstr.inst;
+		}
+	}
 }

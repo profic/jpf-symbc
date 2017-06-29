@@ -35,32 +35,30 @@
 
 package gov.nasa.jpf.symbc.bytecode;
 
-
 import gov.nasa.jpf.symbc.numeric.Expression;
 import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.StackFrame;
 import gov.nasa.jpf.vm.ThreadInfo;
 
-
 // we should factor out some of the code and put it in a parent class for all "if statements"
 //TODO: to review: approximation
 
 public class IFNULL extends gov.nasa.jpf.jvm.bytecode.IFNULL {
-	public IFNULL (int targetPc) {
-	    super(targetPc);
-	  }
+	public IFNULL(int targetPc) {
+		super(targetPc);
+	}
+
 	@Override
-	public Instruction execute (ThreadInfo ti) {
+	public Instruction execute(ThreadInfo ti) {
 
 		StackFrame sf = ti.getModifiableTopFrame();
 		Expression sym_v = (Expression) sf.getOperandAttr();
-		if(sym_v == null) { // the condition is concrete
+		if (sym_v == null) { // the condition is concrete
 			//System.out.println("Execute IFEQ: The condition is concrete");
 			return super.execute(ti);
-		}
-		else { // the condition is symbolic
+		} else { // the condition is symbolic
 			sf.pop();
 			return getNext(ti);
-			}
 		}
 	}
+}

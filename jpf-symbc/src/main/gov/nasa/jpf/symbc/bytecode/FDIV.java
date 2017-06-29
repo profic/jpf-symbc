@@ -27,113 +27,110 @@ import gov.nasa.jpf.vm.StackFrame;
 import gov.nasa.jpf.vm.ThreadInfo;
 import gov.nasa.jpf.vm.Types;
 
-public class FDIV extends gov.nasa.jpf.jvm.bytecode.FDIV  {
+public class FDIV extends gov.nasa.jpf.jvm.bytecode.FDIV {
 
 	@Override
-	public Instruction execute (ThreadInfo th) {
+	public Instruction execute(ThreadInfo threadInfo) {
+		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
 
-		StackFrame sf = th.getModifiableTopFrame();
-		//sf.printStackContent();
+		RealExpression symFloatValue1 = (RealExpression) stackFrame.getOperandAttr(0);
+		RealExpression symFloatValue2 = (RealExpression) stackFrame.getOperandAttr(1);
+		
+		float floatValue1;
+		float floatValue2;
 
-		RealExpression sym_v1 = (RealExpression) sf.getOperandAttr(0);
-		float v1;
-		RealExpression sym_v2 = (RealExpression) sf.getOperandAttr(1);
-		float v2;
+		if (symFloatValue1 == null && symFloatValue2 == null) {
+			floatValue1 = Types.intToFloat(stackFrame.pop());
+			floatValue2 = Types.intToFloat(stackFrame.pop());
+			if (floatValue1 == 0) {
+				return threadInfo.createAndThrowException("java.lang.ArithmeticException", "div by 0");
+			}
+			float r = floatValue2 / floatValue1;
+			stackFrame.push(Types.floatToInt(r), false);
 
-		if(sym_v1==null && sym_v2==null) {
-			v1 = Types.intToFloat(sf.pop());
-			v2 = Types.intToFloat(sf.pop());
-			if(v1==0)
-				return th.createAndThrowException("java.lang.ArithmeticException","div by 0");
-			float r = v2 / v1;
-			sf.push(Types.floatToInt(r), false);
-			return getNext(th);
+			return getNext(threadInfo);
 		}
 
 		// result is symbolic expression
 
-		if(sym_v1==null && sym_v2!=null) {
-			v1 = Types.intToFloat(sf.pop());
-			v2 = Types.intToFloat(sf.pop());
-			if(v1==0)
-				return th.createAndThrowException("java.lang.ArithmeticException","div by 0");
-			sf.push(0, false);
-			RealExpression result = sym_v2._div(v1);
-			sf.setOperandAttr(result);
-			return getNext(th);
+		if (symFloatValue1 == null && symFloatValue2 != null) {
+			floatValue1 = Types.intToFloat(stackFrame.pop());
+			floatValue2 = Types.intToFloat(stackFrame.pop());
+			if (floatValue1 == 0) {
+				return threadInfo.createAndThrowException("java.lang.ArithmeticException", "div by 0");
+			}
+			stackFrame.push(0, false);
+			RealExpression result = symFloatValue2._div(floatValue1);
+			stackFrame.setOperandAttr(result);
+
+			return getNext(threadInfo);
 		}
 
 		// div by zero check affects path condition
 		// sym_v1 is non-null and should be checked against zero
 
-		ChoiceGenerator<?> cg;
+		ChoiceGenerator<?> choiceGenerator;
 		boolean condition;
 
-		if (!th.isFirstStepInsn()) { // first time around
-			cg = new PCChoiceGenerator(2);
-			((PCChoiceGenerator)cg).setOffset(this.position);
-			((PCChoiceGenerator)cg).setMethodName(this.getMethodInfo().getFullName());
-			th.getVM().getSystemState().setNextChoiceGenerator(cg);
+		if (!threadInfo.isFirstStepInsn()) { // first time around
+			choiceGenerator = new PCChoiceGenerator(2);
+			((PCChoiceGenerator) choiceGenerator).setOffset(this.position);
+			((PCChoiceGenerator) choiceGenerator).setMethodName(this.getMethodInfo().getFullName());
+			threadInfo.getVM().getSystemState().setNextChoiceGenerator(choiceGenerator);
+
 			return this;
-		} else {  // this is what really returns results
-			cg = th.getVM().getSystemState().getChoiceGenerator();
-			assert (cg instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got: " + cg;
-			condition = (Integer)cg.getNextChoice()==0 ? false: true;
+		} else { // this is what really returns results
+			choiceGenerator = threadInfo.getVM().getSystemState().getChoiceGenerator();
+			assert (choiceGenerator instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got: "
+					+ choiceGenerator;
+			condition = (Integer) choiceGenerator.getNextChoice() == 0 ? false : true;
 		}
 
+		floatValue1 = Types.intToFloat(stackFrame.pop());
+		floatValue2 = Types.intToFloat(stackFrame.pop());
+		stackFrame.push(0, false);
 
-		v1 = Types.intToFloat(sf.pop());
-		v2 = Types.intToFloat(sf.pop());
-		sf.push(0, false);
+		PathCondition pathCondition;
+		ChoiceGenerator<?> prevChoiceGenerator = choiceGenerator
+				.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
 
-
-
-		PathCondition pc;
-		ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
-
-		if (prev_cg == null)
-			pc = new PathCondition();
-		else
-			pc = ((PCChoiceGenerator)prev_cg).getCurrentPC();
-
-		assert pc != null;
-
-		if(condition) { // check div by zero
-			pc._addDet(Comparator.EQ, sym_v1, 0);
-			if(pc.simplify())  { // satisfiable
-				((PCChoiceGenerator) cg).setCurrentPC(pc);
-
-				return th.createAndThrowException("java.lang.ArithmeticException","div by 0");
-			}
-			else {
-				th.getVM().getSystemState().setIgnored(true);
-				return getNext(th);
-			}
+		if (prevChoiceGenerator == null) {
+			pathCondition = new PathCondition();
+		} else {
+			pathCondition = ((PCChoiceGenerator) prevChoiceGenerator).getCurrentPC();
 		}
-		else {
-			pc._addDet(Comparator.NE, sym_v1, 0);
-			if(pc.simplify())  { // satisfiable
-				((PCChoiceGenerator) cg).setCurrentPC(pc);
+		assert pathCondition != null;
+
+		if (condition) { // check div by zero
+			pathCondition._addDet(Comparator.EQ, symFloatValue1, 0);
+			if (pathCondition.simplify()) { // satisfiable
+				((PCChoiceGenerator) choiceGenerator).setCurrentPC(pathCondition);
+
+				return threadInfo.createAndThrowException("java.lang.ArithmeticException", "div by 0");
+			} else {
+				threadInfo.getVM().getSystemState().setIgnored(true);
+				return getNext(threadInfo);
+			}
+		} else {
+			pathCondition._addDet(Comparator.NE, symFloatValue1, 0);
+			if (pathCondition.simplify()) { // satisfiable
+				((PCChoiceGenerator) choiceGenerator).setCurrentPC(pathCondition);
 
 				// set the result
 				RealExpression result;
-				if(sym_v2!=null)
-					result = sym_v2._div(sym_v1);
-				else
-					result = sym_v1._div_reverse(v2);
+				if (symFloatValue2 != null) {
+					result = symFloatValue2._div(symFloatValue1);
+				} else {
+					result = symFloatValue1._div_reverse(floatValue2);
+				}
+				stackFrame = threadInfo.getModifiableTopFrame();
+				stackFrame.setOperandAttr(result);
 
-				sf = th.getModifiableTopFrame();
-				sf.setOperandAttr(result);
-				return getNext(th);
-
-			}
-			else {
-				th.getVM().getSystemState().setIgnored(true);
-				return getNext(th);
+				return getNext(threadInfo);
+			} else {
+				threadInfo.getVM().getSystemState().setIgnored(true);
+				return getNext(threadInfo);
 			}
 		}
-
-
 	}
-
 }

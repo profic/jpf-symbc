@@ -42,7 +42,7 @@ public class BASTORE extends gov.nasa.jpf.jvm.bytecode.BASTORE {
 		if (peekIndexAttr(threadInfo) == null || !(peekIndexAttr(threadInfo) instanceof IntegerExpression)) {
 			return super.execute(threadInfo);
 		}
-		StackFrame frame = threadInfo.getModifiableTopFrame();
+		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
 		int arrayref = peekArrayRef(threadInfo); // need to be polymorphic,
 													// could be
 		// LongArrayStore
@@ -134,22 +134,22 @@ public class BASTORE extends gov.nasa.jpf.jvm.bytecode.BASTORE {
 			// --- shared access CG
 			/*
 			 * ignore POR for now TODO Scheduler scheduler = ti.getScheduler();
-			 * if (scheduler.canHaveSharedArrayCG(ti, this, eiArray, idx)){
+			 * if (scheduler.canHaveSharedarrayChoiceGenerator(ti, this, eiArray, idx)){
 			 * eiArray = scheduler.updateArraySharedness(ti, eiArray, idx); if
-			 * (scheduler.setsSharedArrayCG(ti, this, eiArray, idx)){ return
+			 * (scheduler.setsSharedarrayChoiceGenerator(ti, this, eiArray, idx)){ return
 			 * this; } } }
 			 */
 			// System.out.println("len "+len+" index "+index);
 			try {
 				// setArrayElement(ti, frame, eiArray); // this pops operands
 				int elementSize = getElementSize();
-				Object attr = elementSize == 1 ? frame.getOperandAttr() : frame.getLongOperandAttr();
+				Object attr = elementSize == 1 ? stackFrame.getOperandAttr() : stackFrame.getLongOperandAttr();
 
-				popValue(frame);
-				frame.pop();
+				popValue(stackFrame);
+				stackFrame.pop();
 				// don't set 'arrayRef' before we do the CG checks (would kill
 				// loop optimization)
-				arrayRef = frame.pop();
+				arrayRef = stackFrame.pop();
 
 				arrayElementInfo = arrayElementInfo.getModifiableInstance();
 				setField(arrayElementInfo, index);
@@ -168,6 +168,7 @@ public class BASTORE extends gov.nasa.jpf.jvm.bytecode.BASTORE {
 																	// processed
 				return e.getInstruction();
 			}
+			
 			return getNext(threadInfo);
 		}
 	}

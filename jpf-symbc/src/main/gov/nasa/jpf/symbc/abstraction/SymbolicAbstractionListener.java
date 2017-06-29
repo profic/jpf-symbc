@@ -222,11 +222,11 @@ public class SymbolicAbstractionListener extends PropertyListenerAdapter{
 		String pcString = null;
 
 		if (!(cg instanceof PCChoiceGenerator)){
-			ChoiceGenerator prev_cg = cg.getPreviousChoiceGenerator();
-			while (!((prev_cg == null) || (prev_cg instanceof PCChoiceGenerator))) {
-				prev_cg = prev_cg.getPreviousChoiceGenerator();
+			ChoiceGenerator prevChoiceGenerator = cg.getPreviousChoiceGenerator();
+			while (!((prevChoiceGenerator == null) || (prevChoiceGenerator instanceof PCChoiceGenerator))) {
+				prevChoiceGenerator = prevChoiceGenerator.getPreviousChoiceGenerator();
 			}
-			cg = prev_cg;
+			cg = prevChoiceGenerator;
 		}
 
 		// get the error string
@@ -411,11 +411,11 @@ public class SymbolicAbstractionListener extends PropertyListenerAdapter{
 					String pcString = null;
 					ChoiceGenerator cg = vm.getChoiceGenerator();
 					if (!(cg instanceof PCChoiceGenerator)){
-						ChoiceGenerator prev_cg = cg.getPreviousChoiceGenerator();
-						while (!((prev_cg == null) || (prev_cg instanceof PCChoiceGenerator))) {
-							prev_cg = prev_cg.getPreviousChoiceGenerator();
+						ChoiceGenerator prevChoiceGenerator = cg.getPreviousChoiceGenerator();
+						while (!((prevChoiceGenerator == null) || (prevChoiceGenerator instanceof PCChoiceGenerator))) {
+							prevChoiceGenerator = prevChoiceGenerator.getPreviousChoiceGenerator();
 						}
-						cg = prev_cg;
+						cg = prevChoiceGenerator;
 					}
 					if ((cg instanceof PCChoiceGenerator) &&
 							      ((PCChoiceGenerator) cg).getCurrentPC() != null){

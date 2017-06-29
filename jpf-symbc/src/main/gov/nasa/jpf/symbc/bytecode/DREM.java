@@ -51,13 +51,13 @@ public class DREM extends gov.nasa.jpf.jvm.bytecode.DREM {
 	public Instruction execute(ThreadInfo threadInfo) {
 		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
 
-		RealExpression symValue1 = (RealExpression) stackFrame.getLongOperandAttr();
+		RealExpression symDoubleValue1 = (RealExpression) stackFrame.getLongOperandAttr();
+		RealExpression symDoubleValue2 = (RealExpression) stackFrame.getLongOperandAttr();
+		
 		double doubleValue1 = Types.longToDouble(stackFrame.popLong());
-
-		RealExpression symValue2 = (RealExpression) stackFrame.getLongOperandAttr();
 		double doubleValue2 = Types.longToDouble(stackFrame.popLong());
 
-		if (symValue1 == null && symValue2 == null) {
+		if (symDoubleValue1 == null && symDoubleValue2 == null) {
 			if (doubleValue1 == 0) {
 				return threadInfo.createAndThrowException("java.lang.ArithmeticException", "division by zero");
 			}

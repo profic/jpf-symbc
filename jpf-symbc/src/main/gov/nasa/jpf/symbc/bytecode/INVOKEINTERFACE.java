@@ -24,32 +24,32 @@ import gov.nasa.jpf.vm.ThreadInfo;
 
 // need to fix names
 
-
-
-public class INVOKEINTERFACE extends gov.nasa.jpf.jvm.bytecode.INVOKEINTERFACE{
+public class INVOKEINTERFACE extends gov.nasa.jpf.jvm.bytecode.INVOKEINTERFACE {
 	public INVOKEINTERFACE(String clsName, String methodName, String methodSignature) {
-	    super(clsName, methodName, methodSignature);
-	  }
+		super(clsName, methodName, methodSignature);
+	}
+
 	@Override
 	public Instruction execute(ThreadInfo th) {
-		 int objRef = th.getCalleeThis(getArgSize());
+		int objRef = th.getCalleeThis(getArgSize());
 
-		    if (objRef == MJIEnv.NULL) {
-		      lastObj = -1;
-		      return th.createAndThrowException("java.lang.NullPointerException", "Calling '" + mname + "' on null object");
-		    }
+		if (objRef == MJIEnv.NULL) {
+			lastObj = -1;
+			return th.createAndThrowException("java.lang.NullPointerException",
+					"Calling '" + mname + "' on null object");
+		}
 
-		    MethodInfo mi = getInvokedMethod(th, objRef);
+		MethodInfo mi = getInvokedMethod(th, objRef);
 
-		    if (mi == null) {
-		      String clsName = th.getClassInfo(objRef).getName();
-		      return th.createAndThrowException("java.lang.NoSuchMethodError", clsName + '.' + mname);
-		    }
+		if (mi == null) {
+			String clsName = th.getClassInfo(objRef).getName();
+			return th.createAndThrowException("java.lang.NoSuchMethodError", clsName + '.' + mname);
+		}
 		BytecodeUtils.InstructionOrSuper nextInstr = BytecodeUtils.execute(this, th);
-        if (nextInstr.callSuper) {
-            return super.execute(th);
-        } else {
-            return nextInstr.inst;
-        }
-    }
+		if (nextInstr.callSuper) {
+			return super.execute(th);
+		} else {
+			return nextInstr.inst;
+		}
+	}
 }

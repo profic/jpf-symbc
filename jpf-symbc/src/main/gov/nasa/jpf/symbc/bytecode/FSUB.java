@@ -29,36 +29,36 @@ import gov.nasa.jpf.vm.Types;
 public class FSUB extends gov.nasa.jpf.jvm.bytecode.FSUB {
 
 	@Override
-	public Instruction execute(ThreadInfo th) {
+	public Instruction execute(ThreadInfo threadInfo) {
+		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
 
-		StackFrame sf = th.getModifiableTopFrame();
+		RealExpression symFloatValue1 = (RealExpression) stackFrame.getOperandAttr();
+		RealExpression symFloatValue2 = (RealExpression) stackFrame.getOperandAttr();
 
-		RealExpression sym_v1 = (RealExpression) sf.getOperandAttr();
-		float v1 = Types.intToFloat(sf.pop());
-		RealExpression sym_v2 = (RealExpression) sf.getOperandAttr();
-		float v2 = Types.intToFloat(sf.pop());
+		float floatValue1 = Types.intToFloat(stackFrame.pop());
+		float floatValue2 = Types.intToFloat(stackFrame.pop());
 
-		float r = v2 - v1;
-		if (sym_v1 == null && sym_v2 == null)
-			sf.push(Types.floatToInt(r), false);
-		else
-			sf.push(0, false);
-
-		RealExpression result = null;
-		if (sym_v2 != null) {
-			if (sym_v1 != null) {
-				result = sym_v2._minus(sym_v1);
-			}
-			else {
-				// v1 is concrete
-				result = sym_v2._minus(v1);
-			}
-		} else if (sym_v1 != null) {
-			result = sym_v1._minus_reverse(v2);
+		float floatResult = floatValue2 - floatValue1;
+		if (symFloatValue1 == null && symFloatValue2 == null) {
+			stackFrame.push(Types.floatToInt(floatResult), false);
+		} else {
+			stackFrame.push(0, false);
 		}
 
-		sf.setOperandAttr(result);
+		RealExpression result = null;
+		if (symFloatValue2 != null) {
+			if (symFloatValue1 != null) {
+				result = symFloatValue2._minus(symFloatValue1);
+			} else {
+				// v1 is concrete
+				result = symFloatValue2._minus(floatValue1);
+			}
+		} else if (symFloatValue1 != null) {
+			result = symFloatValue1._minus_reverse(floatValue2);
+		}
 
-		return getNext(th);
+		stackFrame.setOperandAttr(result);
+
+		return getNext(threadInfo);
 	}
 }

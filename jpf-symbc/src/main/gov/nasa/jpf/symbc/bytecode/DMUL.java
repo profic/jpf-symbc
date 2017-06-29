@@ -50,28 +50,29 @@ public class DMUL extends gov.nasa.jpf.jvm.bytecode.DMUL {
 	public Instruction execute(ThreadInfo threadInfo) {
 		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
 
-		RealExpression symValue1 = (RealExpression) stackFrame.getLongOperandAttr();
+		RealExpression symDoubleValue1 = (RealExpression) stackFrame.getLongOperandAttr();
+		RealExpression symDoubleValue2 = (RealExpression) stackFrame.getLongOperandAttr();
+		
 		double doubleValue1 = Types.longToDouble(stackFrame.popLong());
-		RealExpression symValue2 = (RealExpression) stackFrame.getLongOperandAttr();
 		double doubleValue2 = Types.longToDouble(stackFrame.popLong());
 
 		double doubleResult = doubleValue1 * doubleValue2;
 
-		if (symValue1 == null && symValue2 == null) {
+		if (symDoubleValue1 == null && symDoubleValue2 == null) {
 			stackFrame.pushLong(Types.doubleToLong(doubleResult));
 		} else {
 			stackFrame.pushLong(0);
 		}
 		
 		RealExpression symResult = null;
-		if (symValue2 != null) {
-			if (symValue1 != null) {
-				symResult = symValue2._mul(symValue1);
+		if (symDoubleValue2 != null) {
+			if (symDoubleValue1 != null) {
+				symResult = symDoubleValue2._mul(symDoubleValue1);
 			} else { // v1 is concrete
-				symResult = symValue2._mul(doubleValue1);
+				symResult = symDoubleValue2._mul(doubleValue1);
 			}
-		} else if (symValue1 != null) {
-			symResult = symValue1._mul(doubleValue2);
+		} else if (symDoubleValue1 != null) {
+			symResult = symDoubleValue1._mul(doubleValue2);
 		}
 
 		stackFrame.setLongOperandAttr(symResult);

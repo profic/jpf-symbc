@@ -105,12 +105,12 @@ public class AALOAD extends gov.nasa.jpf.jvm.bytecode.AALOAD {
           }
 
           PathCondition pc;
-          ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
+          ChoiceGenerator<?> prevChoiceGenerator = cg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
 
-          if (prev_cg == null)
+          if (prevChoiceGenerator == null)
               pc = new PathCondition();
           else
-              pc = ((PCChoiceGenerator)prev_cg).getCurrentPC();
+              pc = ((PCChoiceGenerator)prevChoiceGenerator).getCurrentPC();
 
           assert pc != null;
           indexAttr = ((IntegerExpression)peekIndexAttr(ti));
@@ -205,12 +205,12 @@ public class AALOAD extends gov.nasa.jpf.jvm.bytecode.AALOAD {
       }
 
       PathCondition pc;
-      ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
+      ChoiceGenerator<?> prevChoiceGenerator = cg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
 
-      if (prev_cg == null)
+      if (prevChoiceGenerator == null)
           pc = new PathCondition();
       else
-          pc = ((PCChoiceGenerator)prev_cg).getCurrentPC();
+          pc = ((PCChoiceGenerator)prevChoiceGenerator).getCurrentPC();
 
       if (pc.getArrayExpressions().containsKey(arrayAttr.getRootName())) {
          arrayAttr = (ArrayExpression)pc.getArrayExpressions().get(arrayAttr.getRootName());

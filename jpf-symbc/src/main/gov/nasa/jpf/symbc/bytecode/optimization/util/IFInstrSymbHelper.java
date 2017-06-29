@@ -134,12 +134,12 @@ public class IFInstrSymbHelper {
 			PathCondition pc;
 			PCChoiceGenerator curCg = (PCChoiceGenerator)ti.getVM().getSystemState().getChoiceGenerator();
 			
-			PCChoiceGenerator prevCg = curCg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
+			PCChoiceGenerator prevChoiceGenerator = curCg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
 			
-			if(prevCg == null )
+			if(prevChoiceGenerator == null )
 				pc = new PathCondition();
 			else
-				pc = ((PCChoiceGenerator)prevCg).getCurrentPC();
+				pc = ((PCChoiceGenerator)prevChoiceGenerator).getCurrentPC();
 			
 			conditionValue = ((PCChoiceGenerator) curCg).getNextChoice() -1;
 			if (conditionValue == -1) {
@@ -274,12 +274,12 @@ public class IFInstrSymbHelper {
 			PathCondition pc;
 			PCChoiceGenerator curCg = (PCChoiceGenerator)ti.getVM().getSystemState().getChoiceGenerator();
 			
-			PCChoiceGenerator prevCg = curCg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
+			PCChoiceGenerator prevChoiceGenerator = curCg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
 			
-			if(prevCg == null )
+			if(prevChoiceGenerator == null )
 				pc = new PathCondition();
 			else
-				pc = prevCg.getCurrentPC();
+				pc = prevChoiceGenerator.getCurrentPC();
 			
 			conditionValue = ((PCChoiceGenerator) curCg).getNextChoice() -1;
 			if (conditionValue == -1) {
@@ -416,12 +416,12 @@ public class IFInstrSymbHelper {
 			PathCondition pc;
 			PCChoiceGenerator curCg = (PCChoiceGenerator)ti.getVM().getSystemState().getChoiceGenerator();
 			
-			PCChoiceGenerator prevCg = curCg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
+			PCChoiceGenerator prevChoiceGenerator = curCg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
 			
-			if(prevCg == null )
+			if(prevChoiceGenerator == null )
 				pc = new PathCondition();
 			else
-				pc = prevCg.getCurrentPC();
+				pc = prevChoiceGenerator.getCurrentPC();
 			
 			conditionValue = ((PCChoiceGenerator) curCg).getNextChoice() -1;
 			if (conditionValue == -1) {
@@ -511,12 +511,12 @@ public class IFInstrSymbHelper {
 			PathCondition pc;
 			PCChoiceGenerator curCg = (PCChoiceGenerator)ti.getVM().getSystemState().getChoiceGenerator();
 			
-			PCChoiceGenerator prevCg = curCg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
+			PCChoiceGenerator prevChoiceGenerator = curCg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
 			
-			if(prevCg == null )
+			if(prevChoiceGenerator == null )
 				pc = new PathCondition();
 			else
-				pc = prevCg.getCurrentPC();
+				pc = prevChoiceGenerator.getCurrentPC();
 			boolean conditionValue = (Integer)curCg.getNextChoice()==1 ? true: false;
 			if(conditionValue) {
 				pc._addDet(trueComparator, sym_v, 0);
@@ -598,12 +598,12 @@ public class IFInstrSymbHelper {
 			PathCondition pc;
 			PCChoiceGenerator curCg = (PCChoiceGenerator)ti.getVM().getSystemState().getChoiceGenerator();
 			
-			PCChoiceGenerator prevCg = curCg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
+			PCChoiceGenerator prevChoiceGenerator = curCg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
 			
-			if(prevCg == null )
+			if(prevChoiceGenerator == null )
 				pc = new PathCondition();
 			else
-				pc = prevCg.getCurrentPC();
+				pc = prevChoiceGenerator.getCurrentPC();
 			
 			boolean conditionValue = (Integer)curCg.getNextChoice()==1 ? true: false;
 			if(conditionValue) {

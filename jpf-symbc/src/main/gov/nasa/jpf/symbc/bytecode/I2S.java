@@ -22,26 +22,22 @@ import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.StackFrame;
 import gov.nasa.jpf.vm.ThreadInfo;
 
-
 /**
- * Convert int to short
- * ..., value => ..., result
+ * Convert int to short ..., value => ..., result
  */
 public class I2S extends gov.nasa.jpf.jvm.bytecode.I2S {
- 
 
-  public Instruction execute (ThreadInfo th) {
-	  StackFrame sf = th.getModifiableTopFrame();
-	  Expression sym_val = (Expression) sf.getOperandAttr();
-		
-	  if(sym_val == null) {
-		  return super.execute(th); 
-	  }
-	  else {//symbolic
-		  Instruction result = super.execute(th);
-		  sf.setOperandAttr(sym_val);
-		  return result;
-	  }
-  }
+	public Instruction execute(ThreadInfo threadInfo) {
+		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
+		Expression symValue = (Expression) stackFrame.getOperandAttr();
 
+		if (symValue == null) {
+			return super.execute(threadInfo);
+		} else {  
+			Instruction result = super.execute(threadInfo);
+			stackFrame.setOperandAttr(symValue);
+			
+			return result;
+		}
+	}
 }

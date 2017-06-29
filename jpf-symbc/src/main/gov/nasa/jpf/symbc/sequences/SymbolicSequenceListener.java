@@ -157,11 +157,11 @@ public class SymbolicSequenceListener extends PropertyListenerAdapter implements
 		SystemState ss = vm.getSystemState();
 		ChoiceGenerator<?> cg = vm.getChoiceGenerator();
 		if (!(cg instanceof PCChoiceGenerator)){
-			ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGenerator();
-			while (!((prev_cg == null) || (prev_cg instanceof PCChoiceGenerator))) {
-				prev_cg = prev_cg.getPreviousChoiceGenerator();
+			ChoiceGenerator<?> prevChoiceGenerator = cg.getPreviousChoiceGenerator();
+			while (!((prevChoiceGenerator == null) || (prevChoiceGenerator instanceof PCChoiceGenerator))) {
+				prevChoiceGenerator = prevChoiceGenerator.getPreviousChoiceGenerator();
 			}
-			cg = prev_cg;
+			cg = prevChoiceGenerator;
 		}
 		Property prop = search.getLastError().getProperty();
 		String errAnn="";
@@ -214,11 +214,11 @@ public class SymbolicSequenceListener extends PropertyListenerAdapter implements
         		ChoiceGenerator<?> cg = vm.getChoiceGenerator();
         
         		if (!(cg instanceof PCChoiceGenerator)){
-        			ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGenerator();
-        			while (!((prev_cg == null) || (prev_cg instanceof PCChoiceGenerator))) {
-        					prev_cg = prev_cg.getPreviousChoiceGenerator();
+        			ChoiceGenerator<?> prevChoiceGenerator = cg.getPreviousChoiceGenerator();
+        			while (!((prevChoiceGenerator == null) || (prevChoiceGenerator instanceof PCChoiceGenerator))) {
+        					prevChoiceGenerator = prevChoiceGenerator.getPreviousChoiceGenerator();
         			}
-        			cg = prev_cg;
+        			cg = prevChoiceGenerator;
         		}
         
         		if ((cg instanceof PCChoiceGenerator) &&
@@ -328,11 +328,11 @@ public class SymbolicSequenceListener extends PropertyListenerAdapter implements
         			ChoiceGenerator<?> cg = vm.getChoiceGenerator();
         
         			if (!(cg instanceof PCChoiceGenerator)){
-        				ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGenerator();
-        				while (!((prev_cg == null) || (prev_cg instanceof PCChoiceGenerator))) {
-        						prev_cg = prev_cg.getPreviousChoiceGenerator();
+        				ChoiceGenerator<?> prevChoiceGenerator = cg.getPreviousChoiceGenerator();
+        				while (!((prevChoiceGenerator == null) || (prevChoiceGenerator instanceof PCChoiceGenerator))) {
+        						prevChoiceGenerator = prevChoiceGenerator.getPreviousChoiceGenerator();
         				}
-        				cg = prev_cg;
+        				cg = prevChoiceGenerator;
         			}
         
         			if ((cg instanceof PCChoiceGenerator) &&

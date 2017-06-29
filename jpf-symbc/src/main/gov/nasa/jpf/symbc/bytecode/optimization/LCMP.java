@@ -78,15 +78,15 @@ public class LCMP extends gov.nasa.jpf.jvm.bytecode.LCMP {
 		// pc is updated with the pc stored in the choice generator above get
 		// the path condition from the previous CG of the same type
 
-		ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGenerator();
-		while (!((prev_cg == null) || (prev_cg instanceof PCChoiceGenerator))) {
-			prev_cg = prev_cg.getPreviousChoiceGenerator();
+		ChoiceGenerator<?> prevChoiceGenerator = cg.getPreviousChoiceGenerator();
+		while (!((prevChoiceGenerator == null) || (prevChoiceGenerator instanceof PCChoiceGenerator))) {
+			prevChoiceGenerator = prevChoiceGenerator.getPreviousChoiceGenerator();
 		}
 
-		if (prev_cg == null)
+		if (prevChoiceGenerator == null)
 			pc = new PathCondition();
 		else
-			pc = ((PCChoiceGenerator) prev_cg).getCurrentPC();
+			pc = ((PCChoiceGenerator) prevChoiceGenerator).getCurrentPC();
 		assert pc != null;
 ////
 		if (conditionValue == -1) {

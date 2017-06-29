@@ -17,7 +17,6 @@
  */
 package gov.nasa.jpf.symbc.bytecode;
 
-
 import gov.nasa.jpf.symbc.numeric.*;
 import gov.nasa.jpf.vm.ChoiceGenerator;
 import gov.nasa.jpf.vm.Instruction;
@@ -26,12 +25,13 @@ import gov.nasa.jpf.vm.ThreadInfo;
 
 //we should factor out some of the code and put it in a parent class for all "if statements"
 
-public class IF_ICMPLT extends gov.nasa.jpf.jvm.bytecode.IF_ICMPLT{
-	public IF_ICMPLT(int targetPosition){
-	    super(targetPosition);
-	  }
+public class IF_ICMPLT extends gov.nasa.jpf.jvm.bytecode.IF_ICMPLT {
+	public IF_ICMPLT(int targetPosition) {
+		super(targetPosition);
+	}
+
 	@Override
-	public Instruction execute (ThreadInfo ti) {
+	public Instruction execute(ThreadInfo ti) {
 
 		StackFrame sf = ti.getModifiableTopFrame();
 
@@ -41,23 +41,23 @@ public class IF_ICMPLT extends gov.nasa.jpf.jvm.bytecode.IF_ICMPLT{
 		if ((sym_v1 == null) && (sym_v2 == null)) { // both conditions are concrete
 			//System.out.println("Execute IF_ICMPLT: The conditions are concrete");
 			return super.execute(ti);
-		}else{ // at least one condition is symbolic
+		} else { // at least one condition is symbolic
 			ChoiceGenerator<?> cg;
 
 			if (!ti.isFirstStepInsn()) { // first time around
 				cg = new PCChoiceGenerator(2);
-				((PCChoiceGenerator)cg).setOffset(this.position);
-				((PCChoiceGenerator)cg).setMethodName(this.getMethodInfo().getFullName());
+				((PCChoiceGenerator) cg).setOffset(this.position);
+				((PCChoiceGenerator) cg).setMethodName(this.getMethodInfo().getFullName());
 				ti.getVM().getSystemState().setNextChoiceGenerator(cg);
 				return this;
-			} else {  // this is what really returns results
+			} else { // this is what really returns results
 				cg = ti.getVM().getSystemState().getChoiceGenerator();
 				assert (cg instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got: " + cg;
-				conditionValue = (Integer)cg.getNextChoice()==0 ? false: true;
+				conditionValue = (Integer) cg.getNextChoice() == 0 ? false : true;
 			}
 
-			int	v2 = sf.pop();
-			int	v1 = sf.pop();
+			int v2 = sf.pop();
+			int v1 = sf.pop();
 			//System.out.println("Execute IF_ICMPLT: "+ conditionValue);
 			PathCondition pc;
 
@@ -65,45 +65,45 @@ public class IF_ICMPLT extends gov.nasa.jpf.jvm.bytecode.IF_ICMPLT{
 			// get the path condition from the
 			// previous choice generator of the same type
 
-			ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGenerator();
-			while (!((prev_cg == null) || (prev_cg instanceof PCChoiceGenerator))) {
-				prev_cg = prev_cg.getPreviousChoiceGenerator();
+			ChoiceGenerator<?> prevChoiceGenerator = cg.getPreviousChoiceGenerator();
+			while (!((prevChoiceGenerator == null) || (prevChoiceGenerator instanceof PCChoiceGenerator))) {
+				prevChoiceGenerator = prevChoiceGenerator.getPreviousChoiceGenerator();
 			}
 
-			if (prev_cg == null)
+			if (prevChoiceGenerator == null)
 				pc = new PathCondition();
 			else
-				pc = ((PCChoiceGenerator)prev_cg).getCurrentPC();
+				pc = ((PCChoiceGenerator) prevChoiceGenerator).getCurrentPC();
 
 			assert pc != null;
 
 			if (conditionValue) {
-				if (sym_v1 != null){
-					if (sym_v2 != null){ //both are symbolic values
-						pc._addDet(Comparator.LT,sym_v1,sym_v2);
-					}else
-						pc._addDet(Comparator.LT,sym_v1,v2);
-				}else
+				if (sym_v1 != null) {
+					if (sym_v2 != null) { //both are symbolic values
+						pc._addDet(Comparator.LT, sym_v1, sym_v2);
+					} else
+						pc._addDet(Comparator.LT, sym_v1, v2);
+				} else
 					pc._addDet(Comparator.LT, v1, sym_v2);
-				if(!pc.simplify())  {// not satisfiable
+				if (!pc.simplify()) {// not satisfiable
 					ti.getVM().getSystemState().setIgnored(true);
-				}else{
+				} else {
 					//pc.solve();
 					((PCChoiceGenerator) cg).setCurrentPC(pc);
 					//System.out.println(((PCChoiceGenerator) cg).getCurrentPC());
 				}
 				return getTarget();
 			} else {
-				if (sym_v1 != null){
-					if (sym_v2 != null){ //both are symbolic values
-						pc._addDet(Comparator.GE,sym_v1,sym_v2);
-					}else
-						pc._addDet(Comparator.GE,sym_v1,v2);
-				}else
+				if (sym_v1 != null) {
+					if (sym_v2 != null) { //both are symbolic values
+						pc._addDet(Comparator.GE, sym_v1, sym_v2);
+					} else
+						pc._addDet(Comparator.GE, sym_v1, v2);
+				} else
 					pc._addDet(Comparator.GE, v1, sym_v2);
-				if(!pc.simplify())  {// not satisfiable
+				if (!pc.simplify()) {// not satisfiable
 					ti.getVM().getSystemState().setIgnored(true);
-				}else {
+				} else {
 					//pc.solve();
 					((PCChoiceGenerator) cg).setCurrentPC(pc);
 					//System.out.println("IF_ICMPLT: " + ((PCChoiceGenerator) cg).getCurrentPC());

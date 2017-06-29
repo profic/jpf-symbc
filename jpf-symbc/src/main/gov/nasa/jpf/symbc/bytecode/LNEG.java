@@ -17,12 +17,10 @@
  */
 package gov.nasa.jpf.symbc.bytecode;
 
-
 import gov.nasa.jpf.symbc.numeric.IntegerExpression;
 import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.StackFrame;
 import gov.nasa.jpf.vm.ThreadInfo;
-
 
 /**
  * Negate long
@@ -30,29 +28,29 @@ import gov.nasa.jpf.vm.ThreadInfo;
  */
 public class LNEG extends gov.nasa.jpf.jvm.bytecode.LNEG {
 
-  @Override
-  public Instruction execute (ThreadInfo th) {
-    StackFrame sf = th.getModifiableTopFrame();
+	@Override
+	public Instruction execute(ThreadInfo th) {
+		StackFrame sf = th.getModifiableTopFrame();
 
-    IntegerExpression sym_v1 = (IntegerExpression) sf.getLongOperandAttr();
-    long v1 = sf.popLong();
-    
-  //System.out.println("Execute LNEG: "+Helper.get(index));
-    
-    if(sym_v1==null)
-        sf.pushLong(-v1); // we'll still do the concrete execution
-    else
-        sf.pushLong(0);
-    
-    IntegerExpression result = null;
-    if(sym_v1!=null) {
-        result = sym_v1._neg();
-    }
-    sf.setLongOperandAttr(result);
-    
-    //System.out.println("Execute LNEG: "+result);
+		IntegerExpression sym_v1 = (IntegerExpression) sf.getLongOperandAttr();
+		long v1 = sf.popLong();
 
-    return getNext(th);
-  }
+		//System.out.println("Execute LNEG: "+Helper.get(index));
+
+		if (sym_v1 == null)
+			sf.pushLong(-v1); // we'll still do the concrete execution
+		else
+			sf.pushLong(0);
+
+		IntegerExpression result = null;
+		if (sym_v1 != null) {
+			result = sym_v1._neg();
+		}
+		sf.setLongOperandAttr(result);
+
+		//System.out.println("Execute LNEG: "+result);
+
+		return getNext(th);
+	}
 
 }

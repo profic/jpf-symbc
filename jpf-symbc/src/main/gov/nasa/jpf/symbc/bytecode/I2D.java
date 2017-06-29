@@ -17,72 +17,69 @@
  */
 package gov.nasa.jpf.symbc.bytecode;
 
-
 import gov.nasa.jpf.symbc.numeric.*;
 import gov.nasa.jpf.vm.ChoiceGenerator;
 import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.StackFrame;
 import gov.nasa.jpf.vm.ThreadInfo;
 
-
 /**
- * Convert int to double
- * ..., value => ..., result
+ * Convert int to double ..., value => ..., result
  */
 public class I2D extends gov.nasa.jpf.jvm.bytecode.I2D {
-	
-  @Override
-  public Instruction execute (ThreadInfo th) {
-	  
-	  IntegerExpression sym_ival = (IntegerExpression) th.getModifiableTopFrame().getOperandAttr(); 
-		
-	  if(sym_ival == null) {
-		  return super.execute(th); 
-	  }
-	  else {
-		  
-		  // here we get a hold of the current path condition and 
-		  // add an extra mixed constraint sym_dval==sym_ival
 
-		    ChoiceGenerator<?> cg; 
-			if (!th.isFirstStepInsn()) { // first time around
-				cg = new PCChoiceGenerator(1); // only one choice 
-				th.getVM().getSystemState().setNextChoiceGenerator(cg);
-				return this;  	      
-			} else {  // this is what really returns results
-				cg = th.getVM().getSystemState().getChoiceGenerator();
-				assert (cg instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got: " + cg;
-			}	
-			
-			// get the path condition from the 
-			// previous choice generator of the same type 
+	@Override
+	public Instruction execute(ThreadInfo threadInfo) {
+		IntegerExpression symIntegerValue = (IntegerExpression) threadInfo.getModifiableTopFrame().getOperandAttr();
 
-		    PathCondition pc;
-			ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
+		if (symIntegerValue == null) {
+			return super.execute(threadInfo);
+		} else {
+			// here we get a hold of the current path condition and
+			// add an extra mixed constraint sym_dval==sym_ival
 
-			if (prev_cg == null)
-				pc = new PathCondition(); // TODO: handling of preconditions needs to be changed
-			else 
-				pc = ((PCChoiceGenerator)prev_cg).getCurrentPC();
-			assert pc != null;
-			
-			StackFrame sf = th.getModifiableTopFrame();
-			sf.pop();
-			sf.pushLong(0); // for symbolic expressions, the concrete value does not matter
-			SymbolicReal sym_dval = new SymbolicReal();
-			sf.setLongOperandAttr(sym_dval);
-			
-			pc._addDet(Comparator.EQ, sym_dval, sym_ival);
-			
-			if(!pc.simplify())  { // not satisfiable
-				th.getVM().getSystemState().setIgnored(true);
-			} else {
-				((PCChoiceGenerator) cg).setCurrentPC(pc);
+			ChoiceGenerator<?> choiceGenerator;
+			if (!threadInfo.isFirstStepInsn()) { // first time around
+				choiceGenerator = new PCChoiceGenerator(1); // only one choice
+				threadInfo.getVM().getSystemState().setNextChoiceGenerator(choiceGenerator);
+
+				return this;
+			} else { // this is what really returns results
+				choiceGenerator = threadInfo.getVM().getSystemState().getChoiceGenerator();
+				assert (choiceGenerator instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got: "
+						+ choiceGenerator;
 			}
-			
-			return getNext(th);
-	  }
-    
-  }
 
+			// get the path condition from the
+			// previous choice generator of the same type
+
+			PathCondition pathCondition;
+			ChoiceGenerator<?> prevChoiceGenerator = choiceGenerator
+					.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
+
+			if (prevChoiceGenerator == null) {
+				pathCondition = new PathCondition();  // TODO: handling of preconditions  needs to be changed
+			} else {
+				pathCondition = ((PCChoiceGenerator) prevChoiceGenerator).getCurrentPC();
+			}
+			assert pathCondition != null;
+
+			StackFrame stackFrame = threadInfo.getModifiableTopFrame();
+			stackFrame.pop();
+			stackFrame.pushLong(0); // for symbolic expressions, the concrete value does not matter
+			
+			SymbolicReal symDoubleValue = new SymbolicReal();
+			stackFrame.setLongOperandAttr(symDoubleValue);
+
+			pathCondition._addDet(Comparator.EQ, symDoubleValue, symIntegerValue);
+
+			if (!pathCondition.simplify()) { // not satisfiable
+				threadInfo.getVM().getSystemState().setIgnored(true);
+			} else {
+				((PCChoiceGenerator) choiceGenerator).setCurrentPC(pathCondition);
+			}
+
+			return getNext(threadInfo);
+		}
+	}
 }

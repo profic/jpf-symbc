@@ -18,7 +18,6 @@
 
 package gov.nasa.jpf.symbc.bytecode;
 
-
 import gov.nasa.jpf.symbc.numeric.IntegerExpression;
 import gov.nasa.jpf.symbc.string.SymbolicLengthInteger;
 import gov.nasa.jpf.vm.ClassInfo;
@@ -43,39 +42,39 @@ public class MULTIANEWARRAY extends gov.nasa.jpf.jvm.bytecode.MULTIANEWARRAY {
 	}
 
 	@Override
-	public Instruction execute(ThreadInfo ti) {
+	public Instruction execute(ThreadInfo threadInfo) {
 		arrayLengths = new int[dimensions];
-		StackFrame sf = ti.getModifiableTopFrame();
+		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
 		for (int i = dimensions - 1; i >= 0; i--) {
-			Object attr = sf.getOperandAttr();
-			
-			if(attr instanceof SymbolicLengthInteger) {
+			Object attr = stackFrame.getOperandAttr();
+
+			if (attr instanceof SymbolicLengthInteger) {
 				long l = ((SymbolicLengthInteger) attr).solution;
-				assert(l>=0 && l<=Integer.MAX_VALUE) : "Array length must be positive integer";
+				assert (l >= 0 && l <= Integer.MAX_VALUE) : "Array length must be positive integer";
 				arrayLengths[i] = (int) l;
-				sf.pop();
-			} else 	if(attr instanceof IntegerExpression) {
+				stackFrame.pop();
+			} else if (attr instanceof IntegerExpression) {
 				throw new RuntimeException("MULTIANEWARRAY: symbolic array length");
 			} else {
-				arrayLengths[i] = sf.pop();
+				arrayLengths[i] = stackFrame.pop();
 			}
 		}
 
 		//the remainder of the code is identical to the parent class
-		
+
 		// there is no clinit for array classes, but we still have  to create a class object
 		// since its a builtin class, we also don't have to bother with NoClassDefFoundErrors
-		ClassInfo ci = ClassLoaderInfo.getCurrentResolvedClassInfo(type);
-		if (!ci.isRegistered()) {
-			ci.registerClass(ti);
-			ci.setInitialized();
+		ClassInfo classInfo = ClassLoaderInfo.getCurrentResolvedClassInfo(type);
+		if (!classInfo.isRegistered()) {
+			classInfo.registerClass(threadInfo);
+			classInfo.setInitialized();
 		}
-		    
-		int arrayRef = allocateArray(ti.getHeap(), type, arrayLengths, ti, 0);
+
+		int arrayRef = allocateArray(threadInfo.getHeap(), type, arrayLengths, threadInfo, 0);
 
 		// put the result (the array reference) on the stack
-		sf.push(arrayRef, true);
+		stackFrame.push(arrayRef, true);
 
-		return getNext(ti);
+		return getNext(threadInfo);
 	}
 }

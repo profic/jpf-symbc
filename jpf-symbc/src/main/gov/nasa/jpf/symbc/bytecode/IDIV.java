@@ -34,8 +34,6 @@
 //DOCUMENTATION, IF PROVIDED, WILL CONFORM TO THE SUBJECT SOFTWARE.
 package gov.nasa.jpf.symbc.bytecode;
 
-
-
 import gov.nasa.jpf.symbc.numeric.*;
 import gov.nasa.jpf.vm.ChoiceGenerator;
 import gov.nasa.jpf.vm.Instruction;
@@ -45,97 +43,99 @@ import gov.nasa.jpf.vm.ThreadInfo;
 public class IDIV extends gov.nasa.jpf.jvm.bytecode.IDIV {
 
 	@Override
-	public Instruction execute (ThreadInfo th) {
-		StackFrame sf = th.getModifiableTopFrame();
-		IntegerExpression sym_v1 = (IntegerExpression) sf.getOperandAttr(0);
-		IntegerExpression sym_v2 = (IntegerExpression) sf.getOperandAttr(1);
-		int v1, v2;
+	public Instruction execute(ThreadInfo threadInfo) {
+		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
+		
+		IntegerExpression symIntegerValue1 = (IntegerExpression) stackFrame.getOperandAttr(0);
+		IntegerExpression symIntegerValue2 = (IntegerExpression) stackFrame.getOperandAttr(1);
+		
+		int integerValue1;
+		int integerValue2;
 
-
-		if(sym_v1==null && sym_v2==null)
-			return super.execute(th); // we'll still do the concrete execution
+		if (symIntegerValue1 == null && symIntegerValue2 == null) {
+			return super.execute(threadInfo);  // we'll still do the concrete execution
+		}
 
 		// result is symbolic
 
-		if(sym_v1==null && sym_v2!=null) {
-	    	v1 = sf.pop();
-	    	v2 = sf.pop();
-	    	if(v1==0)
-				return th.createAndThrowException("java.lang.ArithmeticException","div by 0");
-	    	sf.push(0, false);
-	    	IntegerExpression result = sym_v2._div(v1);
-			sf.setOperandAttr(result);
-		    return getNext(th);
-	    }
+		if (symIntegerValue1 == null && symIntegerValue2 != null) {
+			integerValue1 = stackFrame.pop();
+			integerValue2 = stackFrame.pop();
+			if (integerValue1 == 0) {
+				return threadInfo.createAndThrowException("java.lang.ArithmeticException", "div by 0");
+			}
+			stackFrame.push(0, false);
+			IntegerExpression result = symIntegerValue2._div(integerValue1);
+			stackFrame.setOperandAttr(result);
+			
+			return getNext(threadInfo);
+		}
 
 		// div by zero check affects path condition
-	    // sym_v1 is non-null and should be checked against zero
+		// sym_v1 is non-null and should be checked against zero
 
-		ChoiceGenerator<?> cg;
+		ChoiceGenerator<?> choiceGenerator;
 		boolean condition;
 
-		if (!th.isFirstStepInsn()) { // first time around
-			cg = new PCChoiceGenerator(2);
-			((PCChoiceGenerator)cg).setOffset(this.position);
-			((PCChoiceGenerator)cg).setMethodName(this.getMethodInfo().getFullName());
-			th.getVM().setNextChoiceGenerator(cg);
+		if (!threadInfo.isFirstStepInsn()) { // first time around
+			choiceGenerator = new PCChoiceGenerator(2);
+			((PCChoiceGenerator) choiceGenerator).setOffset(this.position);
+			((PCChoiceGenerator) choiceGenerator).setMethodName(this.getMethodInfo().getFullName());
+			threadInfo.getVM().setNextChoiceGenerator(choiceGenerator);
+			
 			return this;
-		} else {  // this is what really returns results
-			cg = th.getVM().getChoiceGenerator();
-			assert (cg instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got: " + cg;
-			condition = (Integer)cg.getNextChoice()==0 ? false: true;
+		} else { // this is what really returns results
+			choiceGenerator = threadInfo.getVM().getChoiceGenerator();
+			assert (choiceGenerator instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got: " + choiceGenerator;
+			condition = (Integer) choiceGenerator.getNextChoice() == 0 ? false : true;
 		}
 
+		integerValue1 = stackFrame.pop();
+		integerValue2 = stackFrame.pop();
+		stackFrame.push(0, false);
 
-		v1 = sf.pop();
-		v2 = sf.pop();
-		sf.push(0, false);
+		PathCondition pathCondition;
+		ChoiceGenerator<?> prevChoiceGenerator = choiceGenerator.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
 
-		PathCondition pc;
-		ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
-
-		
-		if (prev_cg == null)
-			pc = new PathCondition();
-		else
-			pc = ((PCChoiceGenerator)prev_cg).getCurrentPC();
-
-		assert pc != null;
-
-		if(condition) { // check div by zero
-			pc._addDet(Comparator.EQ, sym_v1, 0);
-			if(pc.simplify())  { // satisfiable
-				((PCChoiceGenerator) cg).setCurrentPC(pc);
-
-				return th.createAndThrowException("java.lang.ArithmeticException","div by 0");
-			}
-			else {
-				th.getVM().getSystemState().setIgnored(true);
-				return getNext(th);
-			}
+		if (prevChoiceGenerator == null) {
+			pathCondition = new PathCondition();
+		} else {
+			pathCondition = ((PCChoiceGenerator) prevChoiceGenerator).getCurrentPC();
 		}
-		else {
-			pc._addDet(Comparator.NE, sym_v1, 0);
-			if(pc.simplify())  { // satisfiable
-				((PCChoiceGenerator) cg).setCurrentPC(pc);
+		assert pathCondition != null;
+
+		if (condition) { // check div by zero
+			pathCondition._addDet(Comparator.EQ, symIntegerValue1, 0);
+			if (pathCondition.simplify()) { // satisfiable
+				((PCChoiceGenerator) choiceGenerator).setCurrentPC(pathCondition);
+
+				return threadInfo.createAndThrowException("java.lang.ArithmeticException", "div by 0");
+			} else {
+				threadInfo.getVM().getSystemState().setIgnored(true);
+				
+				return getNext(threadInfo);
+			}
+		} else {
+			pathCondition._addDet(Comparator.NE, symIntegerValue1, 0);
+			if (pathCondition.simplify()) { // satisfiable
+				((PCChoiceGenerator) choiceGenerator).setCurrentPC(pathCondition);
 
 				// set the result
 				IntegerExpression result;
-				if(sym_v2!=null)
-					result = sym_v2._div(sym_v1);
-				else
-					result = sym_v1._div_reverse(v2);
-
-				sf = th.getModifiableTopFrame();
-				sf.setOperandAttr(result);
-			    return getNext(th);
-
-			}
-			else {
-				th.getVM().getSystemState().setIgnored(true);
-				return getNext(th);
+				if (symIntegerValue2 != null) {
+					result = symIntegerValue2._div(symIntegerValue1);
+				} else {
+					result = symIntegerValue1._div_reverse(integerValue2);
+				}
+				stackFrame = threadInfo.getModifiableTopFrame();
+				stackFrame.setOperandAttr(result);
+				
+				return getNext(threadInfo);
+			} else {
+				threadInfo.getVM().getSystemState().setIgnored(true);
+				
+				return getNext(threadInfo);
 			}
 		}
-
 	}
 }

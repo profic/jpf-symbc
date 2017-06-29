@@ -22,43 +22,39 @@ import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.StackFrame;
 import gov.nasa.jpf.vm.ThreadInfo;
 
-
 /**
  * Boolean XOR long
  * ..., value1, value2 => ..., result
  */
 public class LXOR extends gov.nasa.jpf.jvm.bytecode.LXOR {
 
-  @Override
-  public Instruction execute (ThreadInfo th) {
-	    StackFrame sf = th.getModifiableTopFrame();
-	  
-		IntegerExpression sym_v1 = (IntegerExpression) sf.getOperandAttr(1);
-		IntegerExpression sym_v2 = (IntegerExpression) sf.getOperandAttr(3);
-	    
-	    if(sym_v1==null && sym_v2==null)
-	        return super.execute( th);// we'll still do the concrete execution
-	    else {
-	    	long v1 = sf.popLong();
-	    	long v2 = sf.popLong();
-	    	sf.pushLong(0); // for symbolic expressions, the concrete value does not matter
+	@Override
+	public Instruction execute(ThreadInfo threadInfo) {
+		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
 
-	    	IntegerExpression result = null;
-	    	if(sym_v1!=null) {
-	    		if (sym_v2!=null)
-	    			result = sym_v1._xor(sym_v2);
-	    		else // v2 is concrete
-	    			result = sym_v1._xor(v2);
-	    	}
-	    	else if (sym_v2!=null) {
-	    		result = sym_v2._xor(v1);
+		IntegerExpression symLongValue1 = (IntegerExpression) stackFrame.getOperandAttr(1);
+		IntegerExpression symLongValue2 = (IntegerExpression) stackFrame.getOperandAttr(3);
 
-	    	}
-	    	sf.setLongOperandAttr(result);
+		if (symLongValue1 == null && symLongValue2 == null) {
+			return super.execute(threadInfo);
+		} else {
+			long longValue1 = stackFrame.popLong();
+			long longValue2 = stackFrame.popLong();
+			stackFrame.pushLong(0);
 
-	    	//System.out.println("Execute LADD: "+sf.getLongOperandAttr());
+			IntegerExpression symResult = null;
+			if (symLongValue1 != null) {
+				if (symLongValue2 != null) {
+					symResult = symLongValue1._xor(symLongValue2);
+				} else {
+					symResult = symLongValue1._xor(longValue2);
+				}
+			} else if (symLongValue2 != null) {
+				symResult = symLongValue2._xor(longValue1);
+			}
+			stackFrame.setLongOperandAttr(symResult);
 
-	    	return getNext(th);
-	    }   
-  }
+			return getNext(threadInfo);
+		}
+	}
 }

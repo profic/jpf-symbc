@@ -50,14 +50,14 @@ public class DNEG extends gov.nasa.jpf.jvm.bytecode.DNEG {
 	@Override
 	public Instruction execute(ThreadInfo threadInfo) {
 		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
-		RealExpression symValue = (RealExpression) stackFrame.getLongOperandAttr();
+		RealExpression symDoubleValue = (RealExpression) stackFrame.getLongOperandAttr();
 		double doubleValue = Types.longToDouble(stackFrame.popLong());
 
-		if (symValue == null) {
+		if (symDoubleValue == null) {
 			stackFrame.pushLong(Types.doubleToLong(-doubleValue));
 		} else {
 			stackFrame.pushLong(0);
-			RealExpression symResult = symValue._neg();
+			RealExpression symResult = symDoubleValue._neg();
 			stackFrame.setLongOperandAttr(symResult);
 		}
 

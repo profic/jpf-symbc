@@ -19,33 +19,31 @@ package gov.nasa.jpf.symbc.bytecode;
 
 import gov.nasa.jpf.jvm.bytecode.JVMInstructionVisitor;
 
-
 /**
  * Access jump table by key match and jump
  * ..., key => ...
  */
 public class LOOKUPSWITCH extends SwitchInstruction implements gov.nasa.jpf.vm.bytecode.LookupSwitchInstruction {
 
-	public LOOKUPSWITCH (int defaultTarget, int numberOfTargets) {
-	    super(defaultTarget, numberOfTargets);
-	  }
+	public LOOKUPSWITCH(int defaultTarget, int numberOfTargets) {
+		super(defaultTarget, numberOfTargets);
+	}
 
-	  public void setTarget (int index, int match, int target){
-	    targets[index] = target;
-	    matches[index] = match;
-	  }
+	public void setTarget(int index, int match, int target) {
+		targets[index] = target;
+		matches[index] = match;
+	}
 
+	public int getLength() {
+		return 10 + 2 * (matches.length); // <2do> NOT RIGHT: padding!!
+	}
 
-	  public int getLength() {
-	    return 10 + 2*(matches.length); // <2do> NOT RIGHT: padding!!
-	  }
+	public int getByteCode() {
+		return 0xAB;
+	}
 
-	  public int getByteCode () {
-	    return 0xAB;
-	  }
-
-	  public void accept(JVMInstructionVisitor insVisitor) {
-		  insVisitor.visit(this);
-	  }
+	public void accept(JVMInstructionVisitor insVisitor) {
+		insVisitor.visit(this);
+	}
 
 }

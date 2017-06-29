@@ -34,7 +34,6 @@
 //DOCUMENTATION, IF PROVIDED, WILL CONFORM TO THE SUBJECT SOFTWARE.
 package gov.nasa.jpf.symbc.bytecode;
 
-
 import gov.nasa.jpf.symbc.numeric.*;
 import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.StackFrame;
@@ -43,33 +42,31 @@ import gov.nasa.jpf.vm.ThreadInfo;
 public class IADD extends gov.nasa.jpf.jvm.bytecode.IADD {
 
 	@Override
-	public Instruction execute (ThreadInfo th) {
-		
-		StackFrame sf = th.getModifiableTopFrame();
-		IntegerExpression sym_v1 = (IntegerExpression) sf.getOperandAttr(0); 
-		IntegerExpression sym_v2 = (IntegerExpression) sf.getOperandAttr(1);
-		
-		if(sym_v1==null && sym_v2==null)
-			return super.execute(th); // we'll still do the concrete execution
-		else {
-			int v1 = sf.pop();
-			int v2 = sf.pop();
-			sf.push(0, false); // for symbolic expressions, the concrete value does not matter
-		
-			IntegerExpression result = null;
-			if(sym_v1!=null) {
-				if (sym_v2!=null)
-					result = sym_v1._plus(sym_v2);
-				else // v2 is concrete
-					result = sym_v1._plus(v2);
+	public Instruction execute(ThreadInfo threadInfo) {
+		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
+		IntegerExpression symIntegerValue1 = (IntegerExpression) stackFrame.getOperandAttr(0);
+		IntegerExpression symIntegerValue2 = (IntegerExpression) stackFrame.getOperandAttr(1);
+
+		if (symIntegerValue1 == null && symIntegerValue2 == null) {
+			return super.execute(threadInfo);  // we'll still do the concrete execution
+		} else {
+			int integerValue1 = stackFrame.pop();
+			int integerValue2 = stackFrame.pop();
+			stackFrame.push(0, false);  // for symbolic expressions, the concrete value does not matter
+
+			IntegerExpression symResult = null;
+			if (symIntegerValue1 != null) {
+				if (symIntegerValue2 != null) {
+					symResult = symIntegerValue1._plus(symIntegerValue2);
+				} else {  // v2 is concrete
+					symResult = symIntegerValue1._plus(integerValue2);
+				}
+			} else if (symIntegerValue2 != null) {
+				symResult = symIntegerValue2._plus(integerValue1);
 			}
-			else if (sym_v2!=null)
-				result = sym_v2._plus(v1);
-			sf.setOperandAttr(result);
-		
-			//System.out.println("Execute IADD: "+result);
-		
-			return getNext(th);
+			stackFrame.setOperandAttr(symResult);
+
+			return getNext(threadInfo);
 		}
 	}
 }

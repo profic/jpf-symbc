@@ -55,12 +55,13 @@ public class DDIV extends gov.nasa.jpf.jvm.bytecode.DDIV {
 	public Instruction execute(ThreadInfo threadInfo) {
 		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
 
-		RealExpression symValue1 = (RealExpression) stackFrame.getOperandAttr(1);
+		RealExpression symDoubleValue1 = (RealExpression) stackFrame.getOperandAttr(1);
+		RealExpression symDoubleValue2 = (RealExpression) stackFrame.getOperandAttr(3);
+		
 		double doubleValue1;
-		RealExpression symValue2 = (RealExpression) stackFrame.getOperandAttr(3);
 		double doubleValue2;
 
-		if (symValue1 == null && symValue2 == null) {
+		if (symDoubleValue1 == null && symDoubleValue2 == null) {
 			doubleValue1 = Types.longToDouble(stackFrame.popLong());
 			doubleValue2 = Types.longToDouble(stackFrame.popLong());
 			if (doubleValue1 == 0) {
@@ -73,13 +74,13 @@ public class DDIV extends gov.nasa.jpf.jvm.bytecode.DDIV {
 		}
 
 		// result is symbolic expression
-		if (symValue1 == null && symValue2 != null) {
+		if (symDoubleValue1 == null && symDoubleValue2 != null) {
 			doubleValue1 = Types.longToDouble(stackFrame.popLong());
 			doubleValue2 = Types.longToDouble(stackFrame.popLong());
 			if (doubleValue1 == 0)
 				return threadInfo.createAndThrowException("java.lang.ArithmeticException", "div by 0");
 			stackFrame.pushLong(0);
-			RealExpression symResult = symValue2._div(doubleValue1);
+			RealExpression symResult = symDoubleValue2._div(doubleValue1);
 			stackFrame.setLongOperandAttr(symResult);
 
 			return getNext(threadInfo);
@@ -120,7 +121,7 @@ public class DDIV extends gov.nasa.jpf.jvm.bytecode.DDIV {
 		assert pathCondition != null;
 
 		if (condition) { // check div by zero
-			pathCondition._addDet(Comparator.EQ, symValue1, 0);
+			pathCondition._addDet(Comparator.EQ, symDoubleValue1, 0);
 			if (pathCondition.simplify()) { // satisfiable
 				((PCChoiceGenerator) choiceGenerator).setCurrentPC(pathCondition);
 				
@@ -131,15 +132,15 @@ public class DDIV extends gov.nasa.jpf.jvm.bytecode.DDIV {
 				return getNext(threadInfo);
 			}
 		} else {
-			pathCondition._addDet(Comparator.NE, symValue1, 0);
+			pathCondition._addDet(Comparator.NE, symDoubleValue1, 0);
 			if (pathCondition.simplify()) { // satisfiable
 				((PCChoiceGenerator) choiceGenerator).setCurrentPC(pathCondition);
 				
 				RealExpression result;
-				if (symValue2 != null) {
-					result = symValue2._div(symValue1);
+				if (symDoubleValue2 != null) {
+					result = symDoubleValue2._div(symDoubleValue1);
 				} else {
-					result = symValue1._div_reverse(doubleValue2);
+					result = symDoubleValue1._div_reverse(doubleValue2);
 				}
 				
 				stackFrame = threadInfo.getModifiableTopFrame();

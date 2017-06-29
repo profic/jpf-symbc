@@ -17,99 +17,101 @@
  */
 package gov.nasa.jpf.symbc.bytecode;
 
-
 import gov.nasa.jpf.symbc.numeric.*;
 import gov.nasa.jpf.vm.ChoiceGenerator;
 import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.StackFrame;
 import gov.nasa.jpf.vm.ThreadInfo;
 
-//we should factor out some of the code and put it in a parent class for all "if statements"
+// we should factor out some of the code and put it in a parent class for all "if statements"
 
-public class IF_ICMPGE extends gov.nasa.jpf.jvm.bytecode.IF_ICMPGE{
-	public IF_ICMPGE(int targetPosition){
-	    super(targetPosition);
-	  }
+public class IF_ICMPGE extends gov.nasa.jpf.jvm.bytecode.IF_ICMPGE {
+	public IF_ICMPGE(int targetPosition) {
+		super(targetPosition);
+	}
+
 	@Override
-	public Instruction execute (ThreadInfo ti) {
+	public Instruction execute(ThreadInfo threadInfo) {
+		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
 
-		StackFrame sf = ti.getModifiableTopFrame();
+		IntegerExpression symIntegerValue1 = (IntegerExpression) stackFrame.getOperandAttr(1);
+		IntegerExpression symIntegerValue2 = (IntegerExpression) stackFrame.getOperandAttr(0);
 
-		IntegerExpression sym_v1 = (IntegerExpression) sf.getOperandAttr(1);
-		IntegerExpression sym_v2 = (IntegerExpression) sf.getOperandAttr(0);
+		if ((symIntegerValue1 == null) && (symIntegerValue2 == null)) {
+			return super.execute(threadInfo);
+		} else {
+			ChoiceGenerator<?> choiceGenerator;
 
-		if ((sym_v1 == null) && (sym_v2 == null)) { // both conditions are concrete
-			//System.out.println("Execute IF_ICMPGE: The conditions are concrete");
-			return super.execute(ti);
-		}else{ // at least one condition is symbolic
-			//System.out.println("Execute IF_ICMPGE: The conditions are symbolic");
-			ChoiceGenerator<?> cg;
-
-			if (!ti.isFirstStepInsn()) { // first time around
-				cg = new PCChoiceGenerator(2);
-				((PCChoiceGenerator)cg).setOffset(this.position);
-				((PCChoiceGenerator)cg).setMethodName(this.getMethodInfo().getFullName());
-				ti.getVM().getSystemState().setNextChoiceGenerator(cg);
+			if (!threadInfo.isFirstStepInsn()) { // first time around
+				choiceGenerator = new PCChoiceGenerator(2);
+				((PCChoiceGenerator) choiceGenerator).setOffset(this.position);
+				((PCChoiceGenerator) choiceGenerator).setMethodName(this.getMethodInfo().getFullName());
+				threadInfo.getVM().getSystemState().setNextChoiceGenerator(choiceGenerator);
+				
 				return this;
-			} else {  // this is what really returns results
-				cg = ti.getVM().getSystemState().getChoiceGenerator();
-				assert (cg instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got: " + cg;
-				conditionValue = (Integer)cg.getNextChoice()==0 ? false: true;
+			} else { // this is what really returns results
+				choiceGenerator = threadInfo.getVM().getSystemState().getChoiceGenerator();
+				assert (choiceGenerator instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got: " + choiceGenerator;
+				conditionValue = (Integer) choiceGenerator.getNextChoice() == 0 ? false : true;
 			}
 
-			int	v2 = sf.pop();
-			int	v1 = sf.pop();
-			//System.out.println("Execute IF_ICMPGE: "+ conditionValue);
-			PathCondition pc;
+			int integerValue1 = stackFrame.pop();
+			int integerValue2 = stackFrame.pop();
+			PathCondition pathCondition;
 
 			// pc is updated with the pc stored in the choice generator above
 			// get the path condition from the
 			// previous choice generator of the same type
 
-			ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGenerator();
-			while (!((prev_cg == null) || (prev_cg instanceof PCChoiceGenerator))) {
-				prev_cg = prev_cg.getPreviousChoiceGenerator();
+			ChoiceGenerator<?> prevChoiceGenerator = choiceGenerator.getPreviousChoiceGenerator();
+			while (!((prevChoiceGenerator == null) || (prevChoiceGenerator instanceof PCChoiceGenerator))) {
+				prevChoiceGenerator = prevChoiceGenerator.getPreviousChoiceGenerator();
 			}
 
-			if (prev_cg == null)
-				pc = new PathCondition();
-			else
-				pc = ((PCChoiceGenerator)prev_cg).getCurrentPC();
-
-			assert pc != null;
+			if (prevChoiceGenerator == null) {
+				pathCondition = new PathCondition();
+			} else {
+				pathCondition = ((PCChoiceGenerator) prevChoiceGenerator).getCurrentPC();
+			}
+			assert pathCondition != null;
 
 			if (conditionValue) {
-				if (sym_v1 != null){
-					if (sym_v2 != null){ //both are symbolic values
-						pc._addDet(Comparator.GE,sym_v1,sym_v2);
-					}else
-						pc._addDet(Comparator.GE,sym_v1,v2);
-				}else
-					pc._addDet(Comparator.GE, v1, sym_v2);
-				if(!pc.simplify())  {// not satisfiable
-					ti.getVM().getSystemState().setIgnored(true);
-				}else{
-					//pc.solve();
-					((PCChoiceGenerator) cg).setCurrentPC(pc);
-				//	System.out.println(((PCChoiceGenerator) cg).getCurrentPC());
+				if (symIntegerValue1 != null) {
+					if (symIntegerValue2 != null) { // both are symbolic values
+						pathCondition._addDet(Comparator.GE, symIntegerValue1, symIntegerValue2);
+					} else {
+						pathCondition._addDet(Comparator.GE, symIntegerValue1, integerValue2);
+					}
+				} else {
+					pathCondition._addDet(Comparator.GE, integerValue1, symIntegerValue2);
 				}
+				if (!pathCondition.simplify()) {// not satisfiable
+					threadInfo.getVM().getSystemState().setIgnored(true);
+				} else {
+					// pc.solve();
+					((PCChoiceGenerator) choiceGenerator).setCurrentPC(pathCondition);
+					// System.out.println(((PCChoiceGenerator)
+					// cg).getCurrentPC());
+				}
+				
 				return getTarget();
 			} else {
-				if (sym_v1 != null){
-					if (sym_v2 != null){ //both are symbolic values
-						pc._addDet(Comparator.LT,sym_v1,sym_v2);
-					}else
-						pc._addDet(Comparator.LT,sym_v1,v2);
-				}else
-					pc._addDet(Comparator.LT, v1, sym_v2);
-				if(!pc.simplify())  {// not satisfiable
-					ti.getVM().getSystemState().setIgnored(true);
-				}else {
-					//pc.solve();
-					((PCChoiceGenerator) cg).setCurrentPC(pc);
-					//System.out.println(((PCChoiceGenerator) cg).getCurrentPC());
+				if (symIntegerValue1 != null) {
+					if (symIntegerValue2 != null) {  // both are symbolic values
+						pathCondition._addDet(Comparator.LT, symIntegerValue1, symIntegerValue2);
+					} else
+						pathCondition._addDet(Comparator.LT, symIntegerValue1, integerValue2);
+				} else
+					pathCondition._addDet(Comparator.LT, integerValue1, symIntegerValue2);
+				if (!pathCondition.simplify()) {  // not satisfiable
+					threadInfo.getVM().getSystemState().setIgnored(true);
+				} else {
+					// pc.solve();
+					((PCChoiceGenerator) choiceGenerator).setCurrentPC(pathCondition);
+					// cg).getCurrentPC());
 				}
-				return getNext(ti);
+				
+				return getNext(threadInfo);
 			}
 		}
 	}

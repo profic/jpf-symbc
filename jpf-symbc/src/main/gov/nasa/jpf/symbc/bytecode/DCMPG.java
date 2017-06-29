@@ -33,10 +33,10 @@ public class DCMPG extends gov.nasa.jpf.jvm.bytecode.DCMPG {
 	public Instruction execute(ThreadInfo threadInfo) {
 		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
 
-		RealExpression symValue1 = (RealExpression) stackFrame.getOperandAttr(1);
-		RealExpression symValue2 = (RealExpression) stackFrame.getOperandAttr(3);
+		RealExpression symDoubleValue1 = (RealExpression) stackFrame.getOperandAttr(1);
+		RealExpression symDoubleValue2 = (RealExpression) stackFrame.getOperandAttr(3);
 
-		if (symValue1 == null && symValue2 == null) { // both conditions are
+		if (symDoubleValue1 == null && symDoubleValue2 == null) { // both conditions are
 														// concrete
 			return super.execute(threadInfo);
 		} else { // at least one condition is symbolic
@@ -78,13 +78,13 @@ public class DCMPG extends gov.nasa.jpf.jvm.bytecode.DCMPG {
 			assert pathCondition != null;
 
 			if (conditionValue == -1) {
-				if (symValue1 != null) {
-					if (symValue2 != null) { // both are symbolic values
-						pathCondition._addDet(Comparator.LT, symValue2, symValue1);
+				if (symDoubleValue1 != null) {
+					if (symDoubleValue2 != null) { // both are symbolic values
+						pathCondition._addDet(Comparator.LT, symDoubleValue2, symDoubleValue1);
 					} else
-						pathCondition._addDet(Comparator.LT, doubleValue2, symValue1);
+						pathCondition._addDet(Comparator.LT, doubleValue2, symDoubleValue1);
 				} else {
-					pathCondition._addDet(Comparator.LT, symValue2, doubleValue1);
+					pathCondition._addDet(Comparator.LT, symDoubleValue2, doubleValue1);
 				}
 				if (!pathCondition.simplify()) {// not satisfiable
 					threadInfo.getVM().getSystemState().setIgnored(true);
@@ -95,14 +95,14 @@ public class DCMPG extends gov.nasa.jpf.jvm.bytecode.DCMPG {
 					// cg).getCurrentPC());
 				}
 			} else if (conditionValue == 0) {
-				if (symValue1 != null) {
-					if (symValue2 != null) { // both are symbolic values
-						pathCondition._addDet(Comparator.EQ, symValue1, symValue2);
+				if (symDoubleValue1 != null) {
+					if (symDoubleValue2 != null) { // both are symbolic values
+						pathCondition._addDet(Comparator.EQ, symDoubleValue1, symDoubleValue2);
 					} else {
-						pathCondition._addDet(Comparator.EQ, symValue1, doubleValue2);
+						pathCondition._addDet(Comparator.EQ, symDoubleValue1, doubleValue2);
 					}
 				} else {
-					pathCondition._addDet(Comparator.EQ, doubleValue1, symValue2);
+					pathCondition._addDet(Comparator.EQ, doubleValue1, symDoubleValue2);
 				}
 				if (!pathCondition.simplify()) {// not satisfiable
 					threadInfo.getVM().getSystemState().setIgnored(true);
@@ -113,14 +113,14 @@ public class DCMPG extends gov.nasa.jpf.jvm.bytecode.DCMPG {
 					// cg).getCurrentPC());
 				}
 			} else {
-				if (symValue1 != null) {
-					if (symValue2 != null) { // both are symbolic values
-						pathCondition._addDet(Comparator.GT, symValue2, symValue1);
+				if (symDoubleValue1 != null) {
+					if (symDoubleValue2 != null) { // both are symbolic values
+						pathCondition._addDet(Comparator.GT, symDoubleValue2, symDoubleValue1);
 					} else {
-						pathCondition._addDet(Comparator.GT, doubleValue2, symValue1);
+						pathCondition._addDet(Comparator.GT, doubleValue2, symDoubleValue1);
 					}
 				} else {
-					pathCondition._addDet(Comparator.GT, symValue2, doubleValue1);
+					pathCondition._addDet(Comparator.GT, symDoubleValue2, doubleValue1);
 				}
 				if (!pathCondition.simplify()) {// not satisfiable
 					threadInfo.getVM().getSystemState().setIgnored(true);

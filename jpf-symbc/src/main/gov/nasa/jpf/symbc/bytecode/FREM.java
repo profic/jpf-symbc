@@ -23,35 +23,30 @@ import gov.nasa.jpf.vm.StackFrame;
 import gov.nasa.jpf.vm.ThreadInfo;
 import gov.nasa.jpf.vm.Types;
 
-
 /**
- * Remainder float
- * ..., value1, value2 => ..., result
+ * Remainder float ..., value1, value2 => ..., result
  */
-public class FREM extends gov.nasa.jpf.jvm.bytecode.FREM  {
+public class FREM extends gov.nasa.jpf.jvm.bytecode.FREM {
 
-  @Override
-  public Instruction execute (ThreadInfo th) {
-   
-    StackFrame sf = th.getModifiableTopFrame();
+	@Override
+	public Instruction execute(ThreadInfo threadInfo) {
+		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
+		RealExpression symFloatValue1 = (RealExpression) stackFrame.getOperandAttr();
+		float floatValue1 = Types.intToFloat(stackFrame.pop());
 
-	RealExpression sym_v1 = (RealExpression) sf.getOperandAttr(); 
-	float v1 = Types.intToFloat(sf.pop());
-		
-	RealExpression sym_v2 = (RealExpression) sf.getOperandAttr();
-	float v2 = Types.intToFloat(sf.pop());
-	    
-    if(sym_v1==null && sym_v2==null){
-        if (v1 == 0){
-            return th.createAndThrowException("java.lang.ArithmeticException","division by zero");
-        } 
-        sf.push(Types.floatToInt(v2 % v1), false);
-    }else {
-    	sf.push(0, false);
-    	throw new RuntimeException("## Error: SYMBOLIC FREM not supported");
-    }
-	
-    return getNext(th);
-  }
+		RealExpression symValue2 = (RealExpression) stackFrame.getOperandAttr();
+		float floatValue2 = Types.intToFloat(stackFrame.pop());
 
+		if (symFloatValue1 == null && symValue2 == null) {
+			if (floatValue1 == 0) {
+				return threadInfo.createAndThrowException("java.lang.ArithmeticException", "division by zero");
+			}
+			stackFrame.push(Types.floatToInt(floatValue2 % floatValue1), false);
+		} else {
+			stackFrame.push(0, false);
+			throw new RuntimeException("## Error: SYMBOLIC FREM not supported");
+		}
+
+		return getNext(threadInfo);
+	}
 }

@@ -18,7 +18,6 @@
 package gov.nasa.jpf.symbc.bytecode;
 
 import gov.nasa.jpf.JPFException;
-import gov.nasa.jpf.jvm.bytecode.JVMInstructionVisitor;
 
 import gov.nasa.jpf.symbc.numeric.Comparator;
 import gov.nasa.jpf.symbc.numeric.IntegerExpression;
@@ -30,133 +29,128 @@ import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.StackFrame;
 import gov.nasa.jpf.vm.ThreadInfo;
 
-
 /**
- * Access jump table by index and jump
- *   ..., index  ...
+ * Access jump table by index and jump ..., index ...
  */
-public class TABLESWITCH extends SwitchInstruction implements gov.nasa.jpf.vm.bytecode.TableSwitchInstruction{
+public class TABLESWITCH extends SwitchInstruction implements gov.nasa.jpf.vm.bytecode.TableSwitchInstruction {
 
 	int min, max;
 
-	  public TABLESWITCH(int defaultTarget, int min, int max){
-	    super(defaultTarget, (max - min +1));
-	    this.min = min;
-	    this.max = max;
-	  }
+	public TABLESWITCH(int defaultTarget, int min, int max) {
+		super(defaultTarget, (max - min + 1));
+		this.min = min;
+		this.max = max;
+	}
 
-	  @Override
-	  public Instruction execute (ThreadInfo ti) {  
-		StackFrame sf = ti.getModifiableTopFrame();
-		IntegerExpression sym_v = (IntegerExpression) sf.getOperandAttr();
-			
-		
-		if(sym_v==null) return super.execute(ti);
-		
-		// the condition is symbolic
-		ChoiceGenerator<?> cg;
+	@Override
+	public Instruction execute(ThreadInfo threadInfo) {
+		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
+		IntegerExpression symValue = (IntegerExpression) stackFrame.getOperandAttr();
 
-		if (!ti.isFirstStepInsn()) { // first time around
-			cg = new PCChoiceGenerator(targets.length+1);
-			((PCChoiceGenerator)cg).setOffset(this.position);
-			((PCChoiceGenerator)cg).setMethodName(this.getMethodInfo().getFullName());
-			ti.getVM().getSystemState().setNextChoiceGenerator(cg);
-			return this;
-		} else {  // this is what really returns results
-			cg = ti.getVM().getSystemState().getChoiceGenerator();
-			assert (cg instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got: " + cg;
+		if (symValue == null) {
+			return super.execute(threadInfo);
 		}
-		sym_v = (IntegerExpression) sf.getOperandAttr();
-		sf.pop();
-		PathCondition pc;
-		//pc is updated with the pc stored in the choice generator above
-		//get the path condition from the
-		//previous choice generator of the same type
+		// the condition is symbolic
+		ChoiceGenerator<?> choiceGenerator;
 
-		//TODO: could be optimized to not do this for each choice
-		ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class); 
-	
-		if (prev_cg == null)
-			pc = new PathCondition();
-		else
-			pc = ((PCChoiceGenerator)prev_cg).getCurrentPC();
+		if (!threadInfo.isFirstStepInsn()) { // first time around
+			choiceGenerator = new PCChoiceGenerator(targets.length + 1);
+			((PCChoiceGenerator) choiceGenerator).setOffset(this.position);
+			((PCChoiceGenerator) choiceGenerator).setMethodName(this.getMethodInfo().getFullName());
+			threadInfo.getVM().getSystemState().setNextChoiceGenerator(choiceGenerator);
 
-		assert pc != null;
-		//System.out.println("Execute Switch: PC"+pc);
-		int idx = (Integer)cg.getNextChoice();
-		//System.out.println("Execute Switch: "+ idx);
+			return this;
+		} else { // this is what really returns results
+			choiceGenerator = threadInfo.getVM().getSystemState().getChoiceGenerator();
+			assert (choiceGenerator instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got: "
+					+ choiceGenerator;
+		}
+		symValue = (IntegerExpression) stackFrame.getOperandAttr();
+		stackFrame.pop();
+		PathCondition pathCondition;
+		// pc is updated with the pc stored in the choice generator above
+		// get the path condition from the
+		// previous choice generator of the same type
 
-		
-		if (idx == targets.length){ // default branch
+		// TODO: could be optimized to not do this for each choice
+		ChoiceGenerator<?> prevChoiceGenerator = choiceGenerator
+				.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
+
+		if (prevChoiceGenerator == null) {
+			pathCondition = new PathCondition();
+		} else {
+			pathCondition = ((PCChoiceGenerator) prevChoiceGenerator).getCurrentPC();
+		}
+		assert pathCondition != null;
+		// System.out.println("Execute Switch: PC"+pc);
+		int idx = (Integer) choiceGenerator.getNextChoice();
+		// System.out.println("Execute Switch: "+ idx);
+
+		if (idx == targets.length) { // default branch
 			lastIdx = -1;
-		
-			for(int i = 0; i< targets.length; i++)
-				pc._addDet(Comparator.NE, sym_v._minus(min), i);
+
+			for (int i = 0; i < targets.length; i++) {
+				pathCondition._addDet(Comparator.NE, symValue._minus(min), i);
+			}
 			// this could be replaced safely with only one constraint:
 			// pc._addDet(Comparator.GT, sym_v._minus(min), targets.length);
-			
-			if(!pc.simplify())  {// not satisfiable
-				ti.getVM().getSystemState().setIgnored(true);
+
+			if (!pathCondition.simplify()) {// not satisfiable
+				threadInfo.getVM().getSystemState().setIgnored(true);
 			} else {
-				//pc.solve();
-				((PCChoiceGenerator) cg).setCurrentPC(pc);
-				//System.out.println(((PCChoiceGenerator) cg).getCurrentPC());
+				// pc.solve();
+				((PCChoiceGenerator) choiceGenerator).setCurrentPC(pathCondition);
+				// System.out.println(((PCChoiceGenerator) cg).getCurrentPC());
 			}
+
 			return mi.getInstructionAt(target);
 		} else {
 			lastIdx = idx;
-			pc._addDet(Comparator.EQ, sym_v._minus(min), idx);
-			if(!pc.simplify())  {// not satisfiable
-				ti.getVM().getSystemState().setIgnored(true);
+			pathCondition._addDet(Comparator.EQ, symValue._minus(min), idx);
+			if (!pathCondition.simplify()) {// not satisfiable
+				threadInfo.getVM().getSystemState().setIgnored(true);
 			} else {
-				//pc.solve();
-				((PCChoiceGenerator) cg).setCurrentPC(pc);
-				//System.out.println(((PCChoiceGenerator) cg).getCurrentPC());
+				// pc.solve();
+				((PCChoiceGenerator) choiceGenerator).setCurrentPC(pathCondition);
+				// System.out.println(((PCChoiceGenerator) cg).getCurrentPC());
 			}
 			return mi.getInstructionAt(targets[idx]);
 		}
-
-		
-	  }
-
-	  @Override
-	  protected Instruction executeConditional (ThreadInfo ti){
-		  StackFrame sf = ti.getModifiableTopFrame();
-		    int value = sf.pop();
-		    int i = value-min;
-		    int pc;
-
-		    if (i>=0 && i<targets.length){
-		      lastIdx = i;
-		      pc = targets[i];
-		    } else {
-		      lastIdx = -1;
-		      pc = target;
-		    }
-
-		    // <2do> this is BAD - we should compute the target insns just once
-		    return mi.getInstructionAt(pc);
-		  }
-	  
-	@Override
-	public void setTarget(int value, int target) {
-
-		int i = value-min;
-
-	    if (i>=0 && i<targets.length){
-	      targets[i] = target;
-	    } else {
-	      throw new JPFException("illegal tableswitch target: " + value);
-	    }
 	}
 
+	@Override
+	protected Instruction executeConditional(ThreadInfo threadInfo) {
+		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
+		int value = stackFrame.pop();
+		int i = value - min;
+		int patchCondition;
+
+		if (i >= 0 && i < targets.length) {
+			lastIdx = i;
+			patchCondition = targets[i];
+		} else {
+			lastIdx = -1;
+			patchCondition = target;
+		}
+
+		// <2do> this is BAD - we should compute the target insns just once
+		return mi.getInstructionAt(patchCondition);
+	}
+
+	@Override
+	public void setTarget(int value, int target) {
+		int i = value - min;
+
+		if (i >= 0 && i < targets.length) {
+			targets[i] = target;
+		} else {
+			throw new JPFException("illegal tableswitch target: " + value);
+		}
+	}
 
 	@Override
 	public int getByteCode() {
 		// TODO Auto-generated method stub
-	    return 0xAA;
+		return 0xAA;
 	}
-	  
-
-
 }
