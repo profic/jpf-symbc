@@ -52,13 +52,17 @@ public class TestSymString extends TestJPF {
 	public static Collection<Object[]> solvers() {
 		return Arrays.asList(new Object[][] {
 				{ AUTOMATA },
-				{ Z3 }
+				{ Z3 },
+				{ CVC },
+				{ CHOCO }
 		});
 	}
 	
 	private final static String CHOCO = "choco";
 	private final static String AUTOMATA = "automata";
 	private final static String Z3 = "z3";
+	private final static String CVC = "cvc";
+	
 	
 	private String solver;
 	private PathCondition pathCondition;
