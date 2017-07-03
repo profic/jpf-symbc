@@ -122,7 +122,7 @@ public class LASTORE extends gov.nasa.jpf.jvm.bytecode.LASTORE {
 			// int idx = peekIndex(ti);
 			int aref = peekArrayRef(threadInfo); // need to be polymorphic,
 													// could be
-			// LongArrayStore
+													// LongArrayStore
 
 			arrayOperandAttr = peekArrayAttr(threadInfo);
 			indexOperandAttr = peekIndexAttr(threadInfo);
@@ -163,7 +163,7 @@ public class LASTORE extends gov.nasa.jpf.jvm.bytecode.LASTORE {
 																		// attr?
 
 			} catch (ArrayIndexOutOfBoundsExecutiveException e) { // at this
-																	// point,
+																		// point,
 																	// the AIOBX
 																	// is
 																	// already

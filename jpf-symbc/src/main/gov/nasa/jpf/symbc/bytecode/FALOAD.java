@@ -94,26 +94,26 @@ public class FALOAD extends gov.nasa.jpf.jvm.bytecode.FALOAD {
 					threadInfo.getVM().getSystemState().setIgnored(true);// backtrack
 					return getNext(threadInfo);
 				}
-			} else if (index == len) {  // now check for out of bounds exceptions
+			} else if (index == len) { // now check for out of bounds exceptions
 				pathCondition._addDet(Comparator.LT, sym_index, 0);
 				if (pathCondition.simplify()) { // satisfiable
 					((PCChoiceGenerator) lastChoiceGenerator).setCurrentPC(pathCondition);
-					
+
 					return threadInfo.createAndThrowException("java.lang.ArrayIndexOutOfBoundsException");
 				} else {
 					threadInfo.getVM().getSystemState().setIgnored(true);// backtrack
-					
+
 					return getNext(threadInfo);
 				}
 			} else if (index == len + 1) {
 				pathCondition._addDet(Comparator.GE, sym_index, len);
-				if (pathCondition.simplify()) {  // satisfiable
+				if (pathCondition.simplify()) { // satisfiable
 					((PCChoiceGenerator) lastChoiceGenerator).setCurrentPC(pathCondition);
-					
+
 					return threadInfo.createAndThrowException("java.lang.ArrayIndexOutOfBoundsException");
 				} else {
-					threadInfo.getVM().getSystemState().setIgnored(true);  // backtrack
-					
+					threadInfo.getVM().getSystemState().setIgnored(true); // backtrack
+
 					return getNext(threadInfo);
 				}
 			}
@@ -125,10 +125,10 @@ public class FALOAD extends gov.nasa.jpf.jvm.bytecode.FALOAD {
 			// corina: Ignore POR for now
 			/*
 			 * Scheduler scheduler = ti.getScheduler(); if
-			 * (scheduler.canHaveSharedArrayCG( ti, this, eiArray, index)){ //
+			 * (scheduler.canHaveSharedarrayChoiceGenerator( ti, this, eiArray, index)){ //
 			 * don't modify the frame before this eiArray =
 			 * scheduler.updateArraySharedness(ti, eiArray, index); if
-			 * (scheduler.setsSharedArrayCG( ti, this, eiArray, index)){ return
+			 * (scheduler.setsSharedarrayChoiceGenerator( ti, this, eiArray, index)){ return
 			 * this; } }
 			 */
 

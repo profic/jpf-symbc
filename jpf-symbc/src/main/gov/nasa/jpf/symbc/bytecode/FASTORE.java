@@ -99,15 +99,15 @@ public class FASTORE extends gov.nasa.jpf.jvm.bytecode.FASTORE {
 					threadInfo.getVM().getSystemState().setIgnored(true);// backtrack
 					return getNext(threadInfo);
 				}
-			} else if (index == len) {  // now check for out of bounds exceptions
+			} else if (index == len) { // now check for out of bounds exceptions
 				pathCondition._addDet(Comparator.LT, symIndex, 0);
 				if (pathCondition.simplify()) { // satisfiable
 					((PCChoiceGenerator) lastChoiceGenerator).setCurrentPC(pathCondition);
-					
+
 					return threadInfo.createAndThrowException("java.lang.ArrayIndexOutOfBoundsException");
 				} else {
-					threadInfo.getVM().getSystemState().setIgnored(true);  // backtrack
-					
+					threadInfo.getVM().getSystemState().setIgnored(true); // backtrack
+
 					return getNext(threadInfo);
 				}
 			} else if (index == len + 1) {
@@ -134,9 +134,9 @@ public class FASTORE extends gov.nasa.jpf.jvm.bytecode.FASTORE {
 			// --- shared access CG
 			/*
 			 * ignore POR for now TODO Scheduler scheduler = ti.getScheduler();
-			 * if (scheduler.canHaveSharedArrayCG(ti, this, eiArray, idx)){
+			 * if (scheduler.canHaveSharedarrayChoiceGenerator(ti, this, eiArray, idx)){
 			 * eiArray = scheduler.updateArraySharedness(ti, eiArray, idx); if
-			 * (scheduler.setsSharedArrayCG(ti, this, eiArray, idx)){ return
+			 * (scheduler.setsSharedarrayChoiceGenerator(ti, this, eiArray, idx)){ return
 			 * this; } } }
 			 */
 			// System.out.println("len "+len+" index "+index);

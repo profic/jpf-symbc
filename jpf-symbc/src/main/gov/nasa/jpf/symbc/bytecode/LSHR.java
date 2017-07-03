@@ -47,7 +47,7 @@ public class LSHR extends gov.nasa.jpf.jvm.bytecode.LSHR {
 				if (symLongValue2 != null) {
 					//result = sym_v1._shiftR(sym_v2);
 					result = symLongValue2._shiftR(symLongValue1);
-				} else { // v2 is concrete
+				} else { 
 								//result = sym_v1._shiftR(v2);
 					result = (new IntegerConstant((int) longValue2))._shiftR(symLongValue1);
 				}

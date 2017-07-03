@@ -37,7 +37,7 @@ public class L2I extends gov.nasa.jpf.jvm.bytecode.L2I {
 		} else {
 			Instruction result = super.execute(threadInfo);
 			stackFrame.setOperandAttr(symValue);
-			
+
 			return result;
 		}
 	}

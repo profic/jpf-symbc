@@ -17,7 +17,6 @@
  */
 package gov.nasa.jpf.symbc.bytecode;
 
-
 import gov.nasa.jpf.symbc.numeric.Comparator;
 import gov.nasa.jpf.symbc.numeric.PCChoiceGenerator;
 import gov.nasa.jpf.symbc.numeric.PathCondition;
@@ -33,40 +32,44 @@ import gov.nasa.jpf.vm.Types;
  */
 public class FCMPL extends gov.nasa.jpf.jvm.bytecode.FCMPL {
 
-    @Override
+	@Override
 	public Instruction execute(ThreadInfo threadInfo) {
 		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
 
-		RealExpression symValue1 = (RealExpression) stackFrame.getOperandAttr(0);
-		RealExpression symValue2 = (RealExpression) stackFrame.getOperandAttr(1);
+		RealExpression symFloatValue1 = (RealExpression) stackFrame.getOperandAttr(0);
+		RealExpression symFloatValue2 = (RealExpression) stackFrame.getOperandAttr(1);
 
-		if (symValue1 == null && symValue2 == null) {  // both conditions are concrete
+		if (symFloatValue1 == null && symFloatValue2 == null) { // both conditions are
+														// concrete
 			return super.execute(threadInfo);
-		} else {  // at least one condition is symbolic
+		} else { // at least one condition is symbolic
 			ChoiceGenerator<?> choiceGenerator;
 			int conditionValue;
 
 			if (!threadInfo.isFirstStepInsn()) { // first time around
 				choiceGenerator = new PCChoiceGenerator(3);
-				((PCChoiceGenerator)choiceGenerator).setOffset(this.position);
-				((PCChoiceGenerator)choiceGenerator).setMethodName(this.getMethodInfo().getFullName());
+				((PCChoiceGenerator) choiceGenerator).setOffset(this.position);
+				((PCChoiceGenerator) choiceGenerator).setMethodName(this.getMethodInfo().getFullName());
 				threadInfo.getVM().getSystemState().setNextChoiceGenerator(choiceGenerator);
-				
+
 				return this;
 			} else { // this is what really returns results
 				choiceGenerator = threadInfo.getVM().getSystemState().getChoiceGenerator();
-				assert (choiceGenerator instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got: " + choiceGenerator;
-				conditionValue = ((PCChoiceGenerator) choiceGenerator).getNextChoice() -1;
+				assert (choiceGenerator instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got: "
+						+ choiceGenerator;
+				conditionValue = ((PCChoiceGenerator) choiceGenerator).getNextChoice() - 1;
 			}
 
 			float floatValue1 = Types.intToFloat(stackFrame.pop());
 			float floatValue2 = Types.intToFloat(stackFrame.pop());
 			PathCondition pathCondition;
 
-			// pc is updated with the pc stored in the choice generator above get
+			// pc is updated with the pc stored in the choice generator above
+			// get
 			// the path condition from the previous CG of the same type
 
-			ChoiceGenerator<?> prevChoiceGenerator = choiceGenerator.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
+			ChoiceGenerator<?> prevChoiceGenerator = choiceGenerator
+					.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
 
 			if (prevChoiceGenerator == null) {
 				pathCondition = new PathCondition();
@@ -76,49 +79,51 @@ public class FCMPL extends gov.nasa.jpf.jvm.bytecode.FCMPL {
 			assert pathCondition != null;
 
 			if (conditionValue == -1) {
-				if (symValue1 != null) {
-					if (symValue2 != null) {   // both are symbolic values
-						pathCondition._addDet(Comparator.LT, symValue2, symValue1);
+				if (symFloatValue1 != null) {
+					if (symFloatValue2 != null) { // both are symbolic values
+						pathCondition._addDet(Comparator.LT, symFloatValue2, symFloatValue1);
 					} else {
-						pathCondition._addDet(Comparator.LT, floatValue2, symValue1);
+						pathCondition._addDet(Comparator.LT, floatValue2, symFloatValue1);
 					}
 				} else {
-					pathCondition._addDet(Comparator.LT, symValue2, floatValue1);
+					pathCondition._addDet(Comparator.LT, symFloatValue2, floatValue1);
 				}
 
-				if (!pathCondition.simplify()) {  // not satisfiable
+				if (!pathCondition.simplify()) { // not satisfiable
 					threadInfo.getVM().getSystemState().setIgnored(true);
 				} else {
 					// pc.solve();
 					((PCChoiceGenerator) choiceGenerator).setCurrentPC(pathCondition);
-					// System.out.println(((PCChoiceGenerator) cg).getCurrentPC());
+					// System.out.println(((PCChoiceGenerator)
+					// cg).getCurrentPC());
 				}
 			} else if (conditionValue == 0) {
-				if (symValue1 != null) {
-					if (symValue2 != null) { // both are symbolic values
-						pathCondition._addDet(Comparator.EQ, symValue1, symValue2);
+				if (symFloatValue1 != null) {
+					if (symFloatValue2 != null) { // both are symbolic values
+						pathCondition._addDet(Comparator.EQ, symFloatValue1, symFloatValue2);
 					} else {
-						pathCondition._addDet(Comparator.EQ, symValue1, floatValue2);
+						pathCondition._addDet(Comparator.EQ, symFloatValue1, floatValue2);
 					}
 				} else {
-					pathCondition._addDet(Comparator.EQ, floatValue1, symValue2);
+					pathCondition._addDet(Comparator.EQ, floatValue1, symFloatValue2);
 				}
 				if (!pathCondition.simplify()) {// not satisfiable
 					threadInfo.getVM().getSystemState().setIgnored(true);
 				} else {
 					// pc.solve();
 					((PCChoiceGenerator) choiceGenerator).setCurrentPC(pathCondition);
-					// System.out.println(((PCChoiceGenerator) cg).getCurrentPC());
+					// System.out.println(((PCChoiceGenerator)
+					// cg).getCurrentPC());
 				}
-			} else {  // 1
-				if (symValue1 != null) {
-					if (symValue2 != null) { // both are symbolic values
-						pathCondition._addDet(Comparator.GT, symValue2, symValue1);
+			} else { // 1
+				if (symFloatValue1 != null) {
+					if (symFloatValue2 != null) { // both are symbolic values
+						pathCondition._addDet(Comparator.GT, symFloatValue2, symFloatValue1);
 					} else {
-						pathCondition._addDet(Comparator.GT, floatValue2, symValue1);
+						pathCondition._addDet(Comparator.GT, floatValue2, symFloatValue1);
 					}
 				} else {
-					pathCondition._addDet(Comparator.GT, symValue2, floatValue1);
+					pathCondition._addDet(Comparator.GT, symFloatValue2, floatValue1);
 				}
 				if (!pathCondition.simplify()) {// not satisfiable
 					threadInfo.getVM().getSystemState().setIgnored(true);

@@ -101,10 +101,10 @@ public class GETSTATIC extends gov.nasa.jpf.jvm.bytecode.GETSTATIC {
 
 		if (fieldAttr instanceof StringExpression || fieldAttr instanceof SymbolicStringBuilder
 				|| fieldAttr instanceof ArrayExpression) {
-			return super.execute(threadInfo);  // Strings are handled specially
+			return super.execute(threadInfo); // Strings are handled specially
 		}
 
-		// else: lazy initialization 
+		// else: lazy initialization
 		if (SymbolicInstructionFactory.debugMode) {
 			System.out.println("lazy initialization");
 		}
@@ -129,11 +129,13 @@ public class GETSTATIC extends gov.nasa.jpf.jvm.bytecode.GETSTATIC {
 			prevSymRefs = null;
 			numSymRefs = 0;
 
-			prevHeapChoiceGenerator = threadInfo.getVM().getSystemState().getLastChoiceGeneratorOfType(HeapChoiceGenerator.class);
+			prevHeapChoiceGenerator = threadInfo.getVM().getSystemState()
+					.getLastChoiceGeneratorOfType(HeapChoiceGenerator.class);
 
 			if (prevHeapChoiceGenerator != null) {
 				// collect candidates for lazy initialization
-				SymbolicInputHeap symInputHeap = ((HeapChoiceGenerator) prevHeapChoiceGenerator).getCurrentSymInputHeap();
+				SymbolicInputHeap symInputHeap = ((HeapChoiceGenerator) prevHeapChoiceGenerator)
+						.getCurrentSymInputHeap();
 
 				prevSymRefs = symInputHeap.getNodesOfType(typeClassInfo);
 				numSymRefs = prevSymRefs.length;
@@ -143,17 +145,20 @@ public class GETSTATIC extends gov.nasa.jpf.jvm.bytecode.GETSTATIC {
 			// TODO: fix subtypes
 			heapChoiceGenerator = new HeapChoiceGenerator(numSymRefs + 2); // +null,new
 			threadInfo.getVM().getSystemState().setNextChoiceGenerator(heapChoiceGenerator);
-			
+
 			return this;
 		} else { // this is what really returns results
-			heapChoiceGenerator = threadInfo.getVM().getSystemState().getLastChoiceGeneratorOfType(HeapChoiceGenerator.class);
-			assert (heapChoiceGenerator != null && heapChoiceGenerator instanceof HeapChoiceGenerator) : "expected HeapChoiceGenerator, got: "
-					+ heapChoiceGenerator;
+			heapChoiceGenerator = threadInfo.getVM().getSystemState()
+					.getLastChoiceGeneratorOfType(HeapChoiceGenerator.class);
+			assert (heapChoiceGenerator != null
+					&& heapChoiceGenerator instanceof HeapChoiceGenerator) : "expected HeapChoiceGenerator, got: "
+							+ heapChoiceGenerator;
 			currentChoice = ((HeapChoiceGenerator) heapChoiceGenerator).getNextChoice();
 		}
 
-		PathCondition pathConditionHeap; // this pc contains only the constraints on the
-								// heap
+		PathCondition pathConditionHeap; // this pc contains only the
+											// constraints on the
+		// heap
 		SymbolicInputHeap symInputHeap;
 
 		// pcHeap is updated with the pcHeap stored in the choice generator
@@ -175,7 +180,7 @@ public class GETSTATIC extends gov.nasa.jpf.jvm.bytecode.GETSTATIC {
 		prevSymRefs = symInputHeap.getNodesOfType(typeClassInfo);
 		numSymRefs = prevSymRefs.length;
 
-		int dynamicAreaIndex = 0; 
+		int dynamicAreaIndex = 0;
 		if (currentChoice < numSymRefs) { // lazy initialization
 			HeapNode candidateNode = prevSymRefs[currentChoice];
 			// here we should update pcHeap with the constraint attr ==
@@ -188,8 +193,8 @@ public class GETSTATIC extends gov.nasa.jpf.jvm.bytecode.GETSTATIC {
 		} else if (currentChoice == (numSymRefs + 1) && !abstractClass) {
 			// creates a new object with all fields symbolic and adds the object
 			// to SymbolicHeap
-			dynamicAreaIndex = Helper.addNewHeapNode(typeClassInfo, threadInfo, fieldAttr, pathConditionHeap, symInputHeap, numSymRefs, prevSymRefs,
-					elementInfo.isShared());
+			dynamicAreaIndex = Helper.addNewHeapNode(typeClassInfo, threadInfo, fieldAttr, pathConditionHeap,
+					symInputHeap, numSymRefs, prevSymRefs, elementInfo.isShared());
 		} else {
 			// TODO: fix
 			System.err.println("subtyping not handled");
@@ -204,7 +209,7 @@ public class GETSTATIC extends gov.nasa.jpf.jvm.bytecode.GETSTATIC {
 		if (SymbolicInstructionFactory.debugMode) {
 			System.out.println("GETSTATIC pcHeap: " + pathConditionHeap);
 		}
-		
+
 		return getNext(threadInfo);
 	}
 }

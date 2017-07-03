@@ -42,16 +42,18 @@ public class CASTORE extends gov.nasa.jpf.jvm.bytecode.CASTORE {
 		if (peekIndexAttr(threadInfo) == null || !(peekIndexAttr(threadInfo) instanceof IntegerExpression)) {
 			return super.execute(threadInfo);
 		}
-		StackFrame frame = threadInfo.getModifiableTopFrame();
-		int arrayref = peekArrayRef(threadInfo); // need to be polymorphic, could be
-											// LongArrayStore
+		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
+		int arrayref = peekArrayRef(threadInfo); // need to be polymorphic,
+													// could be
+		// LongArrayStore
 		ElementInfo arrayElementInfo = threadInfo.getElementInfo(arrayref);
 
 		if (arrayref == MJIEnv.NULL) {
 			return threadInfo.createAndThrowException("java.lang.NullPointerException");
 		}
 
-		int len = (arrayElementInfo.getArrayFields()).arrayLength(); // assumed concrete
+		int len = (arrayElementInfo.getArrayFields()).arrayLength(); // assumed
+																		// concrete
 
 		if (!threadInfo.isFirstStepInsn()) {
 			PCChoiceGenerator arrayChoiceGenerator = new PCChoiceGenerator(0, len + 1); // add
@@ -66,21 +68,22 @@ public class CASTORE extends gov.nasa.jpf.jvm.bytecode.CASTORE {
 			if (SymbolicInstructionFactory.debugMode) {
 				System.out.println("# array cg registered: " + arrayChoiceGenerator);
 			}
-			
+
 			return this;
 		} else { // this is what really returns results
 			// index = frame.peek();
 			PCChoiceGenerator lastChoiceGenerator = threadInfo.getVM().getSystemState()
 					.getLastChoiceGeneratorOfType(PCChoiceGenerator.class);
 			assert (lastChoiceGenerator != null);
-			PCChoiceGenerator prevChoiceGenerator = lastChoiceGenerator.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
+			PCChoiceGenerator prevChoiceGenerator = lastChoiceGenerator
+					.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
 
 			index = lastChoiceGenerator.getNextChoice();
 			IntegerExpression symIndex = (IntegerExpression) peekIndexAttr(threadInfo);
 			// check the constraint
 
 			PathCondition pathCondition;
- 
+
 			if (prevChoiceGenerator == null) {
 				pathCondition = new PathCondition();
 			} else {
@@ -96,7 +99,7 @@ public class CASTORE extends gov.nasa.jpf.jvm.bytecode.CASTORE {
 					threadInfo.getVM().getSystemState().setIgnored(true);// backtrack
 					return getNext(threadInfo);
 				}
-			} else if (index == len) {  // now check for out of bounds exceptions
+			} else if (index == len) { // now check for out of bounds exceptions
 				pathCondition._addDet(Comparator.LT, symIndex, 0);
 				if (pathCondition.simplify()) { // satisfiable
 					((PCChoiceGenerator) lastChoiceGenerator).setCurrentPC(pathCondition);
@@ -119,8 +122,9 @@ public class CASTORE extends gov.nasa.jpf.jvm.bytecode.CASTORE {
 			// original code for concrete execution
 
 			// int idx = peekIndex(ti);
-			int aref = peekArrayRef(threadInfo); // need to be polymorphic, could be
-											// LongArrayStore
+			int aref = peekArrayRef(threadInfo); // need to be polymorphic,
+													// could be
+			// LongArrayStore
 
 			arrayOperandAttr = peekArrayAttr(threadInfo);
 			indexOperandAttr = peekIndexAttr(threadInfo);
@@ -128,28 +132,31 @@ public class CASTORE extends gov.nasa.jpf.jvm.bytecode.CASTORE {
 			// --- shared access CG
 			/*
 			 * ignore POR for now TODO Scheduler scheduler = ti.getScheduler();
-			 * if (scheduler.canHaveSharedArrayCG(ti, this, eiArray, idx)){
+			 * if (scheduler.canHaveSharedarrayChoiceGenerator(ti, this, eiArray, idx)){
 			 * eiArray = scheduler.updateArraySharedness(ti, eiArray, idx); if
-			 * (scheduler.setsSharedArrayCG(ti, this, eiArray, idx)){ return
+			 * (scheduler.setsSharedarrayChoiceGenerator(ti, this, eiArray, idx)){ return
 			 * this; } } }
 			 */
 			// System.out.println("len "+len+" index "+index);
 			try {
 				// setArrayElement(ti, frame, eiArray); // this pops operands
 				int elementSize = getElementSize();
-				Object attr = elementSize == 1 ? frame.getOperandAttr() : frame.getLongOperandAttr();
+				Object attr = elementSize == 1 ? stackFrame.getOperandAttr() : stackFrame.getLongOperandAttr();
 
-				popValue(frame);
-				frame.pop();
+				popValue(stackFrame);
+				stackFrame.pop();
 				// don't set 'arrayRef' before we do the CG checks (would kill
 				// loop optimization)
-				arrayRef = frame.pop();
+				arrayRef = stackFrame.pop();
 
 				arrayElementInfo = arrayElementInfo.getModifiableInstance();
 				setField(arrayElementInfo, index);
-				arrayElementInfo.setElementAttrNoClone(index, attr); // <2do> what if the
-															// value is the same
-															// but not the attr?
+				arrayElementInfo.setElementAttrNoClone(index, attr); // <2do>
+																		// what
+																		// if
+																		// the
+				// value is the same
+				// but not the attr?
 
 			} catch (ArrayIndexOutOfBoundsExecutiveException e) { // at this
 																	// point,

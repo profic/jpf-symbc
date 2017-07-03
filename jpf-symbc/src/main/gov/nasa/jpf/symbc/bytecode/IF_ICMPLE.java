@@ -47,7 +47,7 @@ public class IF_ICMPLE extends gov.nasa.jpf.jvm.bytecode.IF_ICMPLE {
 				((PCChoiceGenerator) choiceGenerator).setOffset(this.position);
 				((PCChoiceGenerator) choiceGenerator).setMethodName(this.getMethodInfo().getFullName());
 				threadInfo.getVM().getSystemState().setNextChoiceGenerator(choiceGenerator);
-				
+
 				return this;
 			} else { // this is what really returns results
 				choiceGenerator = threadInfo.getVM().getSystemState().getChoiceGenerator();
@@ -58,7 +58,7 @@ public class IF_ICMPLE extends gov.nasa.jpf.jvm.bytecode.IF_ICMPLE {
 
 			int integerValue1 = stackFrame.pop();
 			int integerValue2 = stackFrame.pop();
-			
+
 			PathCondition pathCondition;
 
 			// pc is updated with the pc stored in the choice generator above
@@ -113,7 +113,7 @@ public class IF_ICMPLE extends gov.nasa.jpf.jvm.bytecode.IF_ICMPLE {
 					// System.out.println(((PCChoiceGenerator)
 					// cg).getCurrentPC());
 				}
-				
+
 				return getNext(threadInfo);
 			}
 		}

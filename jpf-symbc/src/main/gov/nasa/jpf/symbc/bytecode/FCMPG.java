@@ -36,10 +36,10 @@ public class FCMPG extends gov.nasa.jpf.jvm.bytecode.FCMPG {
 	public Instruction execute(ThreadInfo threadInfo) {
 		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
 
-		RealExpression symValue1 = (RealExpression) stackFrame.getOperandAttr(0);
-		RealExpression symValue2 = (RealExpression) stackFrame.getOperandAttr(1);
+		RealExpression symFloatValue1 = (RealExpression) stackFrame.getOperandAttr(0);
+		RealExpression symFloatValue2 = (RealExpression) stackFrame.getOperandAttr(1);
 
-		if (symValue1 == null && symValue2 == null) { // both conditions are
+		if (symFloatValue1 == null && symFloatValue2 == null) { // both conditions are
 														// concrete
 			return super.execute(threadInfo);
 		} else { // at least one condition is symbolic
@@ -51,7 +51,7 @@ public class FCMPG extends gov.nasa.jpf.jvm.bytecode.FCMPG {
 				((PCChoiceGenerator) choiceGenerator).setOffset(this.position);
 				((PCChoiceGenerator) choiceGenerator).setMethodName(this.getMethodInfo().getFullName());
 				threadInfo.getVM().getSystemState().setNextChoiceGenerator(choiceGenerator);
-				
+
 				return this;
 			} else { // this is what really returns results
 				choiceGenerator = threadInfo.getVM().getSystemState().getChoiceGenerator();
@@ -74,47 +74,47 @@ public class FCMPG extends gov.nasa.jpf.jvm.bytecode.FCMPG {
 			assert pathCondition != null;
 
 			if (conditionValue == -1) {
-				if (symValue1 != null) {
-					if (symValue2 != null) {  // both are symbolic values
-						pathCondition._addDet(Comparator.LT, symValue2, symValue1);
+				if (symFloatValue1 != null) {
+					if (symFloatValue2 != null) { // both are symbolic values
+						pathCondition._addDet(Comparator.LT, symFloatValue2, symFloatValue1);
 					} else {
-						pathCondition._addDet(Comparator.LT, floatValue2, symValue1);
+						pathCondition._addDet(Comparator.LT, floatValue2, symFloatValue1);
 					}
 				} else {
-					pathCondition._addDet(Comparator.LT, symValue2, floatValue1);
+					pathCondition._addDet(Comparator.LT, symFloatValue2, floatValue1);
 				}
 
-				if (!pathCondition.simplify()) {  // not satisfiable
+				if (!pathCondition.simplify()) { // not satisfiable
 					threadInfo.getVM().getSystemState().setIgnored(true);
 				} else {
 					((PCChoiceGenerator) choiceGenerator).setCurrentPC(pathCondition);
 				}
 			} else if (conditionValue == 0) {
-				if (symValue1 != null) {
-					if (symValue2 != null) {  // both are symbolic values
-						pathCondition._addDet(Comparator.EQ, symValue1, symValue2);
+				if (symFloatValue1 != null) {
+					if (symFloatValue2 != null) { // both are symbolic values
+						pathCondition._addDet(Comparator.EQ, symFloatValue1, symFloatValue2);
 					} else {
-						pathCondition._addDet(Comparator.EQ, symValue1, floatValue2);
+						pathCondition._addDet(Comparator.EQ, symFloatValue1, floatValue2);
 					}
 				} else {
-					pathCondition._addDet(Comparator.EQ, floatValue1, symValue2);
+					pathCondition._addDet(Comparator.EQ, floatValue1, symFloatValue2);
 				}
-				if (!pathCondition.simplify()) {  // not satisfiable
+				if (!pathCondition.simplify()) { // not satisfiable
 					threadInfo.getVM().getSystemState().setIgnored(true);
 				} else {
 					((PCChoiceGenerator) choiceGenerator).setCurrentPC(pathCondition);
 				}
-			} else {  // 1
-				if (symValue1 != null) {
-					if (symValue2 != null) {  // both are symbolic values
-						pathCondition._addDet(Comparator.GT, symValue2, symValue1);
+			} else { // 1
+				if (symFloatValue1 != null) {
+					if (symFloatValue2 != null) { // both are symbolic values
+						pathCondition._addDet(Comparator.GT, symFloatValue2, symFloatValue1);
 					} else {
-						pathCondition._addDet(Comparator.GT, floatValue2, symValue1);
+						pathCondition._addDet(Comparator.GT, floatValue2, symFloatValue1);
 					}
 				} else {
-					pathCondition._addDet(Comparator.GT, symValue2, floatValue1);
+					pathCondition._addDet(Comparator.GT, symFloatValue2, floatValue1);
 				}
-				if (!pathCondition.simplify()) {  // not satisfiable
+				if (!pathCondition.simplify()) { // not satisfiable
 					threadInfo.getVM().getSystemState().setIgnored(true);
 				} else {
 					((PCChoiceGenerator) choiceGenerator).setCurrentPC(pathCondition);

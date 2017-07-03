@@ -28,20 +28,17 @@ public class IINC extends gov.nasa.jpf.jvm.bytecode.IINC {
 	}
 
 	@Override
-	public Instruction execute(ThreadInfo th) {
+	public Instruction execute(ThreadInfo threadInfo) {
+		StackFrame stackFrame = threadInfo.getModifiableTopFrame();
 
-		StackFrame sf = th.getModifiableTopFrame();
-
-		IntegerExpression sym_v = (IntegerExpression) sf.getLocalAttr(index);
-		if (sym_v == null) {
+		IntegerExpression symInteger = (IntegerExpression) stackFrame.getLocalAttr(index);
+		if (symInteger == null) {
 			// we'll do the concrete execution
-			return super.execute(th);
-		} else { //(sym_v != null)
-			sf.setLocalVariable(index, 0, false);// maybe not necessary
-			sf.setLocalAttr(index, sym_v._plus(increment));
-			//System.out.println("IINC "+sf.getLocalAttr(index));
+			return super.execute(threadInfo);
+		} else {
+			stackFrame.setLocalVariable(index, 0, false);  // maybe not necessary
+			stackFrame.setLocalAttr(index, symInteger._plus(increment));
 		}
-		return getNext(th);
+		return getNext(threadInfo);
 	}
-
 }

@@ -246,8 +246,11 @@ public class BytecodeUtils {
 				return new InstructionOrSuper(false, invInst);
 			} else { // this is what really returns results
 				choiceGenerator = threadInfo.getVM().getChoiceGenerator();
-				if (!(choiceGenerator instanceof PCChoiceGenerator)) // the choice comes from
-														// super
+				if (!(choiceGenerator instanceof PCChoiceGenerator)) // the
+																		// choice
+																		// comes
+																		// from
+					// super
 					return new InstructionOrSuper(true, null);
 			}
 
@@ -268,8 +271,10 @@ public class BytecodeUtils {
 			Map<String, Expression> expressionMap = new HashMap<String, Expression>();
 
 			// take care of the method arguments
-			StackFrame stackFrame = threadInfo.getModifiableTopFrame();// get a hold of
-																// the
+			StackFrame stackFrame = threadInfo.getModifiableTopFrame();// get a
+																		// hold
+																		// of
+			// the
 			// stack frame of the
 			// caller
 
@@ -283,7 +288,7 @@ public class BytecodeUtils {
 			String lazy[] = conf.getStringArray("symbolic.lazy");
 			String symArrays[] = conf.getStringArray("symbolic.arrays");
 			boolean symArray = false;
-			
+
 			if (symArrays != null) {
 				symArray = symArrays[0].equalsIgnoreCase("true");
 			}
@@ -365,12 +370,13 @@ public class BytecodeUtils {
 							stackFrame.setOperandAttr(stackIdx, sym_v);
 							outputString = outputString.concat(" " + sym_v + ",");
 
-							PCChoiceGenerator prev_cg = choiceGenerator.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
+							PCChoiceGenerator prevChoiceGenerator = choiceGenerator
+									.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
 							PathCondition pc;
-							if (prev_cg == null)
+							if (prevChoiceGenerator == null)
 								pc = new PathCondition();
 							else
-								pc = ((PCChoiceGenerator) prev_cg).getCurrentPC();
+								pc = ((PCChoiceGenerator) prevChoiceGenerator).getCurrentPC();
 
 							pc._addDet(Comparator.GE, sym_v.length, new IntegerConstant(0));
 							((PCChoiceGenerator) choiceGenerator).setCurrentPC(pc);
@@ -396,12 +402,13 @@ public class BytecodeUtils {
 							stackFrame.setOperandAttr(stackIdx, sym_v);
 							outputString = outputString.concat(" " + sym_v + ",");
 
-							PCChoiceGenerator prev_cg = choiceGenerator.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
+							PCChoiceGenerator prevChoiceGenerator = choiceGenerator
+									.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
 							PathCondition pc;
-							if (prev_cg == null)
+							if (prevChoiceGenerator == null)
 								pc = new PathCondition();
 							else
-								pc = ((PCChoiceGenerator) prev_cg).getCurrentPC();
+								pc = ((PCChoiceGenerator) prevChoiceGenerator).getCurrentPC();
 
 							pc._addDet(Comparator.GE, sym_v.length, new IntegerConstant(0));
 							((PCChoiceGenerator) choiceGenerator).setCurrentPC(pc);
@@ -427,12 +434,13 @@ public class BytecodeUtils {
 							stackFrame.setOperandAttr(stackIdx, sym_v);
 							outputString = outputString.concat(" " + sym_v + ",");
 
-							PCChoiceGenerator prev_cg = choiceGenerator.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
+							PCChoiceGenerator prevChoiceGenerator = choiceGenerator
+									.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
 							PathCondition pc;
-							if (prev_cg == null)
+							if (prevChoiceGenerator == null)
 								pc = new PathCondition();
 							else
-								pc = ((PCChoiceGenerator) prev_cg).getCurrentPC();
+								pc = ((PCChoiceGenerator) prevChoiceGenerator).getCurrentPC();
 
 							pc._addDet(Comparator.GE, sym_v.length, new IntegerConstant(0));
 							((PCChoiceGenerator) choiceGenerator).setCurrentPC(pc);
@@ -456,7 +464,8 @@ public class BytecodeUtils {
 							ElementInfo eiArray = (ElementInfo) argValues[j];
 							// If the type name contains [] but wasn't catched
 							// previously, it is an object array
-							ArrayExpression sym_v = new ArrayExpression(threadInfo.getElementInfo(stackFrame.peek()).toString(),
+							ArrayExpression sym_v = new ArrayExpression(
+									threadInfo.getElementInfo(stackFrame.peek()).toString(),
 									argTypes[j].substring(0, argTypes[j].length() - 2));
 							// We remove the [] at the end of the type to keep
 							// only the type of the object
@@ -464,12 +473,13 @@ public class BytecodeUtils {
 							stackFrame.setOperandAttr(stackIdx, sym_v);
 							outputString = outputString.concat(" " + sym_v + ",");
 
-							PCChoiceGenerator prev_cg = choiceGenerator.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
+							PCChoiceGenerator prevChoiceGenerator = choiceGenerator
+									.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
 							PathCondition pc;
-							if (prev_cg == null)
+							if (prevChoiceGenerator == null)
 								pc = new PathCondition();
 							else
-								pc = ((PCChoiceGenerator) prev_cg).getCurrentPC();
+								pc = ((PCChoiceGenerator) prevChoiceGenerator).getCurrentPC();
 
 							pc._addDet(Comparator.GE, sym_v.length, new IntegerConstant(0));
 							((PCChoiceGenerator) choiceGenerator).setCurrentPC(pc);
@@ -605,16 +615,17 @@ public class BytecodeUtils {
 				// TODO: should still look at prev pc if we want to generate
 				// test sequences
 				// here we should get the prev pc
-				assert (choiceGenerator instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got: " + choiceGenerator;
-				ChoiceGenerator<?> prev_cg = choiceGenerator.getPreviousChoiceGenerator();
-				while (!((prev_cg == null) || (prev_cg instanceof PCChoiceGenerator))) {
-					prev_cg = prev_cg.getPreviousChoiceGenerator();
+				assert (choiceGenerator instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got: "
+						+ choiceGenerator;
+				ChoiceGenerator<?> prevChoiceGenerator = choiceGenerator.getPreviousChoiceGenerator();
+				while (!((prevChoiceGenerator == null) || (prevChoiceGenerator instanceof PCChoiceGenerator))) {
+					prevChoiceGenerator = prevChoiceGenerator.getPreviousChoiceGenerator();
 				}
 
-				if (prev_cg == null)
+				if (prevChoiceGenerator == null)
 					pc = new PathCondition();
 				else
-					pc = ((PCChoiceGenerator) prev_cg).getCurrentPC();
+					pc = ((PCChoiceGenerator) prevChoiceGenerator).getCurrentPC();
 
 				assert pc != null;
 

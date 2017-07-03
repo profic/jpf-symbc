@@ -114,7 +114,7 @@ public class ALOAD extends gov.nasa.jpf.jvm.bytecode.ALOAD {
 
 			thisHeapChoiceGenerator = new HeapChoiceGenerator(numSymRefs + increment); // +null,new
 			threadInfo.getVM().setNextChoiceGenerator(thisHeapChoiceGenerator);
-			
+
 			return this;
 		} else {
 			// this is what returns the results
