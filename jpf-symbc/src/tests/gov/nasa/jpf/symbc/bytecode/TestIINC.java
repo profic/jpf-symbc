@@ -1,61 +1,29 @@
 package gov.nasa.jpf.symbc.bytecode;
 
-import gov.nasa.jpf.vm.Instruction;
-import gov.nasa.jpf.vm.KernelState;
-import gov.nasa.jpf.vm.SingleProcessVM;
-import gov.nasa.jpf.vm.StackFrame;
-import gov.nasa.jpf.vm.SystemState;
-import gov.nasa.jpf.vm.ThreadInfo;
-import gov.nasa.jpf.vm.VM;
-import gov.nasa.jpf.Config;
-import gov.nasa.jpf.jvm.JVMStackFrame;
-import gov.nasa.jpf.util.test.TestJPF;
+import gov.nasa.jpf.symbc.numeric.SymbolicInteger;
 
 import org.junit.Test;
 
-public class TestIINC extends TestJPF {
-	private class MockThreadInfo extends ThreadInfo {
-		public MockThreadInfo(VM vm) {
-			super(vm, 0, null);
-		}
-		
-		@Override
-		public void init(VM vm) {
-		}
-	}
-	
-	private class MockSystemState extends SystemState {
-		public MockSystemState() {
-			super();
-		}
-	}
-	
-	private class MockVM extends SingleProcessVM {
-		public MockVM() {
-			super();
-			this.ss = new MockSystemState();
-			// initFields(null);
-		}
+import static org.junit.Assert.*;
+
+public class TestIINC extends TestBytecode {
+
+	@Test
+	public void executeWithConcreteShouldIncreaseVariableOnStack() {
+		stackFrame.setLocalVariable(0, 2);
+		IINC iinc = new IINC(0, 1);
+		iinc.execute(threadInfo);
+
+		assertEquals(stackFrame.getLocalVariable(0), 3);
 	}
 
 	@Test
-	public void executeWithConcrete() {
-		IINC iinc;
-		VM vm = new MockVM();
-		ThreadInfo threadInfo = new MockThreadInfo(vm);
-		Instruction dummyInstruction = new Instruction() {
-			@Override
-			public Instruction execute(ThreadInfo threadInfo) {
-				return null;
-			}
-			
-			@Override
-			public int getByteCode() {
-				return 0;
-			}
-		};
-		threadInfo.setNextPC(dummyInstruction);
-		StackFrame stackFrame = new JVMStackFrame(null);
-		threadInfo.pushFrame(stackFrame);
+	public void executeWithSymbolicShouldSetPlusAttribute() {
+		SymbolicInteger symInteger = new SymbolicInteger();
+		stackFrame.setLocalAttr(0, symInteger);
+		IINC iinc = new IINC(0, 1);
+		iinc.execute(threadInfo);
+
+		assertEquals(symInteger._plus(1), stackFrame.getLocalAttr(0));
 	}
 }

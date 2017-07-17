@@ -18,30 +18,38 @@
 
 package gov.nasa.jpf.symbc;
 
-public class ExSymExe5 {
+import org.junit.Test;
+
+/*
+ * test IINC & IFLE bytecodes (Note: javac compiles ">" to IFLE)
+ */
+public class TestIINCAndIFLE2 extends InvokeTest {
+
+	private static final String SYM_METHOD = "+symbolic.method=gov.nasa.jpf.symbc.TestIINCAndIFLE2.test(sym#sym)";
+	private static final String[] JPF_ARGS = { INSN_FACTORY, SYM_METHOD };
+
+	public static void main(String[] args) {
+		runTestsOfThisClass(args);
+	}
+
+	@Test
+	public void mainTest() {
+		if (verifyNoPropertyViolation(JPF_ARGS)) {
+			test(3, 5);
+		}
+	}
 	
-  public static void main (String[] args) {
-	  int x = 3;
-	  int y = 5;
-	  ExSymExe5 inst = new ExSymExe5();
-	  inst.test(x, y);
-  }
-
-  /*
-   * test IADD & IFLT bytecodes (Note: javac compiles ">=" to IFLT)
-   */
-  public void test (int x, int z) {
-	  System.out.println("Testing ExSymExe5");
-	  int y = 3;
-	  z = x + y + 4;
-	  if (z >= 0)
-		  System.out.println("branch FOO1");
-	  else
-		  System.out.println("branch FOO2");
-	  if (y >= 0)
-		  System.out.println("branch BOO1");
-	  else
-		  System.out.println("branch BOO2");
-  }
+	public void test(int x, int z) {
+		System.out.println("Testing TestIINCAndIFLE2");
+		z++;
+		x = ++z;
+		if (x > 0)
+			System.out.println("branch FOO1");
+		else
+			System.out.println("branch FOO2");
+		if (z > 0) 
+			System.out.println("branch BOO1");
+		else 
+			System.out.println("branch BOO2");
+	}
 }
-

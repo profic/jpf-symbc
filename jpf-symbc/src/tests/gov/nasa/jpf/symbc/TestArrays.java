@@ -18,30 +18,32 @@
 
 package gov.nasa.jpf.symbc;
 
-public class ExSymExe7 {
-	
-  public static void main (String[] args) {
-	  int x = 3;
-	  int y = 5;
-	  ExSymExe7 inst = new ExSymExe7();
-	  inst.test(x, y);
-  }
+import org.junit.Test;
 
-  /*
-   * test IFEQ (and ISUB) bytecodes (Note: javac compiles "!=" to IFEQ)
-   */
-  public void test (int x, int z) {
-	  System.out.println("Testing ExSymExe7");
-	  int y = 3;
-	  z = x- y - 4;
-	  if (z != 0)
-		  System.out.println("branch FOO1");
-	  else
-		  System.out.println("branch FOO2");
-	  if (y != 0)
-		  System.out.println("branch BOO1");
-	  else
-		  System.out.println("branch BOO2");
-  }
+public class TestArrays extends InvokeTest {
+	static int[] a;
+
+	private static final String SYM_METHOD = "+symbolic.method=gov.nasa.jpf.symbc.TestArrays.test(sym)";
+	private static final String[] JPF_ARGS = { INSN_FACTORY, SYM_METHOD };
+
+	public static void main(String[] args) {
+		runTestsOfThisClass(args);
+	}
+
+	@Test
+	public void mainTest() {
+		if (verifyNoPropertyViolation(JPF_ARGS)) {
+			a = new int[1];
+			int x = -3;
+			test(x);
+		}
+	}
+
+	public void test(int x) {
+		a[0] = x;
+		if (a[0] >= 0)
+			System.out.println("branch1 >= 0");
+		else
+			System.out.println("branch2 < 0");
+	}
 }
-

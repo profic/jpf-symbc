@@ -34,7 +34,7 @@ public class TestSwitch extends InvokeTest{
 //		default: System.out.println("default: "); break;
 //		}
 		switch (y) {
-//		case Y1: System.out.println(1); break;
+		case Y1: System.out.println(1);// break;
 		case Y2: System.out.println(2); break;
 		default: System.out.println("default: "); break;
 		}
